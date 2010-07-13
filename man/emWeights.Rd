@@ -3,7 +3,7 @@
 
 \title{Calculate weights}
 \description{
-  Calculates weights for Record Linkage based on the EM algorithm.
+  Calculates weights for Record Linkage based on an EM algorithm.
 }
 \usage{
 emWeights(rpairs, cutoff = 0.95, ...)
@@ -11,7 +11,8 @@ emWeights(rpairs, cutoff = 0.95, ...)
 \arguments{
   \item{rpairs}{\code{\link{RecLinkData}} object. The record pairs for which to
     compute weights.}
-  \item{cutoff}{Numeric value between 0 and 1. Cutoff value for string comparator.}
+  \item{cutoff}{Either a numeric value in the range [0,1] or a vector with the same 
+  length as the number of attributes in the data. Cutoff value for string comparator.}
   \item{\dots}{Additional arguments for \code{\link{mygllm}}.}
 }
 \details{
@@ -22,7 +23,7 @@ emWeights(rpairs, cutoff = 0.95, ...)
   values greater or equal \code{cutoff} are set to one, all other to zero.
   The resulting weight is adjusted by adding for every pair
   \eqn{\log_{2}\left(\prod_{j:s^{i}_{j}\geq \textit{cutoff }}s^{i}_{j}\right)}{
-  log(prod(s[i,s[i,]>=cutoff]), base = 2)}, where
+  log(prod(s[i,s[i,]>=cutoff_j]), base = 2)}, where
   \eqn{s^{i}_{j}}{s[i,j]} is the value of the string metric for attribute j in 
   data pair i.
   
@@ -54,7 +55,7 @@ emWeights(rpairs, cutoff = 0.95, ...)
   in the Fellegi-Sunter Model of Record Linkage, in: Proceedings of the Section 
   on Survey Research Methods, American Statistical Association 1988, 
   pp. 667--671.}
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 \seealso{\code{\link{emClassify}} for classification of weighted pairs.}
 
 \keyword{classif}

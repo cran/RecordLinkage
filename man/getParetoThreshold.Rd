@@ -8,7 +8,7 @@
 }
 \description{
   Calculates a classification threshold based on a generalized Pareto 
-  distribution (GPD) fitted to the weights of the given data pairs.
+  distribution (GPD) fitted to the weights distribution of the given data pairs.
 }
 
 \usage{
@@ -31,32 +31,29 @@ getParetoThreshold(rpairs, quantil = 0.95, interval = NA)
 }
 
 \details{
-  This threshold calculation is based on the assumption that weights in
-  the `middle' range (the region of 'possible links' in classical Record 
-  Linkage) form a `fat tail' and can be fitted to a generalized Pareto 
-  distribution (GPD). The limits of the interval which is subject to
+  This threshold calculation is based on the assumption that the distribution 
+  of weights exihibit a `fat tail' which can be fitted by a generalized Pareto 
+  distribution (GPD). The limits of the interval which is subject to the
   fitting are usually determined by reviewing a mean residual life plot of
-  the data. If not supplied, a MRL plot is displayed from which the endpoints
-  can be selected by mouse input. If only one endpoint is selected or supplied,
-  the greater endpoint is set to the maximum weight.
+  the data. If the limits are not externally supplied, a MRL plot is displayed 
+  from which the endpoints   can be selected by mouse input. If only one endpoint 
+  is selected or supplied, the greater endpoint is set to the maximum weight.
   
   A suitable interval is characterized by a relatively long, approximately 
-  linear segment of the plot. For weights computed by \code{\link{emWeights}},
-  it is usally located around 0, for weights computed by 
-  \code{\link{epiWeights}} between \eqn{0.5} and \eqn{1}.
+  linear segment of the plot. 
 }
 
 \value{
-  The resulting threshold.
+  A classification threshold.
 }
 \references{
   Sariyar et al.: Bestimmung der False Match-Rate im Fellegi-Sunter-Modell 
-  mittels verallgemeinerte Paretoverteilung, Presentation for
+  mittels verallgemeinerter Paretoverteilung, Presentation for
   54. Jahrestagung der Deutschen Gesellschaft für Medizinische 
   Informatik, Biometrie und Epidemiologie e.V. (GMDS).
 }
 \author{
-  Andreas Borg
+  Andreas Borg, Murat Sariyar
 }
 \note{
   The quality of matching varies, poor results can occur in some cases. 

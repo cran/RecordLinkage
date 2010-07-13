@@ -8,7 +8,7 @@
 
 \title{String Metrics}
 
-\description{Functions to compute the similarity between two strings.}
+\description{Functions for computation of the similarity between two strings.}
 
 \usage{jarowinkler(str1, str2, W_1=1/3, W_2=1/3, W_3=1/3, r=0.5)
 levenshteinSim(str1, str2)
@@ -18,7 +18,7 @@ levenshteinDist(str1, str2)
 \arguments{
    \item{str1,str2}{Two character vectors to compare.}
    \item{W_1,W_2,W_3}{Adjustable weights.}
-   \item{r}{Maximum radius of transpositions, as fraction of the length of the
+   \item{r}{Maximum transposition radius. A fraction of the length of the
             shorter string.}
 }
 
@@ -33,7 +33,7 @@ levenshteinDist(str1, str2)
   \code{jarowinkler} is an implementation of the algorithm by Jaro and Winkler
   (see references). For the meaning of \code{W_1}, \code{W_2}, \code{W_3} and
   \code{r} see the referenced article. For most applications, the default
-  values are okay.
+  values are reasonable.
 
   \code{levenshteinDist} returns the Levenshtein
   distance, which cannot be directly used as a valid string comparator.
@@ -44,7 +44,7 @@ levenshteinDist(str1, str2)
   function and \eqn{A} and \eqn{B} are the lenghts of the strings.
 
   Arguments \code{str1} and \code{str2} are expected to be of type 
-  \code{"character"]}.
+  \code{"character"}.
   Non-alphabetical characters can be processed. Valid format combinations for
   the arguments are:
   \itemize{
@@ -63,8 +63,7 @@ Rules in the Fellegi-Sunter Model of Record Linkage. In: Proceedings
 of the Section on Survey Research Methods, American Statistical Association
 (1990), S. 354--369.}
 
-\author{Andreas Borg, except C code for \code{levenshteinDist}
-  taken from PHP3 library, under GPL.}
+\author{Andreas Borg, Murat Sariyar}
 
 \examples{
 # compare two strings:

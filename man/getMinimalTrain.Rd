@@ -6,7 +6,7 @@
   Create a minimal training set
 }
 \description{
-  Samples a subset of the provided data set so that every
+  Samples a subset of the provided data (comparison patterns) so that every
   comparison pattern in \code{rpairs} is represented in the subset
   at least once.
 }
@@ -29,7 +29,7 @@ getMinimalTrain(rpairs, nEx = 1)
   Our internal research has given indication that in the context of Record Linkage 
   with supervised classification procedures small training sets are often 
   sufficient, provided they cover the whole range of present comparison patterns.
-  By default, this function creates a minimal training set, that is
+  By default, this function creates a minimal training set that is
   a subset of the record pairs to be classified in which every present 
   comparison pattern is represented by exactly one training example.
   By this approach, the work to classify a training set by
@@ -44,15 +44,15 @@ getMinimalTrain(rpairs, nEx = 1)
 }
 
 \value{
-  A \code{\link{RecLinkData}} object representing the minimal training set.
+  A \code{\link{RecLinkData}} object representing a minimal comprehensive training set.
   Component \code{pairs} represents the selected training pairs.
   The corresponding values of \code{rpairs$prediction} and \code{rpairs$W}
-  are saved, if present. All other components are copied from \code{rpairs}.
+  are copied only if present. All other components are copied automatically from \code{rpairs}.
 }
 
 
 \author{
-Andreas Borg
+Andreas Borg, Murat Sariyar
 }
 \note{
   Due to the small size of the resulting training set, outliers can have a

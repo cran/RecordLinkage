@@ -40,7 +40,7 @@ epiWeights(rpairs, e = 0.01, f = rpairs$frequencies)
   for field \eqn{i}. 
   
   String comparison values are taken from the record pairs as they were
-  generated with \code{\link{compare.dedup}} or \code{\link{compare.dedup}}.
+  generated with \code{\link{compare.dedup}} or \code{\link{compare.linkage}}.
   The use of binary patterns is possible, but in general yields poor results.
   
   The average frequency of values is by default taken from the object
@@ -64,7 +64,7 @@ P. Contiero et al., The EpiLink record linkage software, in: Methods of
 Information in Medicine 2005, 44 (1), 66--71.
 }
 \author{
-Andreas Borg
+Andreas Borg, Murat Sariyar
 }
 
 \seealso{

@@ -13,13 +13,13 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
 \arguments{
   \item{rpairs}{Object of class \code{\link{RecLinkData}}. Training data.}
   \item{method}{A character vector. The classification method to use.}
-  \item{use.pred}{Logical. Whether to use result of previous classification 
+  \item{use.pred}{Logical. Whether to use results of an unsupervised classification 
     instead of true matching status.}
   \item{omit.possible}{Logical. Whether to remove pairs labeled as possible
     links or with unknown status.}
   \item{convert.na}{Logical. Whether to convert \code{NA}s to 0 in the
     comparison patterns.}
-  \item{include.data}{Logical. Whether to include training data in the result.}
+  \item{include.data}{Logical. Whether to include training data in the result object.}
   \item{\dots}{Further arguments to the training method.}
 }
 \details{
@@ -48,7 +48,7 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
   By \code{omit.possible = TRUE}, possible links or pairs with unknown status
   are excluded from the trainings set. Setting this argument to \code{FALSE}
   allows three-class-classification (links, non-links and possible links), but
-  the results are usually poor.
+  the results tend to be poor.
   
   Leaving \code{include.data=FALSE} saves memory, setting it to \code{TRUE}
   can be useful for saving the classificator while keeping track of the
@@ -63,7 +63,7 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
   \item{method}{A copy of the argument \code{method}.}
 }
 
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 
 \seealso{\code{\link{classifySupv}} for classifying with the trained model, 
   \code{\link{classifyUnsup}} for unsupervised classification}

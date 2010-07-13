@@ -5,7 +5,7 @@
 }
 \description{
   An object representing information about the classification result of a
-  Record Linkage procedure. 
+  Record Linkage procedure and the data from which this result is derived.
 }
 
 \value{
@@ -25,7 +25,7 @@
     
 }
 
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 
 \seealso{
 \code{\link{emClassify}}.

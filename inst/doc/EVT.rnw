@@ -13,20 +13,17 @@ options(width=50)
 
 
 \title{Classifying record pairs by means of Extreme Value Theory}
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 \maketitle
 
 This document is a (practical) description of a procedure
-for Record Linkage by means of Extreme Value Theory (EVT). No training data are 
-used, but user decisions are necessary
-for the selection of thresholds in a mean residual life plot. The amount of
-manual work is smaller compared to the classical Record Linkage procedure,
-where classification thresholds are set based on clerical review, and involves
-no review of record pairs.
+for Record Linkage by means of Extreme Value Theory (EVT). No labeled training data are 
+needed, but user decisions are necessary
+for the selection of thresholds in a mean residual life plot (also known as mean excess plot). 
 
 In the following, the data set \texttt{RLdata500} will be used. As
 classification with EVT is weight-based, weights have to be calculated for
-the record pairs to classify.
+the record pairs to classify. In this case an EM algorithm is applied. 
 
 <<results=hide,echo=false>>=
 library(RecordLinkage)
@@ -43,7 +40,7 @@ rpairs=emWeights(rpairs)
 
 Calling \texttt{getParetoThreshold} opens a mean residual life (MRL) plot for
 the computed weights, as shown in figure \ref{fig:mrl-plot}. From this graph,
-a suitable interval has to be selected where the graph has a relatively long
+an  interval has to be selected where the graph has a relatively long
 and approximately linear descent. Usually this can be found in the range between
 0 and 20 for weights computed with \texttt{emWeights} or between 0.5 and 0.9
 for weights computed with \texttt{epiWeights}. Figure \ref{fig:mrl-with-interval}

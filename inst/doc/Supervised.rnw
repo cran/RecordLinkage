@@ -11,7 +11,7 @@ options(width=50)
 \begin{document}
 
 \title{Example Session for Supervised Classification}
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 \maketitle
 
 This document shows an example session for using supervised classification
@@ -29,11 +29,10 @@ library(RecordLinkage)
 library(xtable)
 @
 
-For supervised classification, a training set is necessary for which the true 
-matching is known. In this session, a training set with 50 matches and 250
+In this session, a training set with 50 matches and 250
 non-matches is generated from the included data set \texttt{RLData10000}. 
-Record pairs from the set \texttt{RLData500} are used to evaluate the 
-trained classifiers.
+Record pairs from the set \texttt{RLData500} are used to calibrate and 
+subsequently evaluate the classifiers.
 <<>>=
 data(RLdata500)
 data(RLdata10000)
@@ -46,11 +45,10 @@ eval_pairs=compare.dedup(RLdata500,identity=identity.RLdata500)
 
 \section{Training}
 
-
-\texttt{trainSupv} handles training of supervised classificators, the
-method of classification is set by the argument \texttt{method}. In the
-following, a simple decision tree, a bootstrap aggregation of decision trees
-and a support vector machine are trained.
+\texttt{trainSupv} handles calibration of supervised classificators which are 
+selected through the argument \texttt{method}. In the
+following, a single decision tree (rpart), a bootstrap aggregation of decision trees
+(bagging) and a support vector machine are calibrated (svm).
 
 <<>>=
 model_rpart=trainSupv(train_pairs, method="rpart")

@@ -5,8 +5,8 @@
 \title{
   Estimate Threshold from Pareto Distribution
 }
-\description{Fits weights to a Pareto distribution and calculates a quantil
-  on the fitted model as classification threshold.  
+\description{Fits a Pareto distribution to teh distribution of weights  
+ and calculates a quantil on the fitted model as classification threshold.  
 }
 
 \usage{
@@ -29,7 +29,7 @@ gpdEst(Wdata, thresh = -Inf, quantil = 0.95)
 \details{
   The weights that exceed \code{thresh} are fitted to a 
   generalized Pareto distribution (GPD). The estimated parameters \code{shape}
-  and \code{shape} are used to calculate a classification threshold by the
+  and \code{scale} are used to calculate a classification threshold by the
   formula
   \deqn{\mathit{thresh}+\frac{\mathit{scale}}{\mathit{shape}}
     ((\frac{n}{k}(1-\mathit{quantil}))^{-\mathit{shape}} -1)}{

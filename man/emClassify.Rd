@@ -3,8 +3,8 @@
 
 \title{Weight-based Classification of Data Pairs}
 \description{
-  Classifies data pairs to which weights were assigned by \code{\link{emWeights}}
-  based on user-defined thresholds or estimated error rates.
+  Classifies data pairs to which weights were assigned by \code{\link{emWeights}}.
+  Based on user-defined thresholds or estimated error rates.
 }
 \usage{
 emClassify(rpairs, threshold.upper = Inf, 
@@ -19,7 +19,7 @@ emClassify(rpairs, threshold.upper = Inf,
   \item{threshold.lower}{A numeric value. Threshold for possible links.}
 }
 \details{
-  Two general approaches are implemented for classification. The classical procedure
+  Two general approaches are implemented. The classical procedure
   by Fellegi and Sunter (see references) minimizes the number of
   possible links with given error levels for false links (\code{my}) and
   false non-links (\code{ny}).
@@ -45,9 +45,8 @@ emClassify(rpairs, threshold.upper = Inf,
 }
 
 \note{The quality of classification of the Fellegi-Sunter method 
-  relies strongly on a good 
-  estimation of m- and u-probabilities. The results should be evaluated 
-  critically.
+  relies strongly on reasonable estimations of m- and u-probabilities. 
+  The results should be evaluated  critically.
 }
 
 \value{
@@ -61,7 +60,7 @@ emClassify(rpairs, threshold.upper = Inf,
   in: Journal of the American Statistical Association Vol. 64, No. 328 
   (Dec., 1969), pp. 1183--1210.}
 
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 
 \seealso{\code{\link{getPairs}} to produce output from which thresholds can
   be determined conveniently.}

@@ -17,9 +17,8 @@ epiClassify(rpairs, threshold.upper, threshold.lower = threshold.upper)
 \arguments{
   \item{rpairs}{
     \code{\link{RecLinkData}} object. Record pairs to be classified.}
-  \item{threshold.upper}{A numeric value between 0 and 1. Threshold for links.}
-  \item{threshold.lower}{A numeric value between 0 and 1. Threshold for 
-    possible links.}
+  \item{threshold.upper}{A numeric value between 0 and 1. }
+  \item{threshold.lower}{A numeric value between 0 and 1 lower than \code{threshold.upper}}
 }
 
 \details{
@@ -36,9 +35,7 @@ epiClassify(rpairs, threshold.upper, threshold.lower = threshold.upper)
   component \code{prediction}, otherwise a copy of \code{rpairs}.
 }
 
-\author{
-  Andreas Borg
-}
+\author{Andreas Borg, Murat Sariyar}
 
 \seealso{
   \code{\link{epiWeights}}

@@ -4,7 +4,7 @@
 \title{Generalized Log-Linear Fitting}
 
 \description{
-  Fits a log-linear model for incomplete contingency tables.
+  Fits a log-linear model for collapsed contingency tables.
 }
 \usage{
 mygllm(y, s, X, maxit = 1000, tol = 1e-05, E = rep(1, length(s)))
@@ -38,7 +38,7 @@ mygllm(y, s, X, maxit = 1000, tol = 1e-05, E = rep(1, length(s)))
             David Duffy: gllm: Generalised log-linear model. R package
             version 0.31. see \url{http://www.qimr.edu.au/davidD/#loglin}}
 
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 
 \seealso{\code{\link{emWeights}}, which makes use of log-linear fitting for
   weight calculation.}

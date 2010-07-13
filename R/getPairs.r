@@ -113,10 +113,13 @@ editMatch <- function (rpairs)
       data1=rpairs$data1
       data2=rpairs$data2
   }
+  # get number of columns depending on type (linkage or dedup)
+  numCol <- switch(rpairs$type, deduplication = ncol(rpairs$data),
+         linkage = ncol(rpairs$data1))
   p=data.frame(data1[rpairs$pairs[,1],],
                    data2[rpairs$pairs[,2],],
                    matrix("",nrow=nrow(rpairs$pairs),
-                      ncol=ncol(rpairs$data)))
+                      ncol=numCol))
 
   # die komplizierten Umwandlungen sind so begründet: Um in der Spalte
   # "is_match" Leerzeichen zu haben (ein Wert bezieht sich immer auf zwei

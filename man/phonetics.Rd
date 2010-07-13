@@ -18,11 +18,11 @@ soundex(str)
   \item{str}{A character vector or matrix. Factors are converted to character.}
 }
 \details{
-  Translates its argument to a phonetic coding. \code{pho_h}
+  Translates its argument to a phonetic code. \code{pho_h}
   by \enc{Jörg}{Joerg} Michael (see references) is intended for German language 
   and normalizes umlauts and accent characters.
-  \code{soundex} is a common algorithm for English names. This implementation
-  can only handle ordinary characters. Both algorithms strip off 
+  \code{soundex} is a widespread algorithm for English names. This implementation
+  can only handle common characters. Both algorithms strip off 
   non-alphabetical characters, with the exception that numbers are left
   unchanged by \code{pho_h}.
   

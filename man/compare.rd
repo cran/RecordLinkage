@@ -45,7 +45,7 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
 
 \value{An object of class \code{RecLinkPairs} with the following components:
   \item{data}{Copy of the records, converted to a data frame.}
-  \item{pairs}{Generated comparision patterns.}
+  \item{pairs}{Generated comparison patterns.}
   \item{frequencies}{For each column included in \code{pairs}, the average
     frequency of values (reciprocal of number of distinct values).}   
 }
@@ -77,7 +77,7 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   
   As an alternative to blocking, a determined number of \code{n_match} matches 
   and \code{n_non_match} non-matches can be drawn if \code{identity} or
-  \code{identity1} and \code{identity2} are supplied. This can be useful for
+  \code{identity1} and \code{identity2} are supplied. This is relevant for
   generating training sets for the supervised classificators (see 
   \code{\link{trainSupv}}).
   
@@ -86,10 +86,10 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   external identifiers. Excluded fields can still be used for
   blocking, also with phonetic code.
   
-  Phonetic codes and string similarity measures are supported for better 
-  detection of misspelled data. Applying a phonetic code leads to a binary
-  comparison value, where 1 denotes equality of the generated phonetic code.
-  A string comparator leads to a fuzzy similarity value in the range \eqn{[0,1]}.
+  Phonetic codes and string similarity measures are supported for enhanced 
+  detection of misspellings. Applying a phonetic code leads to a binary
+   values, where 1 denotes equality of the generated phonetic code.
+  A string comparator leads to a similarity value in the range \eqn{[0,1]}.
   String comparison is not allowed on a field for which a phonetic code
   is generated. For phonetic encoding functions included in the package, 
   see \link{phonetics}. For the included string comparators, see 
@@ -115,7 +115,7 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
 %-  \code{\link{genSamples}} for automatic generation of training data.
 }
 
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 
 \examples{
 data(RLdata500)
@@ -127,7 +127,7 @@ rpairs=compare.dedup(RLdata500,strcmp=1:4)
 # code on first components of first and last name
 rpairs=compare.linkage(RLdata500,RLdata10000,blockfld=c(1,7),phonetic=c(1,3))
 # deduplication with blocking on either last name or complete date of birth,
-# use string comparator on all fields, include real identity information
+# use string comparator on all fields, include identity information
 rpairs=compare.dedup(RLdata500, identity=identity.RLdata500, strcmp=TRUE,
   blockfld=list(1,c(5,6,7)))
 # Draw 100 matches and 1000 non-matches

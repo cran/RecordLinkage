@@ -10,7 +10,7 @@
 unorderedPairs(x)
 }
 \arguments{
-  \item{x}{Either an arbitrary vector or a natural number}
+  \item{x}{Either an arbitrary vector of literals or a natural number}
 }
 \details{
   If \code{x} has length one, all unordered pairs of the first \code{x}

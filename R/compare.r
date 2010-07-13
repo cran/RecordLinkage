@@ -1,5 +1,18 @@
 # compare.r: Functions to group records to pairs.
 
+# helper function, for internal use
+makeBlockingPairs <- function(id_vec)
+{
+ # if list is empty, return empty matrix
+ if (length(id_vec)==0)
+    return (matrix(nrow=0, ncol=2))
+ nPairs=sum(sapply(id_vec, function(x) length(x)* (length(x)-1) * 0.5))
+ ret <- .C("makeBlockingPairs",id_vec, length(id_vec), 
+   pairs=matrix(0L,nrow=nPairs, ncol=2), as.integer(nPairs),
+   PACKAGE="RecordLinkage")
+ return(ret$pairs)
+}
+
 compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
                     phonfun=pho_h, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
                     identity=NA, n_match=NA, n_non_match=NA)
@@ -207,15 +220,12 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
       rm(block_data)
      id_vec=tapply(1:ndata,blockstr,function(x) if(length(x)>1) return(x))
      id_vec=delete.NULLs(id_vec)
-     id_vec=lapply(id_vec,unorderedPairs)
-     id_vec=unlist(id_vec)
-#     id_vec=unlist(lapply(delete.NULLs(tapply(1:ndata,blockstr,function(x) if(length(x)>1) return(x))),unorderedPairs))
-
+     id_vec=makeBlockingPairs(id_vec)
       rm(blockstr)
       # reshape vector and attach to matrix of record pairs
-      if (!is.null(id_vec))
-       pair_ids=rbind(pair_ids,matrix(id_vec,nrow=length(id_vec)/2,ncol=2,byrow=TRUE))
-       rm(id_vec)
+      if (nrow(id_vec)>0)
+       pair_ids=rbind(pair_ids,id_vec)
+      rm(id_vec)
     }
    } # end else
     

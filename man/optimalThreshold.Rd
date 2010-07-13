@@ -13,14 +13,14 @@ optimalThreshold(rpairs, my = NaN, ny = NaN)
 }
 \arguments{
   \item{rpairs}{
-    \code{\link{RecLinkData}} object. Record Pairs for which to calculate
+    \code{\link{RecLinkData}} object. Record pairs for which to calculate
     a threshold.
 }
   \item{my}{
-    A probability. Error bound for false posicives.
+    A real value in the range [0,1]. Error bound for false positives.
 }
   \item{ny}{
-    A probability. Error bound for false negatives.
+    A real value in the range [0,1]. Error bound for false negatives.
 }
 }
 \details{
@@ -50,7 +50,7 @@ optimalThreshold(rpairs, my = NaN, ny = NaN)
 }
 
 \author{
-  Andreas Borg
+  Andreas Borg, Murat Sariyar
 }
 
 \seealso{

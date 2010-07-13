@@ -13,8 +13,7 @@ getPairs(rpairs, max.weight = Inf, min.weight = -Inf,
 \arguments{
   \item{rpairs}{A \code{\link{RecLinkResult}} or \code{\link{RecLinkData}}
     object.}
-  \item{max.weight, min.weight}{Real numbers. Upper and lower
-    output threshold.}
+  \item{max.weight, min.weight}{Real numbers. Upper and lower threshold.}
   \item{single.rows}{Logical. Wether to print record pairs in one row instead 
     of two consecutive rows.}
   \item{show}{Selects which records to show, one of \code{"links"}, 
@@ -31,11 +30,11 @@ getPairs(rpairs, max.weight = Inf, min.weight = -Inf,
   \code{rpairs$Wdata < max.weight & rpairs$Wdata >= min.weight}
   are returned.
   
-  Further selection can be made by \code{show} to include all data pairs,
+  The selection can be customized by \code{show} to include all data pairs,
   only links, only non-links or only possible links.
   
   If \code{single.rows} is not \code{TRUE}, pairs are output on two consecutive
-  lines to enable easy comparison. All data are converted to character, which 
+  lines in order to enhance a manual review. All data are converted to character, which 
   can lead to a loss of precision for numeric values. 
   Therefore, two row-format should be used  for printing only.
 }
@@ -49,8 +48,8 @@ getPairs(rpairs, max.weight = Inf, min.weight = -Inf,
   followed by id and data fields of the first record, each even row a blank 
   field followed by id and data fields of the second record.
 }
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 
-\seealso{\code{\link{RecLinkResult}}, \code{\link{RecLinkResult}}}
+\seealso{\code{\link{RecLinkResult}}, \code{\link{RecLinkData}}}
 
 \keyword{classif}

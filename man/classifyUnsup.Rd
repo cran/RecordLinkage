@@ -3,7 +3,7 @@
 
 \title{Unsupervised Classification}
 \description{
-  Classify records with unsupervised clustering methods.
+  Classify record pairs with unsupervised clustering methods.
 }
 
 \usage{
@@ -18,9 +18,10 @@ classifyUnsup(rpairs, method, ...)
   \item{\dots}{Further arguments for the classification method}
 }
 \details{
-  A clustering algorithm is applied to find two clusters in the record pairs. 
-  The cluster further from the origin (i.e. representing higher similarity values) is
-  interpreted as the set of links, the other as the set of non-links.
+  A clustering algorithm is applied to find clusters in the record pairs. In the 
+  case of   two clusters (the default), the cluster further from the origin 
+  (i.e. representing higher similarity values) is   interpreted as the set of links, 
+  the other as the set of non-links.
   
   Supported methods are:
   \describe{
@@ -35,7 +36,7 @@ classifyUnsup(rpairs, method, ...)
   \code{rpairs}.
 }
 
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 
 \seealso{\code{\link{trainSupv}} and \code{\link{classifySupv}} for supervised
   classification.}
@@ -43,9 +44,9 @@ classifyUnsup(rpairs, method, ...)
 \examples{
 # Classification with bclust
 data(RLdata500)
-pairs=compare.dedup(RLdata500, identity=identity.RLdata500,
+rpairs=compare.dedup(RLdata500, identity=identity.RLdata500,
                     blockfld=list(1,3,5,6,7))
-result=classifyUnsup(pairs,method="bclust")
+result=classifyUnsup(rpairs,method="bclust")
 summary(result)                    
 }
 

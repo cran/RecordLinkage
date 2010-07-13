@@ -29,7 +29,7 @@ use.pred = FALSE)
 
   The sampled data are stored in the \code{pairs} attributes of \code{train} 
   and \code{valid}. If present, the attributes \code{prediction} and \code{Wdata} 
-  are split and the corresponding fractions saved. All other attributes are
+  are split and the corresponding values saved. All other attributes are
   copied to both data sets.
   
   If the number of desired matches or non-matches is higher than the number
