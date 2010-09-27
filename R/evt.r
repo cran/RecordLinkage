@@ -70,19 +70,28 @@ getParetoThreshold <- function(rpairs, quantil=0.95, interval=NA)
   l=mrl(rpairs$Wdata)
   if (!is.numeric(interval))
   {
-    plotMRL(NULL,l=l)
-    title(main=rpairs$description)
-    message("Choose interval for pareto distribution")
-    bringToTop()
-    indices=sort(identify(l$x,l$y,n=2,labels=signif(l$x,4)))
+    message("Choose interval for pareto distribution")    
+    flush.console()
+    repeat
+    {
+      plotMRL(NULL,l=l)
+      title(main=rpairs$description)
+      bringToTop()
+      indices=sort(identify(l$x,l$y,n=2,labels=signif(l$x,4)))
+      interval=l$x[indices]
+      if (length(indices)==0)
+        stop("At least the left endpoint of the interval must be chosen!")
+      if (length(interval)==1)
+        interval=c(interval,max(rpairs$Wdata))
+      if (any(rpairs$Wdata > interval[1] & rpairs$Wdata <=interval[2])) break
+      message("No data in selected range! Choose a larger interval.")
+      flush.console()
+    }
     bringToTop(-1)
     if (length(indices)==0)
       stop("At least the left endpoint of the interval must be chosen!")
-    interval=l$x[indices]
   }
   # Wenn nur der linke Rand ausgewählt wurde, bleibt der rechte offen
-  if (length(interval)==1)
-    interval=c(interval,max(rpairs$Wdata))
   fatTail=rpairs$Wdata[rpairs$Wdata <= interval[2]]
   threshold=gpdEst(fatTail,interval[1],quantil)  
   return(as.vector(threshold))

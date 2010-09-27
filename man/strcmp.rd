@@ -58,6 +58,10 @@ levenshteinDist(str1, str2)
   integer vector.
 }
 
+\note{String comparison is case-sensitive, which means that for example
+\code{"R"} and \code{"r"} have a similarity of 0. If this behaviour is undesired,
+strings should be normalized before processing.}
+
 \references{Winkler, W.E.: String Comparator Metrics and Enhanced Decision
 Rules in the Fellegi-Sunter Model of Record Linkage. In: Proceedings
 of the Section on Survey Research Methods, American Statistical Association

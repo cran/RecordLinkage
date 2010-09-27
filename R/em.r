@@ -31,7 +31,8 @@ emWeights <- function (rpairs, cutoff=0.95,...)
   {
       if(length(cutoff)==1 || length(cutoff)==ncol(pairs)){
       	pairs_fuzzy=pairs
-      	pairs=as.array((pairs>=cutoff)*1)
+      	cutoff <- matrix(cutoff, ncol=ncol(pairs), nrow=nrow(pairs), byrow=TRUE)
+      	pairs=(pairs>=cutoff)*1
 	}
 	else {
 	 stop("Cutoff must be a vector with length equal to the number of attributes or to one!")

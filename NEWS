@@ -1,0 +1,6 @@
+Changes in version 0.2-3
+
+  - getParetoThreshold now prompts a message if no data lies in the
+    interactively selected interval and asks the user to choose again
+  - Corrected maintainer e-mail address
+  - Several bug fixes 
