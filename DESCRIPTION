@@ -1,5 +1,5 @@
 Package: RecordLinkage
-Version: 0.2-3
+Version: 0.2-4
 Title: Record Linkage in R
 Author: Andreas Borg <reclinkmainz@googlemail.com>, Murat Sariyar
         <reclinkmainz@googlemail.com>
@@ -13,6 +13,6 @@ Depends: R (>= 2.8.0), e1071, rpart, ada, ipred, stats, evd
 Suggests: xtable
 Repository: CRAN
 Repository/R-Forge/Project: recordlinkage
-Repository/R-Forge/Revision: 156
-Date/Publication: 2010-09-28 07:34:29
-Packaged: 2010-09-27 20:38:38 UTC; rforge
+Repository/R-Forge/Revision: 218
+Date/Publication: 2011-01-05 08:59:41
+Packaged: 2011-01-04 21:45:43 UTC; rforge

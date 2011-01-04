@@ -67,10 +67,10 @@ Andreas Borg, Murat Sariyar
   training pairs.
 }
 \examples{
-data(RLdata10000)
-p=compare.dedup(RLdata10000,blockfld=list(1,3),identity=identity.RLdata10000)
-train=getMinimalTrain(p)
-classif=trainSupv(train,method="bagging")
+data(RLdata500)
+p <- compare.dedup(RLdata500,blockfld=list(1,3),identity=identity.RLdata500)
+train <- getMinimalTrain(p)
+classif <- trainSupv(train,method="bagging")
 summary(classifySupv(classif,newdata=p))
 }
 

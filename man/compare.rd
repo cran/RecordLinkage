@@ -20,18 +20,19 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   \item{dataset}{Table of records to be deduplicated. Either a data frame or 
                  a matrix.} 
   \item{dataset1, dataset2}{Two data sets to be linked.}
-  \item{blockfld}{Blocking field definition. A list of integer vectors
-                  corresponding to column numbers or \code{FALSE} to disable
+  \item{blockfld}{Blocking field definition. A list of integer or character vectors
+                  with column indices or \code{FALSE} to disable
                   blocking. See details and examples.}
   \item{phonetic}{Determines usage of a phonetic code. If \code{FALSE}, no
                   phonetic code will be used; if \code{TRUE}, the phonetic code
-                  will be used for all columns; if a numeric vector is given, the
+                  will be used for all columns; if a numeric or character vector is given, the
                   phonetic code will be used for the specified columns.}
   \item{phonfun}{Function for phonetic code. See details.}
   \item{strcmp}{Determines usage of a string metric. Used in the same manner
                 as \code{phonetic}}
   \item{strcmpfun}{User-defined function for string metric. See details.}
-  \item{exclude}{Columns to be excluded. A numeric vector of indices of columns
+  \item{exclude}{Columns to be excluded. A numeric or character vector specifying
+                  the columns
                   which should be excluded from comparision}                                                                                                            
   \item{identity, identity1, identity2}{Optional numerical vectors for identifying true matches and
               non-matches. In a deduplication process, two records \code{dataset[i,]}

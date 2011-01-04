@@ -1,3 +1,12 @@
+Changes in version 0.2-4
+
+	- Fixed a bug in getMinimalTrain that caused pairs with unknown
+		matching status to become non-matches in the training set.
+	- Some examples were modified to reduce execution time.
+	- Unit tests have been added in inst/unitTests.
+	- Checking of arguments improved in some functions.
+	- Small documentation changes.
+	
 Changes in version 0.2-3
 
   - getParetoThreshold now prompts a message if no data lies in the

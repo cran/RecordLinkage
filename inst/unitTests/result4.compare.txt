@@ -1,0 +1,6 @@
+# Erwartete Vergleichsmuster zu Daten aus data.compare.txt
+# Blocking: Nachname, mit phonetischem Code  
+id1, id2, fname_c1, fname_c2, lname_c1, lname_c2, by, bm, bd, is_match
+1,3,0,,1,,0,0,0,0
+1,4,1,,1,,1,0,1,1
+3,4,0,,1,,0,0,0,0

@@ -1,0 +1,2 @@
+# identity-Vektor für data1.compare.txt
+1,2,3,1,4
