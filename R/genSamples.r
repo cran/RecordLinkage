@@ -223,7 +223,7 @@ getMinimalTrain <- function(rpairs, nEx=1)
   train=rpairs
   train$pairs=rpairs$pairs[trainind,]
   train$Wdata=rpairs$Wdata[trainind]
-  train$prediction=rpairs$prediction[trainind,]
+  train$prediction=rpairs$prediction[trainind]
   return(train)
 }
 

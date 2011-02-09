@@ -14,7 +14,7 @@ emWeights <- function (rpairs, cutoff=0.95,...)
 
   if (nrow(rpairs$pairs) == 0)
     stop("No record pairs!")
-    
+
   if (!is.numeric(cutoff))
     stop(sprintf("Illegal type for cutoff: %s", class(cutoff)))
   if (cutoff < 0 || cutoff > 1)
@@ -196,6 +196,9 @@ optimalThreshold <- function (rpairs, my=NaN, ny=NaN)
   if (is.null(rpairs$Wdata))
     stop("No weights in rpairs!")
 
+  if (all(is.na(rpairs$pairs$is_match)))
+    stop("Only pairs with unknown matching status in rpairs!")
+
   if (!is.numeric(my))
     stop(sprintf("Illegal type for my: %s", class(my)))
   if (!missing(my) && (my < 0 || my > 1))
@@ -206,7 +209,8 @@ optimalThreshold <- function (rpairs, my=NaN, ny=NaN)
   if (!missing(ny) && (ny < 0 || ny > 1))
     stop(sprintf("Illegal value for ny: %g", ny))
 
-	o=order(rpairs$Wdata,decreasing=TRUE)
+	o=order(rpairs$Wdata, decreasing=TRUE)
+	o <- o[!is.na(rpairs$pairs$is_match[o])]
 	weights=rpairs$Wdata[o]
   n_data=length(weights)
 	is_match=rpairs$pairs$is_match[o]

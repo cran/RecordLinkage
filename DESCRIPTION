@@ -1,5 +1,5 @@
 Package: RecordLinkage
-Version: 0.2-4
+Version: 0.2-6
 Title: Record Linkage in R
 Author: Andreas Borg <reclinkmainz@googlemail.com>, Murat Sariyar
         <reclinkmainz@googlemail.com>
@@ -11,8 +11,10 @@ Description: Provides functions for linking and deduplicating data
 License: GPL (>= 2)
 Depends: R (>= 2.8.0), e1071, rpart, ada, ipred, stats, evd
 Suggests: xtable
+URL: https://r-forge.r-project.org/projects/recordlinkage/,
+        http://journal.r-project.org/archive/2010-2/RJournal_2010-2_Sariyar+Borg.pdf
 Repository: CRAN
 Repository/R-Forge/Project: recordlinkage
-Repository/R-Forge/Revision: 218
-Date/Publication: 2011-01-05 08:59:41
-Packaged: 2011-01-04 21:45:43 UTC; rforge
+Repository/R-Forge/Revision: 285
+Date/Publication: 2011-02-15 16:26:05
+Packaged: 2011-02-09 21:43:02 UTC; rforge

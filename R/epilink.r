@@ -30,25 +30,17 @@ epiWeights <- function (rpairs, e=0.01, f=rpairs$frequencies)
     stop("Condition e <= 1-f does not hold, adjust error rate!")
 
   # leave out ids and matching status
-  pairs=rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))]
+  # weights are computed on transposed matrix of comparison patterns
+  # (each column is an observation) to allow vectorization
+  pairs=t(as.matrix(rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))]))
   pairs[is.na(pairs)]=0
 
-  # dummy operation to achieve recycling of values
-  e=e+rep(0,ncol(pairs))
-  f=f+rep(0,ncol(pairs))
-  # adjust error rate 
-  # error rate
+  # multiply each pattern with the epilink weights
   w=log((1-e)/f, base=2)
-  # 
-  
-  
-  # weight computation
-  row_sum <- function(r,w)
-  {
-  return(sum(r*w,na.rm=TRUE))
-  }
-  
-  S=apply(pairs,1,row_sum,w)/sum(w)
+
+  # the weight for each pattern is the sum of its attribute weights
+  S <- colSums(pairs * w)/sum(w)
+
   if (any(is.na(S) | S < 0 | S > 1))
     warning("Some weights have illegal values. Check error rate and frequencies!")
   rpairs$Wdata=S

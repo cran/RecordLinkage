@@ -25,3 +25,19 @@ resample <- function(x, size, ...)
      if(length(x) <= 1) { if(!missing(size) && size == 0) x[FALSE] else x
      } else sample(x, size, ...)
 
+
+# Subscript operator for RecLinkData and RecLinkResult objects
+"[.RecLinkData" <- function(x,i)
+{
+  ret <- x
+  ret$pairs <- x$pairs[i,]
+  ret$Wdata <- x$Wdata[i]
+  ret
+}
+
+"[.RecLinkResult" <- function(x,i)
+{
+  ret <- "[.RecLinkData"(x, i)
+  ret$prediction <- x$prediction[i]
+  ret
+}

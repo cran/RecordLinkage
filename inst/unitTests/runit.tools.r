@@ -70,3 +70,32 @@ test.resample <- function()
   result2 <- resample(1:10,3)
   checkEquals(result1, result2)
 }
+
+test.subset <- function()
+{
+  data(RLdata500)
+  rpairs <- compare.dedup(RLdata500, blockfld = list(1,3, 5:7),
+    identity = identity.RLdata500)
+  rpairs <- epiWeights(rpairs)
+  nPairs <- nrow(rpairs$pairs)
+
+  s <- sample(nPairs, nPairs / 2)
+  rpairsSamp <- rpairs[s]
+
+  checkEquals(rpairs$data, rpairsSamp$data)
+  checkEquals(rpairs$frequencies, rpairsSamp$frequencies)
+  checkEquals(rpairs$type, rpairsSamp$type)
+  checkEquals(rpairs$pairs[s,], rpairsSamp$pairs)
+  checkEquals(rpairs$Wdata[s], rpairsSamp$Wdata)
+  
+  result <- epiClassify(rpairs, optimalThreshold(rpairs))
+  resultSamp <- result[s]
+
+  checkEquals(result$data, resultSamp$data)
+  checkEquals(result$frequencies, resultSamp$frequencies)
+  checkEquals(result$type, resultSamp$type)
+  checkEquals(result$pairs[s,], resultSamp$pairs)
+  checkEquals(result$Wdata[s], resultSamp$Wdata)
+  checkEquals(result$prediction[s], resultSamp$prediction)
+
+}

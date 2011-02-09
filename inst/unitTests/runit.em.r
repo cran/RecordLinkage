@@ -212,6 +212,11 @@ test.optimalThreshold.exceptions <- function()
   rpairs2$Wdata <- NULL
   checkException(optimalThreshold(rpairs2), msg = "no weights in rpairs")
 
+  # no pairs with known matching status
+  rpairs2 <- rpairs
+  is.na(rpairs2$pairs$is_match) <- TRUE
+  checkException(optimalThreshold(rpairs2), msg = "only unknown pairs in rpairs")
+
   # errors concerning my
   checkException (optimalThreshold(rpairs, my=-2), msg = "Illegal value for my")
   checkException (optimalThreshold(rpairs, my=1+runif(1)), msg = "Illegal value for my")
@@ -279,4 +284,15 @@ test.optimalThreshold <- function()
     }
   } 
   checkEqualsNumeric(beta_result, min(unlist(beta_all), na.rm=TRUE))  
+  
+  # pairs with NA should be ignored, i.e. the result should be the same as if
+  # these pairs were missing
+  rpairs2 <- rpairs
+  nPairs <- nrow(rpairs$pairs)
+  s <- sample(nPairs, nPairs / 2)
+  rpairs3 <- rpairs[-s]
+  is.na(rpairs2$pairs$is_match[s]) <- TRUE
+  checkEquals(optimalThreshold(rpairs2), optimalThreshold(rpairs3),
+    msg = "check that unknown pairs are ignored")
+
 }
