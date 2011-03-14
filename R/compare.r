@@ -246,7 +246,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     # remove excluded fields
     if (is.numeric(exclude))
     {        
-        dataset=dataset[,-exclude]  # remove excluded columns
+        dataset=dataset[,-exclude, drop = FALSE]  # remove excluded columns
     }  
 
     # apply phonetic code                                                         
@@ -393,8 +393,8 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     }
     if (is.numeric(exclude))
     {        
-        dataset1=dataset1[,-exclude]  # remove excluded columns
-        dataset2=dataset2[,-exclude]  # remove excluded columns
+        dataset1=dataset1[,-exclude, drop = FALSE]  # remove excluded columns
+        dataset2=dataset2[,-exclude, drop = FALSE]  # remove excluded columns
         # adjust indices to list of included fields
         if (is.numeric(phonetic)) 
         {

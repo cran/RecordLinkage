@@ -5,8 +5,8 @@
 \title{
   Estimate Threshold from Pareto Distribution
 }
-\description{Fits a Pareto distribution to teh distribution of weights  
- and calculates a quantil on the fitted model as classification threshold.  
+\description{Fits a Pareto distribution to the distribution of weights
+ and calculates a quantile on the fitted model as classification threshold.
 }
 
 \usage{

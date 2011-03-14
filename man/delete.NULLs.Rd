@@ -18,7 +18,7 @@ delete.NULLs(x)
 }
 
 \references{Taken from a posting by Jim Holtman on the R-help mailing list,
-  https://stat.ethz.ch/pipermail/r-help/2006-August/111896.html}
+  \url{https://stat.ethz.ch/pipermail/r-help/2006-August/111896.html}}
 
 
 \note{This function is internally used for simple lists and vectors. 

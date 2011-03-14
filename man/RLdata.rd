@@ -15,18 +15,18 @@
 }
 
 \usage{RLdata500
-  RLdata10000
-  identity.RLdata500
-  identity.RLdata10000}
+RLdata10000
+identity.RLdata500
+identity.RLdata10000}
 
 \format{\code{RLdata500} and \code{RLdata10000} are character matrices with 
   500 and 10000 records. Each row represents one record, with the following
   columns:
   \describe{
-    \item{fname\_c1}{First name, first component}
-    \item{fname\_c2}{First name, second component}
-    \item{lname\_c1}{Last name, first component}
-    \item{lname\_c2}{Last name, second component}
+    \item{fname_c1}{First name, first component}
+    \item{fname_c2}{First name, second component}
+    \item{lname_c1}{Last name, first component}
+    \item{lname_c2}{Last name, second component}
     \item{by}{Year of birth}
     \item{bm}{Month of birth}
     \item{bd}{Day of birth}

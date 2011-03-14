@@ -22,14 +22,12 @@ test.compare.dedup.exceptions <- function()
   checkException(compare.dedup("andreas")) # wrong data type
 
   # illegal blocking definition
-#  checkException(compare.dedup(data1, blockfld="fname_c1")) # wrong type
   checkException(compare.dedup(data1, blockfld=TRUE)) # wrong type/value
   checkException(compare.dedup(data1, blockfld=list(1,list(4,6)))) # nested list
-#  checkException(compare.dedup(data1, blockfld=-3)) # negative index
-#  checkException(compare.dedup(data1, blockfld=0))
+  checkException(compare.dedup(data1, blockfld=-3)) # negative index
+  checkException(compare.dedup(data1, blockfld=0))
   
   # illegal phonetic definition
-#  checkException(compare.dedup(data1, phonetic="fname_c1")) # wrong type
   checkException(compare.dedup(data1, phonetic=list(1,4))) # list not okay
   checkException(compare.dedup(data1, phonetic=-3)) # negative index
   checkException(compare.dedup(data1, phonetic=0))
@@ -60,8 +58,8 @@ test.compare.dedup.exceptions <- function()
   # illegal exclude field definition    
   checkException(compare.dedup(data1, exclude=c(4,10))) # out of bounds
   checkException(compare.dedup(data1, exlude=list(1,4))) # list not okay
-  checkException(compare.dedup(data1, exclude=-3)) # negative index
-  checkException(compare.dedup(data1, exclude=0))
+#  checkException(compare.dedup(data1, exclude=-3)) # negative index
+#  checkException(compare.dedup(data1, exclude=0))
 
   # illegal identity vector
   checkException(compare.dedup(data1,identity=as.list(identity1)))
@@ -154,11 +152,8 @@ test.compare.dedup <- function()
   reqResult=read.table("result3.compare.txt",sep=",",colClasses="double",
     header=TRUE)
   checkEquals(testResult$pairs, reqResult, msg=" (blocking on one component)")
-
   # repeat with textual column id 
   testResult=compare.dedup(data1, identity=identity1, blockfld="lname_c1")
-  reqResult=read.table("result3.compare.txt",sep=",",colClasses="double",
-    header=TRUE)
   checkEquals(testResult$pairs, reqResult, 
     msg=" (blocking on one component, text id)")
   
@@ -181,16 +176,13 @@ test.compare.dedup <- function()
   reqResult=read.table("result5.compare.txt",sep=",",colClasses="double",
     header=TRUE)
   checkEquals(testResult$pairs, reqResult, msg=" (blocking with two components")
-
   # repeat with textual column id 
   testResult=compare.dedup(data1, identity=identity1, 
     blockfld=c("by", "bm"))
-  reqResult=read.table("result5.compare.txt",sep=",",colClasses="double",
-    header=TRUE)
   checkEquals(testResult$pairs, reqResult, 
     msg=" (blocking with two components, text id)")
 
-  # combine blocking on date components with blocking on last name
+  # combine blocking on data components with blocking on last name
   # (disjunction)
   testResult=compare.dedup(data1, identity=identity1, blockfld=list(3,c(5,6)))
   reqResult=read.table("result6.compare.txt",sep=",",colClasses="double",
@@ -210,21 +202,6 @@ test.compare.dedup <- function()
   reqResult=read.table("result7.compare.txt",sep=",",colClasses="double",
     header=TRUE)
   checkEquals(testResult$pairs, reqResult, msg=" (exclude columns)")
-
-  # check phonetic code with textual column ids
-  testResult=compare.dedup(data1, identity=identity1, blockfld=3, 
-  phonetic=c("fname_c1", "fname_c2", "lname_c1", "lname_c2"), exclude=c(3,4))
-  reqResult=read.table("result7.compare.txt",sep=",",colClasses="double",
-    header=TRUE)
-  checkEquals(testResult$pairs, reqResult, msg=" (textual phonetic id)")
-  
-  # check exclude with textual column ids
-  testResult=compare.dedup(data1, identity=identity1, blockfld=3, 
-  phonetic=1:4, exclude=c("lname_c1", "lname_c2"))
-  reqResult=read.table("result7.compare.txt",sep=",",colClasses="double",
-    header=TRUE)
-  checkEquals(testResult$pairs, reqResult, msg=" (textual exclude id)")
-  
   # check frequencies with excluded columns
   checkEqualsNumeric(testResult$frequencies, frequencies1[-c(3,4)],
     tolerance = 1e-6, msg = " (check frequencies with excluded attributes)")
@@ -240,6 +217,28 @@ test.compare.dedup <- function()
   reqResult=c(1,3,jarowinkler( c("FRANK",NA,"MUELLER",NA,1967,9,27), 
     c("MARTIN",NA,"MUELLER",NA,1950,2,4)),0)
   checkEquals(as.double(testResult$pairs),reqResult, msg=" (jarowinkler, all fields)")
+
+  # string comparison and phonetic code should work although warning is raised
+  testResult=compare.dedup(data1, identity=identity1, blockfld=c(3,5), strcmp=TRUE,
+    phonetic=1:4, phonfun=pho_h, strcmpfun=jarowinkler)
+  reqResult=c(1,4,
+    jarowinkler(
+      c(
+        pho_h(
+          c("FRANK",NA,"MUELLER",NA)
+        ),
+        1967,9,27
+      ),
+      c(
+        pho_h(
+          c("FRANK","MARTIN","MUELER",NA)
+        ),
+        1967,8,27
+      )
+    ),
+  1)
+  checkEquals(as.double(testResult$pairs),reqResult, msg=" (jarowinkler, all fields)")
+
   
   # string comparator for individual fields
   reqResult=c(1,3,jarowinkler( c("FRANK",NA,"MUELLER",NA), 
@@ -247,16 +246,7 @@ test.compare.dedup <- function()
   testResult=compare.dedup(data1, identity=identity1, blockfld=3, strcmp=1:4,
     strcmpfun=jarowinkler)
   checkEquals(as.double(testResult$pairs),reqResult, msg=" (jarowinkler, selected fields)")
-
-  # with textual id
-  reqResult=c(1,3,jarowinkler( c("FRANK",NA,"MUELLER",NA), 
-    c("MARTIN",NA,"MUELLER",NA)),0,0,0,0)
-  testResult=compare.dedup(data1, identity=identity1, blockfld=3, 
-    strcmp=c("fname_c1", "fname_c2", "lname_c1", "lname_c2"),
-    strcmpfun=jarowinkler)
-  checkEquals(as.double(testResult$pairs),reqResult, msg=" (jarowinkler, selected fields)")
-  
-      
+    
   # same tests for levenshteinSim
   testResult=compare.dedup(data1, identity=identity1, blockfld=3, strcmp=TRUE,
     strcmpfun=levenshteinSim)
@@ -344,8 +334,13 @@ test.compare.dedup <- function()
     header=TRUE)
   checkEquals(testResult$pairs, reqResult, msg=" (check reserved words in data)")
     
-    
-  
+  # test for bug in rev. 326: Failure if all columns except one are excluded
+  testResult=compare.dedup(data1, exclude=2:ncol(data1))
+  reqResult=read.table("result1.compare.txt",sep=",",colClasses="double",
+    header=TRUE)
+  reqResult <- reqResult[,c(1:3, ncol(reqResult))]
+  checkEquals(testResult$pairs, reqResult, msg=" (test for fix in rev 327)")
+
 }
 
 
@@ -370,8 +365,8 @@ test.compare.linkage.exceptions <- function()
   
   # illegal phonetic definition
   checkException(compare.linkage(data2, data3, phonetic=list(1,4))) # list not okay
-  checkException(compare.linkage(data2, data3, phonetic=-3)) # negative index
-  checkException(compare.linkage(data2, data3, phonetic=0))
+#  checkException(compare.linkage(data2, data3, phonetic=-3)) # negative index
+#  checkException(compare.linkage(data2, data3, phonetic=0))
     
   # illegal phonetic function
   checkException(compare.linkage(data2, data3, phonetic=TRUE, phonfun=5)) # not a function
@@ -384,8 +379,8 @@ test.compare.linkage.exceptions <- function()
     
   # illegal string comparator definition
   checkException(compare.linkage(data2, data3, strcmp=list(1,4))) # list not okay
-  checkException(compare.linkage(data2, data3, strcmp=-3)) # negative index
-  checkException(compare.linkage(data2, data3, strcmp=0))
+#  checkException(compare.linkage(data2, data3, strcmp=-3)) # negative index
+#  checkException(compare.linkage(data2, data3, strcmp=0))
 
   # illegal string comparison function
   checkException(compare.linkage(data2, data3, strcmp=TRUE, phonfun=5)) # not a function
@@ -399,8 +394,8 @@ test.compare.linkage.exceptions <- function()
   # illegal exclude field definition    
   checkException(compare.linkage(data2, data3, exclude=c(4,10))) # out of bounds
   checkException(compare.linkage(data2, data3, exlude=list(1,4))) # list not okay
-  checkException(compare.linkage(data2, data3, exclude=-3)) # negative index
-  checkException(compare.linkage(data2, data3, exclude=0))
+#  checkException(compare.linkage(data2, data3, exclude=-3)) # negative index
+#  checkException(compare.linkage(data2, data3, exclude=0))
 
   # illegal identity vector
   checkException(compare.linkage(data2, data3,identity=as.list(identity1)))
@@ -582,7 +577,29 @@ test.compare.linkage <- function()
   reqResult=c(1,1,jarowinkler( c("FRANK",NA,"MUELLER",NA,1967,9,27), 
     c("MARTIN",NA,"MUELLER",NA,1950,2,4)),0)
   checkEquals(as.double(testResult$pairs),reqResult, msg=" (jarowinkler, all fields)")
-  
+
+  # string comparison and phonetic code should work although warning is raised
+  testResult=compare.linkage(data2, data3, identity1=identity2,
+  identity2=identity3, blockfld=c(3,5), strcmp=TRUE,
+    phonetic=1:4, phonfun=pho_h, strcmpfun=jarowinkler)
+  reqResult=c(2,1,
+    jarowinkler(
+      c(
+        pho_h(
+          c("FRANK",NA,"MUELLER",NA)
+        ),
+        1967,9,27
+      ),
+      c(
+        pho_h(
+          c("FRANK","MARTIN","MUELER",NA)
+        ),
+        1967,8,27
+      )
+    ),
+  1)
+  checkEquals(as.double(testResult$pairs),reqResult, msg=" (jarowinkler, all fields)")
+
   # string comparator for individual fields
   testResult=compare.linkage(data2, data3, identity1=identity2, 
     identity2=identity3, blockfld=3, strcmp=1:4, strcmpfun=jarowinkler)
@@ -695,6 +712,13 @@ test.compare.linkage <- function()
   reqResult <- read.table("resultNA2.compare.txt",sep=",",colClasses="double",
     header=TRUE)
   checkEquals(testResult$pairs, reqResult, msg=" (check reserved words in data)")
+
+  # test for bug in rev. 326: Failure if all columns except one are excluded
+  testResult=compare.linkage(data2,data3, exclude=2:ncol(data2))
+  reqResult=read.table("result8.compare.txt",sep=",",colClasses="double",
+    header=TRUE)
+  reqResult <- reqResult[,c(1:3, ncol(reqResult))]
+  checkEquals(testResult$pairs, reqResult, msg=" (test for fix in rev 327)")
 }
 
 # names of datasets differ?

@@ -1,14 +1,26 @@
 \name{emClassify}
 \alias{emClassify}
+\alias{emClassify,RLBigData-method}
+\alias{emClassify,RecLinkData,ANY,ANY-method}
+\alias{emClassify,RLBigData,ANY,ANY-method}
+\alias{emClassify,RecLinkData,missing,missing-method}
+\alias{emClassify,RLBigData,missing,missing-method}
 
 \title{Weight-based Classification of Data Pairs}
 \description{
   Classifies data pairs to which weights were assigned by \code{\link{emWeights}}.
-  Based on user-defined thresholds or estimated error rates.
+  Based on user-defined thresholds or predefined error rates.
 }
 \usage{
-emClassify(rpairs, threshold.upper = Inf, 
-  threshold.lower = threshold.upper, my = Inf, ny = Inf)
+  emClassify(rpairs, threshold.upper = Inf,
+    threshold.lower = threshold.upper, my = Inf, ny = Inf, ...)
+
+  \S4method{emClassify}{RecLinkData,ANY,ANY}(rpairs, threshold.upper = Inf,
+    threshold.lower = threshold.upper, my = Inf, ny = Inf)
+
+  \S4method{emClassify}{RLBigData,ANY,ANY}(rpairs, threshold.upper = Inf,
+    threshold.lower = threshold.upper, my = Inf, ny = Inf,
+    withProgressBar = (sink.number()==0))
 }
 
 \arguments{
@@ -17,6 +29,8 @@ emClassify(rpairs, threshold.upper = Inf,
   \item{ny}{A probability. Error bound for false negatives.}
   \item{threshold.upper}{A numeric value. Threshold for links.}
   \item{threshold.lower}{A numeric value. Threshold for possible links.}
+  \item{withProgressBar}{Whether to display a progress bar}
+  \item{...}{Placeholder for method-specific arguments.}
 }
 \details{
   Two general approaches are implemented. The classical procedure
@@ -37,11 +51,7 @@ emClassify(rpairs, threshold.upper = Inf,
   (the equivalent case holds if only \code{ny} is specified). If no further arguments
   than \code{rpairs} are given, a single threshold of 0 is used.
   
-%- alter Text:  
-%-  , which 
-%-  a classification in links and non-links which
-%-  minimizes the overall error is performed based on the estimated probabilities.
-  
+
 }
 
 \note{The quality of classification of the Fellegi-Sunter method 
@@ -50,10 +60,13 @@ emClassify(rpairs, threshold.upper = Inf,
 }
 
 \value{
-  Returns a \code{RecLinkResult} object containing all fields of \code{rpairs}
-  and a factor object \code{prediction} which contains predictions and corresponds
-  to \code{rpairs$pairs}. \code{"L"} represents a link, \code{"N"} a non-link and
-  \code{"P"} a possible link.
+  For the \code{"\link{RecLinkData}"} method, a S3 object
+  of class \code{"\link{RecLinkResult}"} that represents a copy
+  of \code{newdata} with element \code{rpairs$prediction}, which stores
+  the classification result, as addendum.
+
+  For the \code{"\linkS4class{RLBigData}"} method, a S4 object of class
+  \code{"\linkS4class{RLResult}"}.
 }
 
 \references{Ivan P. Fellegi, Alan B. Sunter: A Theory for Record Linkage,

@@ -20,17 +20,21 @@ int getCommonCharacters(char * common, const char * str_1,
   
 int getTranspositions(char * common_1, char * common_2, int radius);
 
-double jaro(char * str_1, char * str_2, 
+double jaro(const char * str_1, const char * str_2, 
              double W_1, double W_2, double W_t,
              double r, int use_transpos_radius);
 
-void jarowinkler(char ** strvec_1, char ** strvec_2,
+void jarowinkler(const char ** strvec_1, const char ** strvec_2,
              int * length_1, int * length_2,
              double * W_1, double * W_2, double * W_t,
              double * r, double * ans);
+
+double jarowinkler_core(const char * str_1, const char * str_2,
+             double W_1, double W_2, double W_t,
+             double r);
 						  
 
-void jarowinkler(char ** strvec_1, char ** strvec_2,
+void jarowinkler(const char ** strvec_1, const char ** strvec_2,
              int * length_1, int * length_2,
              double * W_1, double * W_2, double * W_t,
              double * r, double * ans)
@@ -41,35 +45,66 @@ void jarowinkler(char ** strvec_1, char ** strvec_2,
   int max_length= *length_1 > *length_2 ? *length_1 : *length_2;  
   for (int str_ind=0; str_ind < max_length; str_ind++)
   {
-    char * str_1=strvec_1[str_ind % *length_1];
-    char * str_2=strvec_2[str_ind % *length_2];
-    int str_len_1=strlen(str_1);
-    int str_len_2=strlen(str_2);
-  
-    /* Standard-Jaro-Score berechnen */
-    // Rprintf("Berechne Standard-Jaro-Gewicht\n"); // Debug-Ausgabe
-    double jaro_score=jaro(str_1, str_2, *W_1, *W_2, *W_t, *r, *use_transpos_radius);
-  
-    // Rprintf("Berechne daraus Jaro-Winkler\n"); // Debug-Ausgabe
-    /* wenn jaro() 1 oder 0 zurückgibt, ist das der endgültige Wert */
-    if (jaro_score==1.0 || jaro_score==0.0)
-      ans[str_ind]=jaro_score;
-      
-    /* else */
-    // Rprintf("Ermittle Anzahl der Zeichen, für die die Stringanfänge übereinstimmen\n"); // Debug-Ausgabe
-    /* Ermittle Anzahl der Zeichen, für die die Stringanfänge übereinstimmen */
-    int min_str_len=str_len_1<str_len_2 ? str_len_1 : str_len_2;
-    int max_i=0;  
-    while (str_1[max_i]==str_2[max_i] && max_i<4 && max_i<min_str_len)
-    {
-      max_i++;
-    }
-    ans[str_ind]=jaro_score + max_i * 0.1 * (1-jaro_score);
+    const char * str_1=strvec_1[str_ind % *length_1];
+    const char * str_2=strvec_2[str_ind % *length_2];
+    ans[str_ind]=jarowinkler_core(str_1, str_2, *W_1, *W_2, *W_t, *r);
+//     int str_len_1=strlen(str_1);
+//     int str_len_2=strlen(str_2);
+//   
+//     /* Standard-Jaro-Score berechnen */
+//     // Rprintf("Berechne Standard-Jaro-Gewicht\n"); // Debug-Ausgabe
+//     double jaro_score=jaro(str_1, str_2, *W_1, *W_2, *W_t, *r, *use_transpos_radius);
+//   
+//     // Rprintf("Berechne daraus Jaro-Winkler\n"); // Debug-Ausgabe
+//     /* wenn jaro() 1 oder 0 zurückgibt, ist das der endgültige Wert */
+//     if (jaro_score==1.0 || jaro_score==0.0)
+//       ans[str_ind]=jaro_score;
+//       
+//     /* else */
+//     // Rprintf("Ermittle Anzahl der Zeichen, für die die Stringanfänge übereinstimmen\n"); // Debug-Ausgabe
+//     /* Ermittle Anzahl der Zeichen, für die die Stringanfänge übereinstimmen */
+//     int min_str_len=str_len_1<str_len_2 ? str_len_1 : str_len_2;
+//     int max_i=0;  
+//     while (str_1[max_i]==str_2[max_i] && max_i<4 && max_i<min_str_len)
+//     {
+//       max_i++;
+//     }
+//     ans[str_ind]=jaro_score + max_i * 0.1 * (1-jaro_score);
   }
 } 
 
+
+double jarowinkler_core(const char * str_1, const char * str_2,
+             double W_1, double W_2, double W_t,
+             double r)
+{
+  int str_len_1=strlen(str_1);
+  int str_len_2=strlen(str_2);
+
+  /* Standard-Jaro-Score berechnen */
+  // Rprintf("Berechne Standard-Jaro-Gewicht\n"); // Debug-Ausgabe
+  double jaro_score=jaro(str_1, str_2, W_1, W_2, W_t, r, 0);
+
+  // Rprintf("Berechne daraus Jaro-Winkler\n"); // Debug-Ausgabe
+  /* wenn jaro() 1 oder 0 zurückgibt, ist das der endgültige Wert */
+  if (jaro_score==1.0 || jaro_score==0.0)
+    return(jaro_score);
+    
+  /* else */
+  // Rprintf("Ermittle Anzahl der Zeichen, für die die Stringanfänge übereinstimmen\n"); // Debug-Ausgabe
+  /* Ermittle Anzahl der Zeichen, für die die Stringanfänge übereinstimmen */
+  int min_str_len=str_len_1<str_len_2 ? str_len_1 : str_len_2;
+  int max_i=0;  
+  while (str_1[max_i]==str_2[max_i] && max_i<4 && max_i<min_str_len)
+  {
+    max_i++;
+  }
+  return(jaro_score + max_i * 0.1 * (1-jaro_score));
+
+}
+
  
- double jaro(char * str_1, char * str_2, 
+ double jaro(const char * str_1, const char * str_2, 
              double W_1, double W_2, double W_t,
              double r, int use_transpos_radius)
 {

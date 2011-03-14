@@ -1,4 +1,5 @@
 \name{strcmp}
+\alias{strcmp}
 \alias{jarowinkler}
 \alias{jaro}
 \alias{winkler}

@@ -19,7 +19,7 @@ editMatch(rpairs)
 }
 
 \details{
-  This function brings up an editor (via \code{\link{edit}}) where each record
+  This function pops up an editor (via \code{\link{edit}}) where each record
   pair in \code{rpairs} is printed in two consecutive lines, pairs seperated by blank
   lines. The matching status is printed and can be edited in the last column
   following the first respective record. A match is denoted by 1, a non-match

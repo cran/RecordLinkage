@@ -33,8 +33,8 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   \item{strcmpfun}{User-defined function for string metric. See details.}
   \item{exclude}{Columns to be excluded. A numeric or character vector specifying
                   the columns
-                  which should be excluded from comparision}                                                                                                            
-  \item{identity, identity1, identity2}{Optional numerical vectors for identifying true matches and
+                  which should be excluded from comparision}
+  \item{identity, identity1, identity2}{Optional numerical vectors for identifying matches and
               non-matches. In a deduplication process, two records \code{dataset[i,]}
                and \code{dataset[j,]} are a true match if and only if 
               \code{identity[i,]==identity[j,]}. In a linkage process, two 
@@ -100,7 +100,7 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   
   User-defined functions for phonetic code and string comparison can be supplied
   via the arguments \code{phonfun} and \code{strcmpfun}. \code{phonfun} is 
-  expected to have as single argument the string to be transformed and must
+  expected to have a single character argument (the string to be transformed) and must
   return a character value with the encoded string. 
   \code{strcmpfun} must have as arguments the two strings to be compared and
   return a similarity value in the range \eqn{[0,1]}, with 0 denoting the lowest 

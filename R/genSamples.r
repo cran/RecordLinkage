@@ -202,13 +202,17 @@ splitData <- function(dataset, prop=0.5, keep.mprop=FALSE, num.non=0,
 getMinimalTrain <- function(rpairs, nEx=1)
 {
   # catch erronous input
-  if (!(("RecLinkData" %in% class(rpairs)) || 
+  if (!(("RecLinkData" %in% class(rpairs)) ||
     "RecLinkResult" %in% class(rpairs)))
     stop("Wrong class for rpairs!")
-  
+
   if (nEx < 1)
     stop(sprintf("Illegal value for nEx: %d!", nEx))
-    
+
+  # check if fuzzy values occur
+  if (any(rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))] > 0 &
+      rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))] < 1, na.rm=TRUE))
+    warning("Comparison patterns in rpairs contain string comparison values!")
   p=rpairs$pairs
   # Zeilen markieren, um Paare identifizieren zu können
   rownames(p)=1:nrow(p)

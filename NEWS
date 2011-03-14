@@ -1,4 +1,13 @@
-Changes in version 0.2-5
+Changes in version 0.3-0
+
+	- A framework of S4 methods and classes tailored for processing large
+	  data sets has been added. See the vignette 'BigData' for details.
+  	- The output format of getPairs (existing method for RecLinkData and
+	  RecLinkResult objects) has changed: Column "Weight" is now last instead
+	  of first. Also, for single.rows=FALSE, record pairs are speparated by
+	  a blank line.
+
+Changes in version 0.2-6
 
 	- added subset operator [ for RecLinkData and RecLinkPairs objects
 	- improved running time of epiWeights significantly
@@ -15,7 +24,6 @@ Changes in version 0.2-4
 	- Unit tests have been added in inst/unitTests.
 	- Checking of arguments improved in some functions.
 	- Small documentation changes.
-	
 Changes in version 0.2-3
 
   - getParetoThreshold now prompts a message if no data lies in the

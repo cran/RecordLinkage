@@ -50,6 +50,14 @@ getMinimalTrain(rpairs, nEx = 1)
   are copied only if present. All other components are copied automatically from \code{rpairs}.
 }
 
+\note{
+  Application is only advisable for binary comparison patterns (i.e. only 0
+  and 1 appear as agreement values). For patterns with string comparison
+  values, the size of the returned set can be too large for a manual review.
+  A warning is issued if fuzzy agreement values (\eqn{>0} and \eqn{<1}) are
+  present in the data.
+}
+
 
 \author{
 Andreas Borg, Murat Sariyar

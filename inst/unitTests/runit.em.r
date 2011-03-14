@@ -1,5 +1,10 @@
 # Tests for functions in file em.r
 
+
+# TODO: 
+#   Test für EMWeights-Methode
+#   Test für Berücksichtigung von exclude-Feldern (Warnung bei EMWeights-Methode?)
+
 test.emWeights.exceptions <- function()
 {
   data(RLdata500)
@@ -35,7 +40,7 @@ test.emWeights <- function()
   rpairs2 <- compare.dedup(RLdata500, identity=identity.RLdata500, 
     blockfld=list(1,3,c(5,6,7)), strcmp = TRUE)
   # basic consistency checks
-  result1 <- emWeights(rpairs1)
+  result1 <- emWeights(rpairs1, tol=0.01)
   checkEquals(class(result1)[1], "RecLinkData",
     msg = " (check class of result)")
   checkTrue(is.numeric(result1$M),
@@ -51,7 +56,7 @@ test.emWeights <- function()
   checkTrue(!any(is.na(result1$Wdata)),
     msg = "check that no weights are NaN or NA")
   # use fuzzy set with cutoff 1, should yield same result
-  result2 <- emWeights(rpairs2, cutoff = 1)
+  result2 <- emWeights(rpairs2, cutoff = 1, tol=0.01)
   checkEqualsNumeric(result1$W, result2$W)
   checkEqualsNumeric(result1$Wdata, result2$Wdata)
   
@@ -60,25 +65,44 @@ test.emWeights <- function()
   # copy of fuzzy pairs with binary first attribute
   rpairs3$pairs$fname_c1 <- (rpairs3$pairs$fname_c1==1) * 1
   # different cutoff value for binary attribute should make no difference
-  result3 <- emWeights(rpairs3,cutoff=0.7)
-  result4 <- emWeights(rpairs3,cutoff=c(0.5,rep(0.7,6)))
+  result3 <- emWeights(rpairs3,cutoff=0.7, tol=0.01)
+  result4 <- emWeights(rpairs3,cutoff=c(0.5,rep(0.7,6)), tol=0.01)
   checkEqualsNumeric(result3$Wdata,result4$Wdata,
     msg = "check usage of individual cutoff values")
   # different cutoff value for fuzzy column should yield different weights
-  result5 <- emWeights(rpairs3,cutoff=c(0.7, 0.7, 0.5, rep(0.7,4)))
+  result5 <- emWeights(rpairs3,cutoff=c(0.7, 0.7, 0.5, rep(0.7,4)), tol=0.01)
   checkTrue(!identical(result3$Wdata, result5$Wdata),
       msg = "check usage of individual cutoff values")
 }
 
+
+test.emWeights.RLBigData <- function()
+{
+  # checks that results are the same as for an equivalent RecLinkData-object
+  data(RLdata500)
+  rpairs1 <- compare.dedup(RLdata500, blockfld=list(1,3,5,6,7))
+  rpairs1 <- emWeights(rpairs1, tol=0.01)
+  rpairs2 <- RLBigDataDedup(RLdata500, blockfld=list(1,3,5,6,7))
+  rpairs2 <- emWeights(rpairs2, tol=0.01)
+  ids <- rpairs1$pairs[,1:2]
+  Wdata2 <- dbGetPreparedQuery(rpairs2@con,
+    "select W from Wdata where id1=? and id2=?", ids)$W
+  checkEqualsNumeric(Wdata2, rpairs1$Wdata)
+
+}
+
 test.emClassify.exceptions <- function()
 {
+  data(RLdata500)
+  rpairsBig <- RLBigDataDedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
+  rpairsBig <- emWeights(rpairsBig, tol=0.01)
   load("rpairs.em.rda")
-  
+
   # illegal class, type of rpairs
   rpairs2 <- rpairs
   class(rpairs2) <- "wrongClass"
   checkException(emClassify(rpairs2), msg = "wrong class for rpairs")
-  
+
   rpairs2 <- rpairs$pairs
   class(rpairs2) <- "RecLinkData"
   checkException(emClassify(rpairs2), msg = "wrong type for rpairs")
@@ -88,40 +112,48 @@ test.emClassify.exceptions <- function()
   rpairs2$Wdata <- NULL
   checkException(emClassify(rpairs2), msg = "no weights in rpairs")
 
-  
-  # errors concerning threshold.upper
-  checkException(emClassify(rpairs, threshold.upper = "0"),
-    msg = "wrong type for threshold.upper")
-  checkException(emClassify(rpairs, threshold.upper = FALSE),
-    msg = "wrong type for threshold.upper")
-  checkException(emClassify(rpairs, threshold.upper = 1+9i),
-    msg = "wrong type for threshold.upper")
+  rpairs2 <- clone(rpairsBig)
+  dbGetQuery(rpairs2@con, "drop table W")
+  checkException(emClassify(rpairs2), msg = "no weights in rpairs")
 
-  # errors concerning threshold.lower
-  checkException(emClassify(rpairs, threshold.lower = "0"),
-    msg = "wrong type for threshold.lower")
-  checkException(emClassify(rpairs, threshold.lower = FALSE),
-    msg = "wrong type for threshold.lower")
-  checkException(emClassify(rpairs, threshold.lower = 1+9i),
-    msg = "wrong type for threshold.lower")
 
-  # errors concerning combination of thresholds
-  # runif will not generate 0 (see doc), is greater than 0
-  checkException(emClassify(rpairs, threshold.upper=0, threshold.lower=runif(1)),
-    msg = "lower threshold greater than upper threshold")
+  # run the following tests twice: also for RLBigData-object
+  for (rpairs in list(rpairs, rpairsBig))
+  {
 
-  # errors concerning my
-  checkException (emClassify(rpairs, my=-2), msg = "Illegal value for my")
-  checkException (emClassify(rpairs, my=1+runif(1)), msg = "Illegal value for my")
-  checkException (emClassify(rpairs, my="0.2"), msg = "Illegal value for my")
-  checkException (emClassify(rpairs, my=TRUE), msg = "Illegal value for my")
+    # errors concerning threshold.upper
+    checkException(emClassify(rpairs, threshold.upper = "0"),
+      msg = "wrong type for threshold.upper")
+    checkException(emClassify(rpairs, threshold.upper = FALSE),
+      msg = "wrong type for threshold.upper")
+    checkException(emClassify(rpairs, threshold.upper = 1+9i),
+      msg = "wrong type for threshold.upper")
 
-  # errors concerning ny
-  checkException (emClassify(rpairs, ny=-2), msg = "Illegal value for ny")
-  checkException (emClassify(rpairs, ny=1+runif(1)), msg = "Illegal value for ny")
-  checkException (emClassify(rpairs, ny="0.2"), msg = "Illegal value for ny")
-  checkException (emClassify(rpairs, ny=TRUE), msg = "Illegal value for ny")
-  
+    # errors concerning threshold.lower
+    checkException(emClassify(rpairs, threshold.lower = "0"),
+      msg = "wrong type for threshold.lower")
+    checkException(emClassify(rpairs, threshold.lower = FALSE),
+      msg = "wrong type for threshold.lower")
+    checkException(emClassify(rpairs, threshold.lower = 1+9i),
+      msg = "wrong type for threshold.lower")
+
+    # errors concerning combination of thresholds
+    # runif will not generate 0 (see doc), is greater than 0
+    checkException(emClassify(rpairs, threshold.upper=0, threshold.lower=runif(1)),
+      msg = "lower threshold greater than upper threshold")
+
+    # errors concerning my
+    checkException (emClassify(rpairs, my=-2), msg = "Illegal value for my")
+    checkException (emClassify(rpairs, my=1+runif(1)), msg = "Illegal value for my")
+    checkException (emClassify(rpairs, my="0.2"), msg = "Illegal value for my")
+    checkException (emClassify(rpairs, my=TRUE), msg = "Illegal value for my")
+
+    # errors concerning ny
+    checkException (emClassify(rpairs, ny=-2), msg = "Illegal value for ny")
+    checkException (emClassify(rpairs, ny=1+runif(1)), msg = "Illegal value for ny")
+    checkException (emClassify(rpairs, ny="0.2"), msg = "Illegal value for ny")
+    checkException (emClassify(rpairs, ny=TRUE), msg = "Illegal value for ny")
+  }
 }
 
 test.emClassify <- function()
@@ -193,6 +225,104 @@ test.emClassify <- function()
   
 }
 
+test.emClassify.RLBigData <- function()
+{
+  data(RLdata500)
+  rpairs <- RLBigDataDedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
+  rpairs <- emWeights(rpairs, tol=0.01)
+
+  Wdata <- dbReadTable(rpairs@con, "Wdata")
+  # test threshold
+  # only upper threshold supplied (only matches and non-matches)
+    # feasible value
+    thresh <- sample(unique(Wdata$W),1)
+    result <- emClassify(rpairs, threshold.upper = thresh)
+    reqLinks <- Wdata[Wdata$W >= thresh, 1:2]
+    checkEqualsNumeric(result@links[order(result@links[,1], result@links[,2]),],
+      as.matrix(reqLinks[order(reqLinks$id1, reqLinks$id2), ]),
+      msg = "check links, only upper threshold, feasible value")
+
+    checkEquals(nrow(result@possibleLinks), 0,
+      msg = "check possible links, only upper threshold, feasible value")
+
+    # high value: only non-matches
+    thresh <- max(Wdata$W + 1)
+    result <- emClassify(rpairs, threshold.upper = thresh)
+   checkEquals(nrow(result@links), 0,
+      msg = "check high value for only upper threshold")
+   checkEquals(nrow(result@possibleLinks), 0,
+      msg = "check high value for only upper threshold")
+
+    # low value: only matches
+    thresh <- min(Wdata$W)
+    result <- emClassify(rpairs, threshold.upper = thresh)
+    checkEqualsNumeric(as.matrix(Wdata[order(Wdata$id1, Wdata$id2), 1:2]),
+      result@links[order(result@links[,1], result@links[,2]),],
+      msg = "check low value for only higher threshold")
+
+  # only lower threshold supplied (only non-matches and possibles
+    # feasible value
+    thresh <- sample(unique(Wdata$W),1)
+    result <- emClassify(rpairs, threshold.lower = thresh)
+    reqPossibleLinks <- Wdata[Wdata$W >= thresh, 1:2]
+
+    checkEqualsNumeric(result@possibleLinks[order(result@possibleLinks[,1],
+      result@possibleLinks[,2]),],
+      as.matrix(reqPossibleLinks[order(reqPossibleLinks$id1, reqPossibleLinks$id2), ]),
+      msg = "check possibles, only lower threshold, feasible value")
+
+    checkEquals(nrow(result@links), 0,
+      msg = "check links, only lower threshold, feasible value")
+
+
+    # high value: only non-matches
+    thresh <- max(Wdata$W + 1)
+    result <- emClassify(rpairs, threshold.lower = thresh)
+    checkEquals(nrow(result@links), 0,
+      msg = "check high value for only lower threshold")
+    checkEquals(nrow(result@possibleLinks), 0,
+      msg = "check high value for only lower threshold")
+
+    # low value: only possible matches
+    thresh <- min(Wdata$W)
+    result <- emClassify(rpairs, threshold.lower = thresh)
+    checkEqualsNumeric(as.matrix(Wdata[order(Wdata$id1, Wdata$id2), 1:2]),
+      result@possibleLinks[order(result@possibleLinks[,1], result@possibleLinks[,2]),],
+      msg = "check low value for only lower threshold")
+
+  # upper threshold with lower threshold = -Inf (only possibles and matches)
+    # feasible value
+    thresh <- sample(unique(Wdata$W),1)
+    result <- emClassify(rpairs, threshold.upper = thresh,
+      threshold.lower = -Inf)
+    reqLinks <- Wdata[Wdata$W >= thresh, 1:2]
+    reqPossibleLinks <- Wdata[Wdata$W < thresh, 1:2]
+    checkEqualsNumeric(result@links[order(result@links[,1], result@links[,2]),],
+      as.matrix(reqLinks[order(reqLinks$id1, reqLinks$id2), ]),
+      msg = "check links, upper threshold and lower = -Inf, feasible value")
+    checkEqualsNumeric(result@possibleLinks[order(result@possibleLinks[,1],
+      result@possibleLinks[,2]),],
+      as.matrix(reqPossibleLinks[order(reqPossibleLinks$id1, reqPossibleLinks$id2), ]),
+      msg = "check links, upper threshold and lower = -Inf, feasible value")
+
+    # high value: only possibles
+    thresh <- max(Wdata$W + 1)
+    result <- emClassify(rpairs, threshold.upper = thresh,
+      threshold.lower = -Inf)
+    checkEqualsNumeric(as.matrix(Wdata[order(Wdata$id1, Wdata$id2), 1:2]),
+      result@possibleLinks[order(result@possibleLinks[,1], result@possibleLinks[,2]),],
+      msg = "check high value for upper threshold and lower = -Inf")
+
+
+    # low value: only matches
+    thresh <- min(Wdata$W)
+    result <- emClassify(rpairs, threshold.upper = thresh,
+      threshold.lower = -Inf)
+    checkEqualsNumeric(as.matrix(Wdata[order(Wdata$id1, Wdata$id2), 1:2]),
+      result@links[order(result@links[,1], result@links[,2]),],
+      msg = "check low value for upper threshold and lower = -Inf")
+
+}
 
 test.optimalThreshold.exceptions <- function()
 {

@@ -28,7 +28,7 @@ genSamples(dataset, num.non, des.mprop = 0.1)
   warning is issued and the maximum possible number is considered.
 }
 \value{
-  A list of \code{\link{RecLinkResult}} objects.
+  A list of \code{\link[=RecLinkResult-class]{"RecLinkResult"}} objects.
   \item{train}{The sampled training data.}
   \item{valid}{All other record pairs}
   Record pairs are split into the respective \code{pairs} components.

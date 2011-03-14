@@ -29,7 +29,7 @@ optimalThreshold(rpairs, my = NaN, ny = NaN)
   \code{\link{epiWeights}}. The true match result must be known for
   \code{rpairs}.
   
-  For the following it is assumed that all records with weights greater than or
+  For the following, it is assumed that all records with weights greater than or
   equal to the threshold are classified as links, the remaining as non-links.
   If no further arguments are given, a threshold which minimizes the
   absolute number of misclassified record pairs is returned. If \code{my} is 

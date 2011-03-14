@@ -1,0 +1,10 @@
+
+Deduplication Data Set
+
+5 records 
+10 record pairs 
+
+1 matches
+5 non-matches
+4 pairs with unknown status
+

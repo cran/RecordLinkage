@@ -63,14 +63,14 @@ test.getPairs <- function()
   result <- getPairs(rpairs)
   
   # check general format
-  checkEquals(colnames(result), c("Weight", "id", 
-    colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))])))
+  checkEquals(colnames(result), c("id",
+    colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]), "Weight"))
   # ensure number of pairs is correct
-  checkEquals(nrow(result)/2, nrow(rpairs$pairs),
+  checkEquals(nrow(result)/3, nrow(rpairs$pairs),
     msg="check number of pairs for default arguments")
   # ensure pairs are sorted correctly by weight
-  ind <- 2* (1:(nrow(result)/2)) - 1
-  weights <- as.numeric(levels(result$Weight)[result$Weight])[ind]
+  weights <- result$Weight[result$Weight!=""]
+  weights <- as.numeric(levels(weights)[weights])
   checkEqualsNumeric(sort(weights, decreasing=TRUE), weights, tolerance=1e-6,
     msg="check sorting for default arguments")
 
@@ -79,10 +79,10 @@ test.getPairs <- function()
   rpairs2$Wdata <- NULL
   result <- getPairs(rpairs2)
   # ensure number of pairs is correct
-  checkEquals(nrow(result)/2, nrow(rpairs$pairs),
+  checkEquals(nrow(result)/3, nrow(rpairs$pairs),
     msg="check number of pairs for default arguments and data without weights")
   # check that weights are set to NA
-  ind <- 2* (1:(nrow(result)/2)) - 1
+  ind <- 3* (1:(nrow(result)/3)) - 1
   checkTrue(all(is.na(result$Weight[ind])),
     msg="check that weights are NA when using dataset without weights")
   
@@ -94,23 +94,23 @@ test.getPairs <- function()
     # upper threshold only
     max.weight <- runif(1,0,max(rpairs$Wdata))
     result <- getPairs(rpairs, max.weight=max.weight)
-    ind <- 2* (1:(nrow(result)/2)) - 1
+    ind <- 3* (1:(nrow(result)/3)) - 1
     # check that threshold limits are met
     checkTrue(all(as.numeric(as.character(result$Weight[ind])) < max.weight),
       msg="check weight limit through upper threshold")
     # check that number of selected pairs is correct
-    checkEquals(nrow(result) / 2, sum(rpairs$Wdata < max.weight),
+    checkEquals(nrow(result) / 3, sum(rpairs$Wdata < max.weight),
       msg="check number of pairs with upper threshold")
   
   # lower threshold only
     min.weight <- runif(1,min(rpairs$Wdata),0)
     result <- getPairs(rpairs, min.weight=min.weight)
-    ind <- 2* (1:(nrow(result)/2)) - 1
+    ind <- 3* (1:(nrow(result)/3)) - 1
     # check that threshold limits are met
     checkTrue(all(as.numeric(as.character(result$Weight[ind])) >= min.weight),
       msg="check weight limit through lower threshold")
     # check that number of selected pairs is correct
-    checkEquals(nrow(result) / 2, sum(rpairs$Wdata >= min.weight),
+    checkEquals(nrow(result) / 3, sum(rpairs$Wdata >= min.weight),
       msg="check number of pairs with upper threshold")
 
   # two thresholds
@@ -119,13 +119,13 @@ test.getPairs <- function()
     max.weight <- max(thresholds)+0.1
     min.weight <- min(thresholds)-0.1
     result <- getPairs(rpairs, max.weight=max.weight, min.weight=min.weight)
-    ind <- 2* (1:(nrow(result)/2)) - 1
+    ind <- 3* (1:(nrow(result)/3)) - 1
     # check that threshold limits are met
     checkTrue(all(as.numeric(as.character(result$Weight[ind])) >= min.weight
       & as.numeric(as.character(result$Weight[ind])) < max.weight),
       msg="check weight limit through lower threshold")
     # check that number of selected pairs is correct
-    checkEquals(nrow(result) / 2, sum(rpairs$Wdata >= min.weight &
+    checkEquals(nrow(result) / 3, sum(rpairs$Wdata >= min.weight &
       rpairs$Wdata < max.weight),
       msg="check number of pairs with upper threshold")
 }
@@ -134,19 +134,19 @@ test.getPairs <- function()
   result <- getPairs(rpairs, show="links")
   # check that number of selected pairs equals number of links
   links_rpairs <- sum(rpairs$prediction=="L")
-  checkEquals(nrow(result)/2, links_rpairs)
+  checkEquals(nrow(result)/3, links_rpairs)
 
   # select only non-links
   result <- getPairs(rpairs, show="nonlinks")
   # check that number of selected pairs equals number of non-links
   nonlinks_rpairs <- sum(rpairs$prediction=="N")
-  checkEquals(nrow(result)/2, nonlinks_rpairs)
+  checkEquals(nrow(result)/3, nonlinks_rpairs)
   
   # select only possible links
   result <- getPairs(rpairs, show="possible")
   # check that number of selected pairs equals number of possible links  
   possible_rpairs <- sum(rpairs$prediction=="P")
-  checkEquals(nrow(result)/2, possible_rpairs)
+  checkEquals(nrow(result)/3, possible_rpairs)
 
   # combine weight range and linkage restriction
 
@@ -159,7 +159,7 @@ test.getPairs <- function()
     result <-getPairs(rpairs, max.weight=max.weight, min.weight=min.weight,
     show="links")
     # check that number of selected pairs is correct
-    checkEquals(nrow(result) / 2, sum(rpairs$Wdata >= min.weight &
+    checkEquals(nrow(result) / 3, sum(rpairs$Wdata >= min.weight &
       rpairs$Wdata <max.weight & rpairs$prediction=="L"),
       msg="check combination of thresholds and links only")
   
@@ -170,7 +170,7 @@ test.getPairs <- function()
     result <-getPairs(rpairs, max.weight=max.weight, min.weight=min.weight,
     show="nonlinks")
     # check that number of selected pairs is correct
-    checkEquals(nrow(result) / 2, sum(rpairs$Wdata >= min.weight &
+    checkEquals(nrow(result) / 3, sum(rpairs$Wdata >= min.weight &
       rpairs$Wdata <max.weight & rpairs$prediction=="N"),
       msg="check combination of thresholds and non-links only")
 
@@ -181,7 +181,7 @@ test.getPairs <- function()
     result <-getPairs(rpairs, max.weight=max.weight, min.weight=min.weight,
     show="possible")
     # check that number of selected pairs is correct
-    checkEquals(nrow(result) / 2, sum(rpairs$Wdata >= min.weight &
+    checkEquals(nrow(result) / 3, sum(rpairs$Wdata >= min.weight &
       rpairs$Wdata <max.weight & rpairs$prediction=="P"),
       msg="check combination of thresholds and possible links only")
   }
@@ -195,8 +195,8 @@ test.getPairs <- function()
   min.weight <- weights[ind] + diff*0.3
   result <- getPairs(rpairs,max.weight=max.weight, min.weight=min.weight)
   checkEquals(nrow(result), 0, msg="check size of empty result")
-  checkEquals(colnames(result), c("Weight", "id", 
-    colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))])),
+  checkEquals(colnames(result), c("id",
+    colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]), "Weight"),
     msg="check column names of empty result")
   
   
@@ -208,9 +208,10 @@ test.getPairs <- function()
   result <- getPairs(rpairs, single.rows=TRUE)
 
   # check general format
-  checkEquals(colnames(result), c("Weight", 
+  checkEquals(colnames(result), c(
     "id1", paste(colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]),"1", sep="."),
-    "id2", paste(colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]),"2", sep=".")))
+    "id2", paste(colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]),"2", sep="."),
+    "Weight"))
 
   # ensure number of pairs is correct
   checkEquals(nrow(result), nrow(rpairs$pairs),
@@ -337,9 +338,10 @@ test.getPairs <- function()
   result <- getPairs(rpairs,max.weight=max.weight, min.weight=min.weight,
     single.rows=TRUE)
   checkEquals(nrow(result), 0, msg="check size of empty result")
-  checkEquals(colnames(result), c("Weight", 
+  checkEquals(colnames(result), c(
     "id1", paste(colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]),"1", sep="."),
-    "id2", paste(colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]),"2", sep=".")),
+    "id2", paste(colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]),"2", sep="."),
+    "Weight"),
     msg="check column names of empty result, single row")
   
   # checks for usage with linkage datasets omitted, implementation

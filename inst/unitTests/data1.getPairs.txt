@@ -1,0 +1,7 @@
+# Test data for getPairs. Attribute values are not of major concern here,
+# but identity information (see identity1.getPairs.txt) is crucial
+fname_c1, fname_c2, lname_c1, lname_c2, by, bm, bd
+FRANK,,MUELLER,,1967,9,27
+FRANK,MARTIN,MUELER,,1967,8,27
+HANS,PETER,SCHMITT,,1945,8,14
+MARTIN,,MUELLER,,1950,2,4

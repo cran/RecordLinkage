@@ -4,9 +4,10 @@ RUNIT_DIR=$(shell pwd)
 INST_PATH=$(shell dirname ${RUNIT_DIR})
 PKG_PATH=$(shell dirname ${INST_PATH})
 
+.PHONY: FORCE
 all: install test
 
-install:
+install:	
 	cd ${TOP}; \
 	R CMD INSTALL --clean ${PKG_PATH} && \
 	cd ${RUNIT_DIR}
@@ -17,4 +18,5 @@ test:
 %.R: FORCE
 	./runfile.sh $@
 
-FORCE:
+%.r: FORCE
+	./runfile.sh $@

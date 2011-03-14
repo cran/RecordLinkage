@@ -99,3 +99,189 @@ test.subset <- function()
   checkEquals(result$prediction[s], resultSamp$prediction)
 
 }
+
+test.getExpectedSize.data.frame <- function()
+{
+  # set up test data of the following form:
+  #  x1,x2
+  #  1,1
+  #  1,1
+  #  2,1
+  #  2,2
+  #  3,1
+  #  3,2
+  testdat <- as.data.frame(matrix(c(1,1,2,2,3,3,1,1,1,2,1,2), ncol=2))
+  names(testdat) <- c("x1", "x2")
+  # Blocking on x1 gives 3 pairs
+  checkEquals(getExpectedSize(testdat, 1), 3)
+
+  # Blocking on x2 gives 7 pairs
+  checkEquals(getExpectedSize(testdat, 2), 7)
+
+  # Blocking with x1 and x2 (union): expected size should be
+  # 15 [possible number of combinations]
+  # * (1 -  [probability of complementary event]
+  #    (4/5 [chance of not passing the first blocking]
+  #    * 8/15) [chance of not passing the second blocking]
+  #   ) = 8.6
+  checkEquals(getExpectedSize(testdat, list(1,2)), 8.6)
+
+  # Blocking with x1 and x2 (intersect): only 1 pair
+  checkEquals(getExpectedSize(testdat, c(1,2)), 1)
+}
+
+
+test.getExpectedSize.RLBigDataDedup <- function()
+{
+  # set up test data of the following form:
+  #  x1,x2
+  #  1,1
+  #  1,1
+  #  2,1
+  #  2,2
+  #  3,1
+  #  3,2
+  testdat <- as.data.frame(matrix(c(1,1,2,2,3,3,1,1,1,2,1,2), ncol=2))
+  names(testdat) <- c("x1", "x2")
+  # Blocking on x1 gives 3 pairs
+  checkEquals(getExpectedSize(RLBigDataDedup(testdat, blockfld=1)), 3)
+
+  # Blocking on x2 gives 7 pairs
+  checkEquals(getExpectedSize(RLBigDataDedup(testdat, blockfld=2)), 7)
+
+  # Blocking with x1 and x2 (union): expected size should be
+  # 15 [possible number of combinations]
+  # * (1 -  [probability of complementary event]
+  #    (4/5 [chance of not passing the first blocking]
+  #    * 8/15) [chance of not passing the second blocking]
+  #   ) = 8.6
+  checkEquals(getExpectedSize(RLBigDataDedup(testdat, blockfld=list(1,2))), 8.6)
+
+  # Blocking with x1 and x2 (intersect): only 1 pair
+  checkEquals(getExpectedSize(RLBigDataDedup(testdat, blockfld=c(1,2))), 1)
+}
+
+
+test.getExpectedSize.RLBigDataLinkage <- function()
+{
+  # set up test data of the following form:
+  #  x1,x2
+  #  1,1
+  #  2,1
+  #  2,2
+  #  3,1
+  #  3,2
+  testdat <- as.data.frame(matrix(c(1,2,2,3,3,1,1,2,1,2), ncol=2))
+  names(testdat) <- c("x1", "x2")
+  # Blocking on x1 gives 9 pairs
+  checkEquals(getExpectedSize(RLBigDataLinkage(testdat, testdat, blockfld=1)), 9)
+
+  # Blocking on x2 gives 13 pairs
+  checkEquals(getExpectedSize(RLBigDataLinkage(testdat, testdat, blockfld=2)), 13)
+
+  # Blocking with x1 and x2 (union): expected size should be
+  # 25 [possible number of combinations]
+  # * (1 -  [probability of complementary event]
+  #    (16/25 [chance of not passing the first blocking]
+  #    * 12/25) [chance of not passing the second blocking]
+  #   ) = 20.32
+  checkEquals(getExpectedSize(RLBigDataLinkage(testdat, testdat, blockfld=list(1,2))), 17.32)
+
+  # Blocking with x1 and x2 (intersect): 5 pairs
+  checkEquals(getExpectedSize(RLBigDataLinkage(testdat, testdat, blockfld=c(1,2))), 5)
+}
+
+
+test.append <- function()
+{
+  data(RLdata500)
+  s <- sample(500, 250)
+  rpairs1 <- compare.dedup(RLdata500[s,], identity = identity.RLdata500[s])
+  rpairs2 <- compare.dedup(RLdata500[-s,], identity = identity.RLdata500[-s])
+  rpairs1 <- epiWeights(rpairs1)
+  rpairs2 <- epiWeights(rpairs2)
+  testResult <- rpairs1 %append% rpairs2
+  
+  
+  checkEquals(testResult$pairs, rbind(rpairs1$pairs, rpairs2$pairs))
+  checkEquals(testResult$Wdata, c(rpairs1$Wdata, rpairs2$Wdata))
+  
+  result1 <- epiClassify(rpairs1, 0.7, 0.5)
+  result2 <- epiClassify(rpairs1, 0.7, 0.5)
+  testResult <- result1 %append% result2
+  
+  checkEquals(testResult$pairs, rbind(result1$pairs, result2$pairs))
+  checkEquals(testResult$Wdata, c(result1$Wdata, result2$Wdata))
+  checkEquals(as.character(testResult$prediction),
+    c(as.character(result1$prediction), as.character(result2$prediction)))
+  checkEquals(class(testResult$prediction), "factor")
+  checkEquals(levels(testResult$prediction), c("N", "P", "L"))
+}
+
+test.summary <- function()
+{
+  # The output of summary is matched against the most important information
+  # on the data set
+
+  data1 <- read.table("data1.compare.txt", sep=",", header=TRUE)
+  identity1 <- scan("identity1.summary.txt", sep=",")
+  rpairs <- compare.dedup(data1, identity = identity1)
+  testResult <- capture.output(summary(rpairs))
+  # the data at hand should contain 1 match, 4 unknown pairs and 5 non-matches
+  checkTrue(any(grepl("Deduplication", testResult)))
+  checkTrue(any(grepl("5 records", testResult)))
+  checkTrue(any(grepl("10 record pairs", testResult)))
+  checkTrue(any(grepl("1 match", testResult)))
+  checkTrue(any(grepl("5 non-matches", testResult)))
+  checkTrue(any(grepl("4 pairs with unknown status", testResult)))
+
+  # create result object
+  result <- rpairs
+  result$prediction <- c("L", "L", "L", "P", "P", "N", "N", "N", "N", "N")
+  class(result) <- c("RecLinkResult", "RecLinkData")
+  testResult <- capture.output(summary(result))
+  checkTrue(any(grepl("3 links", testResult)))
+  checkTrue(any(grepl("5 non-links", testResult)))
+  checkTrue(any(grepl("2 possible links", testResult)))
+
+  # check linkage data
+  data2 <- read.table("data2.compare.txt", sep=",", header=TRUE)
+  data3 <- read.table("data3.compare.txt", sep=",", header=TRUE)
+  identity2 <- scan("identity2.compare.txt", sep=",", comment.char="#")
+  identity3 <- scan("identity3.compare.txt", sep=",", comment.char="#")
+  rpairs <- compare.linkage(data2, data3, identity1=identity2, identity2=identity3)
+  testResult <- capture.output(summary(rpairs))
+  checkTrue(any(grepl("Linkage", testResult)))
+  checkTrue(any(grepl("3 records", testResult))) # first data set
+  checkTrue(any(grepl("2 records", testResult))) # second data set
+  checkTrue(any(grepl("6 record pairs", testResult))) # second data set
+  checkTrue(any(grepl("1 match", testResult)))
+  checkTrue(any(grepl("5 non-matches", testResult)))
+  checkTrue(any(grepl("0 pairs with unknown status", testResult)))
+
+}
+
+test.show <- function()
+{
+  data1 <- read.table("data1.compare.txt", sep=",", header=TRUE)
+  identity1 <- scan("identity1.summary.txt", sep=",")
+  rpairs <- RLBigDataDedup(data1, identity = identity1)
+  testResult <- capture.output(show(rpairs))
+  checkTrue(any(grepl("Deduplication", testResult)))
+  checkTrue(any(grepl("5 records", testResult)))
+  checkTrue(any(grepl("1 match", testResult)))
+  checkTrue(any(grepl("4 pairs with unknown status", testResult)))
+
+  # linkage data
+  data2 <- read.table("data2.compare.txt", sep=",", header=TRUE)
+  data3 <- read.table("data3.compare.txt", sep=",", header=TRUE)
+  identity2 <- scan("identity2.compare.txt", sep=",", comment.char="#")
+  identity3 <- scan("identity3.compare.txt", sep=",", comment.char="#")
+  rpairs <- RLBigDataLinkage(data2, data3, identity1=identity2, identity2=identity3)
+  testResult <- capture.output(show(rpairs))
+  checkTrue(any(grepl("Linkage", testResult)))
+  checkTrue(any(grepl("3 records", testResult))) # first data set
+  checkTrue(any(grepl("2 records", testResult))) # second data set
+  checkTrue(any(grepl("1 match", testResult)))
+  checkTrue(any(grepl("0 pairs with unknown status", testResult)))
+}

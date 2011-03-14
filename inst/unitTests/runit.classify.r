@@ -168,8 +168,12 @@ test.trainSupv <- function()
       msg=sprintf("check class of generated model"))
     checkEquals(classif$method, "rpart",
       msg=sprintf("check method component"))
+
     # check class only once
     checkEquals(class(classif), "RecLinkClassif")
+    # check attribute names
+    checkEquals(classif$attrNames, colnames(rpairs$pairs)[-c(1,2,ncol(rpairs$pairs))],
+      msg = "Check attribute names")
 
     classif <- trainSupv(rpairs, method="bagging")
     checkEquals(class(classif$model), "classbagg",
@@ -254,8 +258,9 @@ test.trainSupv <- function()
   classif <- trainSupv(rpairs2, "rpart", omit.possible=TRUE, convert.na=FALSE, x=TRUE)
   checkEqualsNumeric(as.matrix(classif$model$x), as.matrix(rpairs2$pairs[-s,-c(1,2,ncol(rpairs$pairs))]),
     msg="Check if unknown pairs are omitted correctly")
-  # check match status after conversion to factors (0 -> 1 "N", 1 -> 3 "L")
-  checkEqualsNumeric(as.matrix(classif$model$y), as.double(rpairs2$pairs$is_match[-s]) * 2 + 1,
+  # check match status after conversion to factors (0 -> 1 "N", 1 -> 2 "L")
+  # Match is class in the predictor 2 because unused levels are dropped
+  checkEqualsNumeric(as.matrix(classif$model$y), as.double(rpairs2$pairs$is_match[-s]) + 1,
     msg="Check if unknown pairs are omitted correctly")
 
   # check if examples are omitted correctly with using prediction
@@ -270,8 +275,9 @@ test.trainSupv <- function()
     x=TRUE, use.pred=TRUE)
   checkEqualsNumeric(as.matrix(classif$model$x), as.matrix(rpairs2$pairs[-s,-c(1,2,ncol(rpairs$pairs))]),
     msg="Check if unknown pairs are omitted correctly using prediction")
-  # check match status after conversion to factors (0 -> 1 "N", 1 -> 3 "L")
-  checkEqualsNumeric(as.matrix(classif$model$y), as.double(rpairs2$prediction[-s]),
+  # check match status after conversion to factors (0 -> 1 "N", 1 -> 2 "L")
+  # unused levels are dropped by enclosing prediction in factor()
+  checkEqualsNumeric(as.double(classif$model$y), as.double(factor(rpairs2$prediction[-s])),
     msg="Check if unknown pairs are omitted correctly using prediction")
 
 
@@ -282,7 +288,7 @@ test.trainSupv <- function()
   checkEqualsNumeric(as.matrix(classif$model$x), as.matrix(rpairs2$pairs[,-c(1,2,ncol(rpairs$pairs))]),
     msg="Check if unknown pairs are omitted correctly")
   # check match status after conversion to factors (0 -> 1 "N", 1 -> 3 "L")
-  checkEqualsNumeric(as.matrix(classif$model$y), as.double(rpairs2$pairs$is_match) * 2 + 1,
+  checkEqualsNumeric(as.double(classif$model$y), as.double(factor(rpairs2$pairs$is_match)) ,
     msg="Check if unknown pairs are omitted correctly")
 
 
@@ -450,5 +456,37 @@ test.classifySupv <- function()
     # matches exist
     checkTrue(sum(result$prediction=="N") > sum(result$prediction=="L"),
       msg = sprintf(" check feasible match proportion for method %s", method))
+  }
+}
+
+
+test.classifySupv.RLBigData <- function()
+{
+  data(RLdata500)
+  rpairs <- compare.dedup(RLdata500, identity=identity.RLdata500,
+    blockfld=list(5:6, 6:7, c(5,7)))
+  data(RLdata10000)
+  newdata <- RLBigDataDedup(RLdata10000, identity=identity.RLdata10000,
+    blockfld=list(5:6, 6:7, c(5,7)))
+  newdataS3 <- compare.dedup(RLdata10000, identity=identity.RLdata10000,
+    blockfld=list(5:6, 6:7, c(5,7)))
+
+  for (method in c("rpart", "bagging", "ada", "svm", "nnet"))
+  {
+    classif <- trainSupv(rpairs, method=method)
+    result <- classifySupv(classif, newdata)
+    # check class
+    checkTrue(is(result, "RLResult"),
+      msg = sprintf(" check class of result for method %s", method))
+
+    # check that result is equal when applying the RecLinkData-method
+    resultS3 <- classifySupv(classif, newdataS3)
+    linkIds <- result@links
+    linkIds <- linkIds[order(linkIds[,1], linkIds[,2]),]
+    linkIdsS3 <- as.matrix(resultS3$pairs[resultS3$prediction=="L", 1:2])
+    linkIdsS3 <- linkIdsS3[order(linkIdsS3[,1], linkIdsS3[,2]),]
+    checkEqualsNumeric(linkIds, linkIdsS3, msg = paste("check that result is",
+      "equal to that of RecLinkData-method for", method))
+
   }
 }

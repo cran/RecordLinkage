@@ -6,7 +6,7 @@
 \title{Print Summary of Record Linkage Data}
 
 \description{Prints information on \code{\link{RecLinkData}} and
-  \code{\link{RecLinkResult}} objects.}
+  \code{"\linkS4class{RecLinkResult}"} objects.}
 
 \usage{
 \method{summary}{RecLinkData}(object,...)
@@ -32,16 +32,16 @@
         \item If weights have been calculated for this object, a textual histogram
           of the weight distribution.            
        }
-       Information on \code{\link{RecLinkResult}} objects includes all of the
+       Information on \code{"\linkS4class{RecLinkResult}"} objects includes all of the
        above and the following:
        \itemize{
           \item The number of detected links, non-links and possible links.
           
-          \item Error rates, if the true matching status of all record pairs is
-            known. Alpha error is the ratio of false links
-            to matches, beta error is the ratio of false non-links to
-            non-matches and accuracy the ratio of correctly classified
-            pairs to the total number of pairs.
+          \item The following error measures, if the true matching status of all record pairs is
+            known: Alpha error (ratio of false links
+            to matches), beta error (ratio of false non-links to
+            non-matches) and accuracy (ratio of correctly classified
+            pairs to the total number of pairs).
             
           \item A cross-classified table counting true matching status against
             classification. The true matching status is represented as logical
@@ -56,10 +56,10 @@
       }
 }
 
-\value{Used for its side effect.}
+\value{Returns an invisible \code{NULL} and is used for its side effect.}
 
 \author{Andreas Borg}
 
-\seealso{\code{\link{RecLinkData}},\code{\link{RecLinkResult}}}
+\seealso{\code{\link{RecLinkData}},\code{"\linkS4class{RecLinkResult}"}}
 
 \keyword{classif}

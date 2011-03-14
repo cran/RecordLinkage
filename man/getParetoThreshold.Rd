@@ -47,10 +47,9 @@ getParetoThreshold(rpairs, quantil = 0.95, interval = NA)
   A classification threshold.
 }
 \references{
-  Sariyar et al.: Bestimmung der False Match-Rate im Fellegi-Sunter-Modell 
-  mittels verallgemeinerter Paretoverteilung, Presentation for
-  54. Jahrestagung der Deutschen Gesellschaft für Medizinische 
-  Informatik, Biometrie und Epidemiologie e.V. (GMDS).
+  Sariyar M., Borg A. and Pommerening M.: Controlling false match rates in
+  record linkage using extreme value theory. Journal of Biomedical Informatics
+  (article in press), \url{http://dx.doi.org/10.1016/j.jbi.2011.02.008}.
 }
 \author{
   Andreas Borg, Murat Sariyar

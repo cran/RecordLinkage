@@ -3,8 +3,9 @@
 #include <R.h>
 
 
-static int levenshtein_internal(const char *s, const char *t,
+int levenshtein_internal(const char *s, const char *t,
                      int ins_c, int del_c, int sub_c);
+
 void levenshtein(char ** strvec_1, char ** strvec_2,
              int * length_1, int * length_2, int * ans);
 
@@ -52,7 +53,7 @@ void levenshtein(char ** strvec_1, char ** strvec_2,
  * Below follows extract of PostgreSQL modul fuzzystrmatch. Only the relevant
  * function levenshtein_internal is retained here. Some changes were made
  * to fit the needs of an R function (R_alloc is used, PostgreSQL 
- * error handling has been removed).   
+ * error handling has been removed, static keyword is removed from signature).   
  */
  
 /* Definition fom PostgreSQL sources */ 
@@ -107,7 +108,7 @@ void levenshtein(char ** strvec_1, char ** strvec_2,
  *                        (1, 1, 1) penalty costs suffices common
  *                        cases, but your mileage may vary.
  */
-static int
+int
 levenshtein_internal(const char *s, const char *t,
                      int ins_c, int del_c, int sub_c)
 {
