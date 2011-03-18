@@ -1,3 +1,13 @@
+Changes in version 0.3-1
+	- fixed bug in emClassify that threw an error during  classification 
+	  with on-the-fly calculation of weights
+	- added checks in unit tests
+	- fixed bug in optimalThreshold which caused wrong results in some
+	  cases when ny was supplied
+	- added status messages and progress bars to various classification functions
+	- fixed numerical problem that produced wrong thresholds in some cases
+    for emClassify (with my / ny supplied) 
+
 Changes in version 0.3-0
 
 	- A framework of S4 methods and classes tailored for processing large

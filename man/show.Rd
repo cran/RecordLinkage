@@ -17,13 +17,13 @@
   \item{object}{The object for which to show a summary.}
 }
 \details{
-   The printed information consists of:
-  \itemize{
-    \item{The type of linkage procedure (deduplication or linkage).}
-    \item{The number of records.}
-    \item{The number of true matches and pairs with unknown status.}
-  }
+   The printed information consists of the type of linkage procedure
+   (deduplication or linkage) and the number of records and the approximate
+   number of record pairs as calculated by \code{\link{getExpectedSize}}.
+   More information is obtained by the
+   \code{\link[=summary,RLBigDataDedup-method]{summary}} methods for these classes.
 }
+
 
 \value{
   \code{show} returns an invisible \code{NULL} and is used for its side effect.

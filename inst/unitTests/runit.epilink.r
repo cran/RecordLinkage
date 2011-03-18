@@ -73,7 +73,11 @@ test.epiWeights.exceptions <- function()
   # illegal error rate ( e > 1-f)
   checkException(epiWeights(rpairs, f=c(0.01,0.5,0.1,0.5,0.02,0.08,0.03), 
     e=0.55), msg = "error rate does not satisfy e <= 1-f")
-  
+
+  rpairsBig <- RLBigDataDedup(RLdata500, blockfld = list(1,3,5,6,7))
+  dbDisconnect(rpairsBig@con)
+  checkException(epiWeights(rpairsBig), msg = "invalid SQLite connection")
+
 
 }
 
@@ -168,7 +172,13 @@ test.epiClassify.exceptions <- function()
   # runif will not generate 0 (see doc), is greater than 0
   checkException(epiClassify(rpairs, threshold.upper=0, threshold.lower=runif(1)),
     msg = "lower threshold greater than upper threshold")
-  
+
+  # RLBigData object with expired SQLite connection
+  rpairsBig <- RLBigDataDedup(RLdata500, blockfld = list(1,3,5,6,7))
+  rpairsBig <- epiWeights(rpairsBig)
+  dbDisconnect(rpairsBig@con)
+  checkException(epiClassify(rpairsBig, 0.6), msg = "invalid SQLite connection")
+
 
 }
 

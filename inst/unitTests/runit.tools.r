@@ -123,8 +123,8 @@ test.getExpectedSize.data.frame <- function()
   # * (1 -  [probability of complementary event]
   #    (4/5 [chance of not passing the first blocking]
   #    * 8/15) [chance of not passing the second blocking]
-  #   ) = 8.6
-  checkEquals(getExpectedSize(testdat, list(1,2)), 8.6)
+  #   ) = 8.6, rounded 9
+  checkEquals(getExpectedSize(testdat, list(1,2)), 9)
 
   # Blocking with x1 and x2 (intersect): only 1 pair
   checkEquals(getExpectedSize(testdat, c(1,2)), 1)
@@ -154,8 +154,8 @@ test.getExpectedSize.RLBigDataDedup <- function()
   # * (1 -  [probability of complementary event]
   #    (4/5 [chance of not passing the first blocking]
   #    * 8/15) [chance of not passing the second blocking]
-  #   ) = 8.6
-  checkEquals(getExpectedSize(RLBigDataDedup(testdat, blockfld=list(1,2))), 8.6)
+  #   ) = 8.6, rounded: 9
+  checkEquals(getExpectedSize(RLBigDataDedup(testdat, blockfld=list(1,2))), 9)
 
   # Blocking with x1 and x2 (intersect): only 1 pair
   checkEquals(getExpectedSize(RLBigDataDedup(testdat, blockfld=c(1,2))), 1)
@@ -184,8 +184,8 @@ test.getExpectedSize.RLBigDataLinkage <- function()
   # * (1 -  [probability of complementary event]
   #    (16/25 [chance of not passing the first blocking]
   #    * 12/25) [chance of not passing the second blocking]
-  #   ) = 20.32
-  checkEquals(getExpectedSize(RLBigDataLinkage(testdat, testdat, blockfld=list(1,2))), 17.32)
+  #   ) = 17.32, rounded 17
+  checkEquals(getExpectedSize(RLBigDataLinkage(testdat, testdat, blockfld=list(1,2))), 17)
 
   # Blocking with x1 and x2 (intersect): 5 pairs
   checkEquals(getExpectedSize(RLBigDataLinkage(testdat, testdat, blockfld=c(1,2))), 5)
@@ -269,8 +269,9 @@ test.show <- function()
   testResult <- capture.output(show(rpairs))
   checkTrue(any(grepl("Deduplication", testResult)))
   checkTrue(any(grepl("5 records", testResult)))
-  checkTrue(any(grepl("1 match", testResult)))
-  checkTrue(any(grepl("4 pairs with unknown status", testResult)))
+# deactivated: show was modified, this information is now in summary()
+#  checkTrue(any(grepl("1 match", testResult)))
+#  checkTrue(any(grepl("4 pairs with unknown status", testResult)))
 
   # linkage data
   data2 <- read.table("data2.compare.txt", sep=",", header=TRUE)
@@ -282,6 +283,7 @@ test.show <- function()
   checkTrue(any(grepl("Linkage", testResult)))
   checkTrue(any(grepl("3 records", testResult))) # first data set
   checkTrue(any(grepl("2 records", testResult))) # second data set
-  checkTrue(any(grepl("1 match", testResult)))
-  checkTrue(any(grepl("0 pairs with unknown status", testResult)))
+# deactivated: show was modified, this information is now in summary()
+#  checkTrue(any(grepl("1 match", testResult)))
+#  checkTrue(any(grepl("0 pairs with unknown status", testResult)))
 }

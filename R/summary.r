@@ -121,45 +121,112 @@ setMethod(
       cat(sprintf("%d records in first data set",nrow(object@data1)),"\n")
       cat(sprintf("%d records in second data set",nrow(object@data2)),"\n")
     }
+  }
+)
 
 
-    # TODO: blocking information
-
-    # if weights are stored in DB, the exact number of pairs is readily available
-    if (dbExistsTable(con, "Wdata"))
+setMethod(
+  f = "summary",
+  signature = "RLBigDataDedup",
+  definition = function(object)
+  {
+    val <- list()
+    val[["nData"]] <- as.vector(dbGetQuery(object@con, "select count(*) from data")$count)
+    val[["attributes"]] <- if (length(rpairs@excludeFld) == 0)
+        names(rpairs@data) else names(rpairs@data)[-rpairs@excludeFld]
+    val[["blockFld"]] <- lapply(object@blockFld, function(x) names(rpairs@data)[x])
+    val$expectedSize <- getExpectedSize(object)
+    val$nMatches <- getMatchCount(object)
+    # number of unknown pairs: rarely used, calculation may be time-consuming
+    #    val$nUnknown <- getNACount(object)
+    if(dbExistsTable(object@con, "Wdata"))
     {
-      npairs <- dbGetQuery(con, "select count(*) as c from Wdata")$c
-      cat(sprintf("%d record pairs\n",npairs))
-    } else
-    {
-#      npairs <- getExpectedSize(object@data, object@blockFld)
- #     cat(sprintf("Approximately %d record pairs\n", round(npairs)))
-    }
-
-    cat("\n")
-
-  	cat(sprintf("%d matches\n",
-          getMatchCount(object)))
-    	cat(sprintf("%d pairs with unknown status\n",
-            getNACount(object)))
-    cat("\n")
-
-  	if (dbExistsTable(con, "Wdata"))
-  	{
-    # TODO: check performance for very large sets
-      Wdata <- dbGetQuery(con, "select W from Wdata")$W
-  		cat("Weight distribution:\n\n")
-  		h=hist(Wdata,plot=FALSE)
+  		h=hist(dbReadTable(object@con, "Wdata")$W, plot=FALSE)
   		c=h$counts
   		# nehme Gewichtsintervalle als Indizes, um Histogrammansicht zu erhalten
       names(c)=sapply(1:(length(h$breaks)-1),
         function(x) sprintf("(%g,%g]",h$breaks[x],h$breaks[x+1]))
       # erstes Intervall ist auch links geschlossen
       names(c)[1]=sprintf("[%g,%g]", h$breaks[1], h$breaks[2])
-  		print(c)
+      val$weightHist <- c
     }
-   }
+
+    class(val) <- "summaryRLBigDataDedup"
+    val
+  }
 )
+
+print.summaryRLBigDataDedup <- function(x, ...)
+{
+  cat("RLBigDataDedup, Deduplication object\n")
+  cat("\n")
+  cat("Number of records:", x$nData, "\n")
+  cat("Attributes:", paste(x$attributes, collapse=", "), "\n")
+  cat("Blocking definition:", paste(sapply(x$blockFld,
+    function(x) paste("[", paste(x, collapse=", "), "]", sep="")), collapse = ", "), "\n")
+  cat("Estimated number of record pairs:", x$expectedSize, "\n")
+  cat("Number of matches:", x$nMatches, "\n")
+# number of unknown pairs: rarely used, calculation may be time-consuming
+#  cat("Number of pairs with unknown status:", x$nUnknown, "\n")
+  if(!is.null(x$weightHist))
+  {
+    cat("Weight histogram:\n")
+    print(x$weightHist)
+  }
+}
+
+
+setMethod(
+  f = "summary",
+  signature = "RLBigDataLinkage",
+  definition = function(object)
+  {
+    val <- list()
+    val[["nData1"]] <- as.vector(dbGetQuery(object@con, "select count(*) from data1")$count)
+    val[["nData2"]] <- as.vector(dbGetQuery(object@con, "select count(*) from data2")$count)
+    val[["attributes"]] <- if (length(rpairs@excludeFld) == 0)
+        names(rpairs@data1) else names(rpairs@data)[-rpairs@excludeFld]
+    val[["blockFld"]] <- lapply(object@blockFld, function(x) names(rpairs@data1)[x])
+    val$expectedSize <- getExpectedSize(object)
+    val$nMatches <- getMatchCount(object)
+    # number of unknown pairs: rarely used, calculation may be time-consuming
+    #    val$nUnknown <- getNACount(object)
+    if(dbExistsTable(object@con, "Wdata"))
+    {
+  		h=hist(dbReadTable(object@con, "Wdata")$W, plot=FALSE)
+  		c=h$counts
+  		# nehme Gewichtsintervalle als Indizes, um Histogrammansicht zu erhalten
+      names(c)=sapply(1:(length(h$breaks)-1),
+        function(x) sprintf("(%g,%g]",h$breaks[x],h$breaks[x+1]))
+      # erstes Intervall ist auch links geschlossen
+      names(c)[1]=sprintf("[%g,%g]", h$breaks[1], h$breaks[2])
+      val$weightHist <- c
+    }
+
+    class(val) <- "summaryRLBigDataLinkage"
+    val
+  }
+)
+
+print.summaryRLBigDataLinkage <- function(x, ...)
+{
+  cat("RLBigDataLinkage, Linkage object\n")
+  cat("\n")
+  cat("Number of records in dataset 1:", x$nData1, "\n")
+  cat("Number of records in dataset 2:", x$nData2, "\n")
+  cat("Attributes:", paste(x$attributes, collapse=", "), "\n")
+  cat("Blocking definition:", paste(sapply(x$blockFld,
+    function(x) paste("[", paste(x, collapse=", "), "]", sep="")), collapse = ", "), "\n")
+  cat("Estimated number of record pairs:", x$expectedSize, "\n")
+  cat("Number of matches:", x$nMatches, "\n")
+# number of unknown pairs: rarely used, calculation may be time-consuming
+#  cat("Number of pairs with unknown status:", x$nUnknown, "\n")
+  if(!is.null(x$weightHist))
+  {
+    cat("Weight histogram:\n")
+    print(x$weightHist)
+  }
+}
 
 
 # get accuracy, alpha-error, beta-error etc. from result object

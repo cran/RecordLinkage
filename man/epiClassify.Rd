@@ -21,7 +21,7 @@ epiClassify(rpairs, threshold.upper, threshold.lower = threshold.upper,
 \S4method{epiClassify}{RecLinkData}(rpairs, threshold.upper, threshold.lower = threshold.upper)
 
 \S4method{epiClassify}{RLBigData}(rpairs, threshold.upper, threshold.lower = threshold.upper,
-  e = 0.01, f = getFrequencies(rpairs))
+  e = 0.01, f = getFrequencies(rpairs), withProgressBar = (sink.number()==0))
 }
 
 \arguments{
@@ -31,6 +31,7 @@ epiClassify(rpairs, threshold.upper, threshold.lower = threshold.upper,
   \item{threshold.lower}{A numeric value between 0 and 1 lower than \code{threshold.upper}}
   \item{e}{Numeric vector. Estimated error rate(s).}
   \item{f}{Numeric vector. Average frequency of attribute values.}
+  \item{withProgressBar}{Logical. Whether to display a progress bar.}
   \item{...}{Placeholder for optional arguments}
 }
 
@@ -51,6 +52,10 @@ epiClassify(rpairs, threshold.upper, threshold.lower = threshold.upper,
   during classification, but not stored. The latter behaviour might be preferable
   when a very large dataset is to be classified or disk space is limited
   (see also the notes to \code{\link{epiWeights}}).
+
+  A progress bar is displayed by the \code{"RLBigData"} method only if
+  weights are calculated on the fly and, by default, unless output is diverted by
+  \code{\link{sink}} (e.g. in a Sweave script).
 }
 
 \value{

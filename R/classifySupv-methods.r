@@ -46,6 +46,9 @@ setMethod(
   signature = c("RecLinkClassif", "RLBigData"),
   definition = function(model, newdata, withProgressBar = (sink.number()==0), ...)
   {
+    if(!isIdCurrent(newdata@con)) stop(paste("Invalid SQLite connection in newdata!",
+      "See '?saveRLObject' on how to make persistant copies of such objects."))
+
     links <- matrix(0L, 0L, nrow=0, ncol=2)
     possibleLinks <- matrix(0L, 0L, nrow=0, ncol=2)
     nPairs <- 0

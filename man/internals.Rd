@@ -49,7 +49,7 @@
   init_sqlite_extensions(db)
   .allows_extensions(db)
   .lib_path()
-  getPatternCounts(x, n=10000, cutoff=1)
+  getPatternCounts(x, n=10000, cutoff=1, withProgressBar = (sink.number()==0))
   getMatchCount(object)
   getNACount(object)
   getDbFile(object)
@@ -69,6 +69,7 @@
   \item{coln}{Column names of records.}
   \item{db}{Database connection.}
   \item{cutoff}{Threshold from which string comparison values are rounded to 1.}
+  \item{withProgressBar}{Whether to display a progress bar.}
   \item{withExcluded}{Logical. Wether to output names of excluded columns}
   \item{W,M,U}{Linkage weights, m- and u-probabilites. See \code{\link{emWeights}}
     for details.}

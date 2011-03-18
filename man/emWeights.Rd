@@ -13,16 +13,18 @@
 
   \S4method{emWeights}{RecLinkData}(rpairs, cutoff = 0.95, ...)
 
-  \S4method{emWeights}{RLBigData}(rpairs, cutoff = 0.95, store.weights = TRUE, ...)
+  \S4method{emWeights}{RLBigData}(rpairs, cutoff = 0.95, store.weights = TRUE,
+  verbose = TRUE, ...)
 }
 \arguments{
   \item{rpairs}{The record pairs for which to
     compute weights. See details.}
   \item{cutoff}{Either a numeric value in the range [0,1] or a vector with the same 
   length as the number of attributes in the data. Cutoff value for string comparator.}
-  \item{store.weights}{Logical value. Wether to store individual weights in the
+  \item{store.weights}{Logical value. Whether to store individual weights in the
     database}
-  \item{\dots}{Additional arguments for \code{\link{mygllm}}.}
+  \item{verbose}{Logical. Whether to print progress messages.}
+  \item{\dots}{Additional arguments passed to \code{\link{mygllm}}.}
 }
 \details{
   Since package version 0.3, this is a generic functions with methods for
@@ -63,6 +65,11 @@
   \code{store.weights = FALSE} may be a better choice. Subsequent calls to
   \code{\link{emClassify}} will then calculate individual weights on the fly
   during classification without saving them.
+  
+  Some progress messages are printed to the message stream (see
+  \code{\link{message}} if \code{verbose == TRUE}.
+  This includes progress bars, but these are supressed if output is diverted by
+  \code{\link{sink}} to avoid cluttering the output file.
 }
 
 \value{

@@ -3,9 +3,17 @@
 # internal Function to compute thresholds from given error bounds
 getThresholds <- function(W, M, U, my, ny)
 {
+      # Numeric tolerance. Two numbers a and b are considered equal if
+      # abs(a-b) <= tol
+      tol <- .Machine$double.eps ^ 0.5
       o=order(W,decreasing=TRUE) # order Weights decreasing
-      FN=rev(cumsum(rev(M[o])))
-      FP=cumsum(U[o])
+      # take only weights that are valid numbers (NaN can appear
+      # after EM calculation)
+      o <- o[!is.na(W[o])]
+      # extend error rates by zeros to account for infinite weight
+      # (for the case of no links at all)
+      FN=c(rev(cumsum(rev(M[o]))), 0)
+      FP=c(0, cumsum(U[o]))
       if (my==Inf && ny==Inf)
       {
           # no error bound given: minimize overall error
@@ -16,22 +24,22 @@ getThresholds <- function(W, M, U, my, ny)
 
       } else if (my==Inf)
       {
-          # only rate of false matches relevant
-          cutoff_lower=head(which(FN<=ny),1)
+          # only rate of false non-matches relevant
+          cutoff_lower=head(which(FN - ny <= tol),1)
           if (length(cutoff_lower)==0)
               cutoff_lower=length(o)
           cutoff_upper=cutoff_lower
 
       } else if (ny==Inf)
       {
-          # only rate of false non-matches relevant
-          cutoff_upper=tail(which(FP<=my),1)
+          # only rate of false matches relevant
+          cutoff_upper=tail(which(FP - my <= tol),1)
           cutoff_lower=cutoff_upper
       } else
       {
           # both error bounds relevant
-          cutoff_upper=tail(which(FP<=my),1)
-          cutoff_lower=head(which(FN<=ny),1)
+          cutoff_upper=tail(which(FP - my <= tol),1)
+          cutoff_lower=head(which(FN - ny <= tol),1)
           if (length(cutoff_upper)==0)
               cutoff_upper=0
           if (length(cutoff_lower)==0)
@@ -42,7 +50,9 @@ getThresholds <- function(W, M, U, my, ny)
               cutoff_lower=cutoff_upper
           }
       }
-      c(threshold.upper=W[o][cutoff_upper], threshold.lower=W[o][cutoff_lower])
+      # classification weights include infinite weight (classifying no links)
+      classW <- c(Inf, W[o])
+      c(threshold.upper=classW[cutoff_upper], threshold.lower=classW[cutoff_lower])
 }
 
 
@@ -73,10 +83,10 @@ setMethod(
       
     if (!is.numeric(cutoff))
       stop(sprintf("Illegal type for cutoff: %s", class(cutoff)))
+
     if (cutoff < 0 || cutoff > 1)
       stop(sprintf("Illegal value for cutoff: %g", cutoff))
-  
-  
+
     pairs=rpairs$pairs
     # ids und Matchingstatus rausnehmen
     pairs=pairs[,-c(1,2,ncol(pairs))]
@@ -143,13 +153,19 @@ setMethod(
 setMethod(  
   f = "emWeights",
   signature = "RLBigData",
-  definition = function (rpairs, cutoff=0.95, store.weights = TRUE, ...)
+  definition = function (rpairs, cutoff=0.95, store.weights = TRUE,
+    verbose = TRUE, ...)
   {
+    if(!isIdCurrent(rpairs@con)) stop(paste("Invalid SQLite connection in rpairs!",
+      "See '?saveRLObject' on how to make persistant copies of such objects."))
+
     u=getFrequencies(rpairs)
     # get number of attributes from frequency vector: this way excluded
     # columns are not counted
     n_attr <- length(u)
-    observed_count <- getPatternCounts(rpairs, cutoff=cutoff)
+    if (verbose) message("Count pattern frequencies...")
+    observed_count <- getPatternCounts(rpairs, cutoff=cutoff,
+      withProgressBar = (verbose && sink.number()==0))
     n_patterns <- length(observed_count)
     n_data <- sum(observed_count)
     patterns=bincombinations(n_attr)  # Liste der Patterns
@@ -165,10 +181,12 @@ setMethod(
     init_M=apply(patterns,1,function(a) prod(a*m+(1-a)*(1-m))*n_data*prob_M)
     init_U=apply(patterns,1,function(a) prod(a*u+(1-a)*(1-u))*n_data*(1-prob_M))
     expected_count=c(init_U,init_M)
-  
+    if (verbose)
+    {
+      message("Run EM algorithm...")
+      flush.console() # flush output before time-consuming C-call
+    }
     res=mygllm(observed_count,s,X,E=expected_count,...)
-
-
 
     n_matches=sum(res[(n_patterns+1):(2*n_patterns)])
     n_nonmatches=sum(res[1:n_patterns])
@@ -188,6 +206,7 @@ setMethod(
 
     if (store.weights) # by default, a table of individual weights is stored in the database
     {
+      if (verbose) message("Calculate and store individual weights...")
       # Create a copy of the record pairs from which comparison patterns will
       # be generated. This allows concurrent writing of calculated weights.
       rpairs_copy <- clone(rpairs)
@@ -248,7 +267,7 @@ setMethod(
   signature = c("RecLinkData", "missing", "missing"),
   definition = function(rpairs, threshold.upper = Inf,
                         threshold.lower = threshold.upper, my = Inf,
-                        ny = Inf)
+                        ny = Inf, ...)
   {
     if (nrow(rpairs$pairs) == 0)
       stop("No record pairs!")
@@ -284,6 +303,12 @@ setMethod(
                         threshold.lower = threshold.upper, my = Inf, 
                         ny = Inf)
   {    
+    if (nrow(rpairs$pairs) == 0)
+      stop("No record pairs!")
+
+    if (is.null(rpairs$Wdata))
+      stop("No weights in rpairs!")
+
     if (!is.numeric(threshold.upper))
       stop(sprintf("Illegal type for threshold.upper: %s", class(threshold.upper)))
 
@@ -315,8 +340,11 @@ setMethod(
   signature = c("RLBigData", "missing", "missing"),
   definition = function(rpairs, threshold.upper = Inf,
                         threshold.lower = threshold.upper, my = Inf,
-                        ny = Inf)
+                        ny = Inf, ...)
   {
+
+    if(!isIdCurrent(rpairs@con)) stop(paste("Invalid SQLite connection in rpairs!",
+    "See '?saveRLObject' on how to make persistant copies of such objects."))
 
     if(!dbExistsTable(rpairs@con, "W"))
       stop("No EM weights have been calculated for rpairs! Call emWeights first.")
@@ -351,6 +379,11 @@ setMethod(
                         ny = Inf, withProgressBar = (sink.number()==0))
   {
 
+    if(!isIdCurrent(rpairs@con)) stop(paste("Invalid SQLite connection in rpairs!",
+      "See '?saveRLObject' on how to make persistant copies of such objects."))
+
+    if(!dbExistsTable(rpairs@con, "W"))
+      stop("No EM weights have been calculated for rpairs! Call emWeights first.")
 
     if (!is.numeric(threshold.upper))
       stop(sprintf("Illegal type for threshold.upper: %s", class(threshold.upper)))
@@ -375,8 +408,6 @@ setMethod(
     }
     else
     { # otherwise iterate through pairs and calculate on the fly
-      on.exit(clear(rpairs))
-      rpairs <- begin(rpairs)
       n <- 10000
       i = n
       links <- matrix(nrow=0, ncol=2)
@@ -384,11 +415,16 @@ setMethod(
       n_attr <- length(getFrequencies(rpairs))
       nPairs <- 0
 
+      W <- dbGetQuery(rpairs@con, "select W from W order by id asc")$W
+
       if (withProgressBar)
       {
-        expPairs <- getExpectedSize(rpairs_copy)
+        expPairs <- getExpectedSize(rpairs)
         pgb <- txtProgressBar(max=expPairs)
       }
+
+      on.exit(clear(rpairs))
+      rpairs <- begin(rpairs)
 
       while(nrow(slice <- nextPairs(rpairs, n)) > 0)
       {

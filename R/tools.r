@@ -75,7 +75,7 @@ setMethod(
     res <- nAll * (1-prod(sapply(blockfld, blockelemFun)))
 
 
-    res
+    round(res)
   }
 )
 
@@ -108,7 +108,7 @@ setMethod(
       1 - (freq / nAll)
     }
     res <- nAll * (1-prod(sapply(blockfld, blockelemFun)))
-    res
+    round(res)
   }
 )
 

@@ -29,6 +29,11 @@ test.emWeights.exceptions <- function()
     msg = "cutoff too high")
   checkException(emWeights(rpairs, cutoff = -0.3),
     msg = "cutoff too low")  
+
+  # RLBigData object with expired SQLite connection
+  rpairsBig <- RLBigDataDedup(RLdata500)
+  dbDisconnect(rpairsBig@con)
+  checkException(emWeights(rpairsBig, tol=0.01), msg = "invalid SQLite connection")
 }
 
 test.emWeights <- function()
@@ -93,32 +98,45 @@ test.emWeights.RLBigData <- function()
 
 test.emClassify.exceptions <- function()
 {
+
+  # create various types of test data
+  # also one object without weights stored
   data(RLdata500)
-  rpairsBig <- RLBigDataDedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
-  rpairsBig <- emWeights(rpairsBig, tol=0.01)
+  rpairsBig1 <- RLBigDataDedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
+  rpairsBig2 <- clone(rpairsBig1)
+  rpairsBig1 <- emWeights(rpairsBig1, tol=0.01)
+  rpairsBig2 <- emWeights(rpairsBig2, tol=0.01)
   load("rpairs.em.rda")
 
   # illegal class, type of rpairs
   rpairs2 <- rpairs
   class(rpairs2) <- "wrongClass"
-  checkException(emClassify(rpairs2), msg = "wrong class for rpairs")
+  checkException(emClassify(rpairs2, my=0.05), msg = "wrong class for rpairs")
+  checkException(emClassify(rpairs2, threshold.upper=10, threshold.lower=0), msg = "wrong class for rpairs")
 
   rpairs2 <- rpairs$pairs
   class(rpairs2) <- "RecLinkData"
-  checkException(emClassify(rpairs2), msg = "wrong type for rpairs")
+  checkException(emClassify(rpairs2, my=0.05), msg = "wrong type for rpairs")
+  checkException(emClassify(rpairs2, threshold.upper=10, threshold.lower=0), msg = "wrong type for rpairs")
 
   # no weights in rpairs
   rpairs2 <- rpairs
   rpairs2$Wdata <- NULL
-  checkException(emClassify(rpairs2), msg = "no weights in rpairs")
+  checkException(emClassify(rpairs2, my=0.05), msg = "no weights in rpairs")
+  checkException(emClassify(rpairs2, threshold.upper=10, threshold.lower=0), msg = "no weights in rpairs")
 
-  rpairs2 <- clone(rpairsBig)
+  rpairs2 <- clone(rpairsBig1)
   dbGetQuery(rpairs2@con, "drop table W")
-  checkException(emClassify(rpairs2), msg = "no weights in rpairs")
+  checkException(emClassify(rpairs2, my=0.05), msg = "no weights in rpairs")
+  checkException(emClassify(rpairs2, threshold.upper=10, threshold.lower=0), msg = "no weights in rpairs")
 
+  rpairs2 <- clone(rpairsBig2)
+  dbGetQuery(rpairs2@con, "drop table W")
+  checkException(emClassify(rpairs2, my=0.05), msg = "no weights in rpairs")
+  checkException(emClassify(rpairs2, threshold.upper=10, threshold.lower=0), msg = "no weights in rpairs")
 
   # run the following tests twice: also for RLBigData-object
-  for (rpairs in list(rpairs, rpairsBig))
+  for (rpairs in list(rpairs, rpairsBig1, rpairsBig2))
   {
 
     # errors concerning threshold.upper
@@ -154,84 +172,168 @@ test.emClassify.exceptions <- function()
     checkException (emClassify(rpairs, ny="0.2"), msg = "Illegal value for ny")
     checkException (emClassify(rpairs, ny=TRUE), msg = "Illegal value for ny")
   }
+  # RLBigData object with expired SQLite connection
+  rpairsBig <- RLBigDataDedup(RLdata500, blockfld = list(1,3,5,6,7))
+  rpairsBig <- emWeights(rpairsBig, tol=0.01)
+  dbDisconnect(rpairsBig@con)
+  checkException(emWeights(rpairsBig, tol=0.01), msg = "invalid SQLite connection")
+
 }
 
 test.emClassify <- function()
 {
   data(RLdata500)
   rpairs <- compare.dedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
-  rpairs <- emWeights(rpairs)
+  rpairs <- emWeights(rpairs, tol=0.01)
 
   # test threshold
   # only upper threshold supplied (only matches and non-matches)
-    # feasible value
-    thresh <- sample(unique(rpairs$Wdata),1)
-    result <- emClassify(rpairs, threshold.upper = thresh)
-    checkTrue(all((result$Wdata >= thresh)==(result$prediction=="L")),
-      msg = "check links, only upper threshold, feasible value")
-    checkTrue(all((result$Wdata < thresh)==(result$prediction=="N")),
-      msg = "check non-links, only upper threshold, feasible value")
-    # high value: only non-matches
-    thresh <- max(rpairs$Wdata + 1)
-    result <- emClassify(rpairs, threshold.upper = thresh)
-    checkTrue(all(result$prediction=="N"),
-      msg = "check high value for only upper threshold")
-    # low value: only matches
-    thresh <- min(rpairs$Wdata)
-    result <- emClassify(rpairs, threshold.upper = thresh)
-    checkTrue(all(result$prediction=="L"),
-      msg = "check low value for only lower threshold")
+  # feasible value
+  thresh <- sample(unique(rpairs$Wdata),1)
+  result <- emClassify(rpairs, threshold.upper = thresh)
+  checkTrue(all((result$Wdata >= thresh)==(result$prediction=="L")),
+    msg = "check links, only upper threshold, feasible value")
+  checkTrue(all((result$Wdata < thresh)==(result$prediction=="N")),
+    msg = "check non-links, only upper threshold, feasible value")
+  # high value: only non-matches
+  thresh <- max(rpairs$Wdata + 1)
+  result <- emClassify(rpairs, threshold.upper = thresh)
+  checkTrue(all(result$prediction=="N"),
+    msg = "check high value for only upper threshold")
+  # low value: only matches
+  thresh <- min(rpairs$Wdata)
+  result <- emClassify(rpairs, threshold.upper = thresh)
+  checkTrue(all(result$prediction=="L"),
+    msg = "check low value for only lower threshold")
 
   # only lower threshold supplied (only non-matches and possibles
-    # feasible value
-    thresh <- sample(unique(rpairs$Wdata),1)
-    result <- emClassify(rpairs, threshold.lower = thresh)
-    checkTrue(all((result$Wdata >= thresh)==(result$prediction=="P")),
-      msg = "check possibles, only lower threshold, feasible value")    
-    checkTrue(all((result$Wdata < thresh)==(result$prediction=="N")),
-      msg = "check non-links, only lower threshold, feasible value")        
-    # high value: only non-matches
-    thresh <- max(rpairs$Wdata + 1)
-    result <- emClassify(rpairs, threshold.lower = thresh)
-    checkTrue(all(result$prediction=="N"),
-      msg = "check high value for only lower threshold")
-    # low value: only possible matches
-    thresh <- min(rpairs$Wdata)
-    result <- emClassify(rpairs, threshold.lower = thresh)
-    checkTrue(all(result$prediction=="P"),
-      msg = "check low value for only lower threshold")
+  # feasible value
+  thresh <- sample(unique(rpairs$Wdata),1)
+  result <- emClassify(rpairs, threshold.lower = thresh)
+  checkTrue(all((result$Wdata >= thresh)==(result$prediction=="P")),
+    msg = "check possibles, only lower threshold, feasible value")    
+  checkTrue(all((result$Wdata < thresh)==(result$prediction=="N")),
+    msg = "check non-links, only lower threshold, feasible value")        
+  # high value: only non-matches
+  thresh <- max(rpairs$Wdata + 1)
+  result <- emClassify(rpairs, threshold.lower = thresh)
+  checkTrue(all(result$prediction=="N"),
+    msg = "check high value for only lower threshold")
+  # low value: only possible matches
+  thresh <- min(rpairs$Wdata)
+  result <- emClassify(rpairs, threshold.lower = thresh)
+  checkTrue(all(result$prediction=="P"),
+    msg = "check low value for only lower threshold")
 
   # upper threshold with lower threshold = -Inf (only possibles and matches)
-    # feasible value
-    thresh <- sample(unique(rpairs$Wdata),1)
-    result <- emClassify(rpairs, threshold.upper = thresh,
-      threshold.lower = -Inf)
-    checkTrue(all((result$Wdata >= thresh)==(result$prediction=="L")),
-      msg = "check links, upper threshold and lower = -Inf, feasible value")        
-    checkTrue(all((result$Wdata < thresh)==(result$prediction=="P")),
-      msg = "check links, upper threshold and lower = -Inf, feasible value")            
-    # high value: only possibles
-    thresh <- max(rpairs$Wdata + 1)
-    result <- emClassify(rpairs, threshold.upper = thresh,
-      threshold.lower = -Inf)
-    checkTrue(all(result$prediction=="P"),
-      msg = "check high value for upper threshold and lower = -Inf")
-    # low value: only matches
-    thresh <- min(rpairs$Wdata)
-    result <- emClassify(rpairs, threshold.upper = thresh,
-      threshold.lower = -Inf)
-    checkTrue(all(result$prediction=="L"),
-      msg = "check high value for upper threshold and lower = -Inf")
-  
+  # feasible value
+  thresh <- sample(unique(rpairs$Wdata),1)
+  result <- emClassify(rpairs, threshold.upper = thresh,
+    threshold.lower = -Inf)
+  checkTrue(all((result$Wdata >= thresh)==(result$prediction=="L")),
+    msg = "check links, upper threshold and lower = -Inf, feasible value")        
+  checkTrue(all((result$Wdata < thresh)==(result$prediction=="P")),
+    msg = "check links, upper threshold and lower = -Inf, feasible value")            
+  # high value: only possibles
+  thresh <- max(rpairs$Wdata + 1)
+  result <- emClassify(rpairs, threshold.upper = thresh,
+    threshold.lower = -Inf)
+  checkTrue(all(result$prediction=="P"),
+    msg = "check high value for upper threshold and lower = -Inf")
+  # low value: only matches
+  thresh <- min(rpairs$Wdata)
+  result <- emClassify(rpairs, threshold.upper = thresh,
+    threshold.lower = -Inf)
+  checkTrue(all(result$prediction=="L"),
+    msg = "check high value for upper threshold and lower = -Inf")
+
+  # Test usage of my / ny error bounds. For this purpose, an object is populated
+  # with real values for m- and u-probabilites. In this case the error bounds
+  # should be valid.
+  pairs <- as.matrix(rpairs$pairs[-c(1,2)])
+  pairs [is.na(pairs)] <- 0
+  counts <- countpattern(pairs)
+  countNonMatch <- counts[seq(1, length(counts) - 1, 2)]
+  countMatch <- counts[seq(2, length(counts), 2)]
+  realM <- countMatch / sum(countMatch)
+  realU <- countNonMatch / sum(countNonMatch)
+  rpairs$M <- realM
+  rpairs$U <- realU
+
+  # First check: bound on beta error (alias my)
+  W_unique <- unique(rpairs$Wdata)
+  allBeta <- unique(sapply(W_unique, function(thresh_iter)
+    {
+      errorMeasures(emClassify(rpairs, thresh_iter))$beta
+    }
+  ))
+
+  for (my in allBeta)
+  {
+    alpha_result <- errorMeasures(emClassify(rpairs, my=my))$alpha
+    alpha=list()
+    for (thresh_iter in W_unique)
+    {
+      errM <- errorMeasures(emClassify(rpairs, thresh_iter))
+      if (errM$beta <= my)
+      {
+        alpha[[as.character(thresh_iter)]] <- errM$alpha
+      }
+    }
+    checkEqualsNumeric(alpha_result, min(unlist(alpha),na.rm=TRUE),
+      msg = sprintf("check for my=%g", my))
+  }
+
+  # Second check: bound on alpha error (alias my)
+  allAlpha <- unique(sapply(W_unique, function(thresh_iter)
+    {
+      errorMeasures(emClassify(rpairs, thresh_iter))$alpha
+    }
+  ))
+
+  for (ny in allAlpha)
+  {
+    beta_result <- errorMeasures(emClassify(rpairs, ny=ny))$beta
+    beta=list()
+    for (thresh_iter in W_unique)
+    {
+      errM <- errorMeasures(emClassify(rpairs, thresh_iter))
+      if (errM$alpha <= ny)
+      {
+        beta[[as.character(thresh_iter)]] <- errM$beta
+      }
+    }
+    checkEqualsNumeric(beta_result, min(unlist(beta),na.rm=TRUE),
+      msg = sprintf("check for ny=%g", ny))
+  }
+
+  # Third check: both bounds set to reasonable values
+  # take values for error bounds which are closest to the 10% quantile
+  ny <- allAlpha[which.min(abs(allAlpha - quantile(allAlpha, 0.1)))]
+  my <- allBeta[which.min(abs(allBeta - quantile(allBeta, 0.1)))]
+  # calculate error measures from the contingency table,
+  # the value in getErrorMeasures values possible links differently
+  resultTab <- getTable(emClassify(rpairs, my=my, ny=ny))
+  checkEqualsNumeric(my, resultTab["FALSE", "L"] / sum(resultTab["FALSE",]))
+  checkEqualsNumeric(ny, resultTab["TRUE", "N"] / sum(resultTab["TRUE",]))
 }
 
 test.emClassify.RLBigData <- function()
 {
+  # create two test objects, on with weights stored per pattern, one
+  # for which weights will be calculated on the fly
   data(RLdata500)
-  rpairs <- RLBigDataDedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
-  rpairs <- emWeights(rpairs, tol=0.01)
+  rpairs1 <- RLBigDataDedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
+  rpairs2 <-clone(rpairs1)
+  rpairs1 <- emWeights(rpairs1, tol=0.01)
+  rpairs2 <- emWeights(rpairs2, tol=0.01, store.weights = FALSE)
+  # same record pairs as RecLinkData object, needed for some checks below
+  rpairs3 <- compare.dedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
+  rpairs3 <- emWeights(rpairs3, tol=0.01)
+  Wdata <- dbReadTable(rpairs1@con, "Wdata")
 
-  Wdata <- dbReadTable(rpairs@con, "Wdata")
+  for (rpairs in list(rpairs1, rpairs2))
+  {
   # test threshold
   # only upper threshold supplied (only matches and non-matches)
     # feasible value
@@ -322,6 +424,61 @@ test.emClassify.RLBigData <- function()
       result@links[order(result@links[,1], result@links[,2]),],
       msg = "check low value for upper threshold and lower = -Inf")
 
+  } # end for loop
+
+  # Test usage of my / ny error bounds.
+  # Only check equal result for RecLinkData and RecLinkData method.
+  # This suffices as a check for correct values is made for the RecLinkData
+  # method
+
+  # first check: only my
+  my <- 0.05
+  resultS3 <- emClassify(rpairs3, my=my)
+  linkIds <- resultS3$pairs[resultS3$prediction=="L", 1:2]
+  linkIds <- as.matrix(linkIds[order(linkIds[[1]], linkIds[[2]]),])
+  for (rpairs in list(rpairs1, rpairs2))
+  {
+    resultS4 <- emClassify(rpairs, my=my)
+    linkIdsS4 <- as.matrix(resultS4@links[order(resultS4@links[,1], resultS4@links[,2]),])
+    checkEqualsNumeric(linkIdsS4, linkIds, msg="check for my")
+    checkEqualsNumeric(nrow(resultS4@possibleLinks), 0, msg="check for my")
+  }
+
+
+
+  # second check: only ny
+  ny <- 0.05
+  resultS3 <- emClassify(rpairs3, ny=ny)
+  linkIds <- resultS3$pairs[resultS3$prediction=="L", 1:2]
+  linkIds <- as.matrix(linkIds[order(linkIds[[1]], linkIds[[2]]),])
+  for (rpairs in list(rpairs1, rpairs2))
+  {
+    resultS4 <- emClassify(rpairs, ny=ny)
+    linkIdsS4 <- as.matrix(resultS4@links[order(resultS4@links[,1], resultS4@links[,2]),])
+    checkEqualsNumeric(linkIdsS4, linkIds, msg="check for ny")
+    checkEqualsNumeric(nrow(resultS4@possibleLinks), 0, msg="check for ny")
+  }
+
+  # third check: my and ny
+  # second check: only my
+  my <- 0.01
+  ny <- 0.01
+  resultS3 <- emClassify(rpairs3, my=my, ny=ny)
+  linkIds <- resultS3$pairs[resultS3$prediction=="L", 1:2]
+  linkIds <- as.matrix(linkIds[order(linkIds[[1]], linkIds[[2]]),])
+  possibleLinkIds <- resultS3$pairs[resultS3$prediction=="P", 1:2]
+  possibleLinkIds <- as.matrix(possibleLinkIds[order(possibleLinkIds[[1]],
+    possibleLinkIds[[2]]),])
+  for (rpairs in list(rpairs1, rpairs2))
+  {
+    resultS4 <- emClassify(rpairs, my=my, ny=ny)
+    linkIdsS4 <- as.matrix(resultS4@links[order(resultS4@links[,1], resultS4@links[,2]),])
+    possibleLinkIdsS4 <- as.matrix(resultS4@possibleLinks[order(resultS4@possibleLinks[,1],
+      resultS4@possibleLinks[,2]),])
+    checkEqualsNumeric(linkIdsS4, linkIds, msg="check for ny")
+    checkEqualsNumeric(possibleLinkIdsS4, possibleLinkIds, msg="check for ny")
+  }
+
 }
 
 test.optimalThreshold.exceptions <- function()
@@ -382,39 +539,58 @@ test.optimalThreshold <- function()
   # test with threshold for my/ny: check that the minimal alpha error 
   # for which the error bound holds is obtained 
   
-  my=runif(1,0.01, 0.2)
-  thresh <- optimalThreshold(rpairs, my=my)
-  alpha_result <- errorMeasures(emClassify(rpairs, thresh))$alpha
+  # calculate thresholds for all relevant values of beta
   W_unique <- unique(rpairs$Wdata)
-  alpha=list()
-  for (thresh_iter in W_unique)
-  {
-    errM <- errorMeasures(emClassify(rpairs, thresh_iter))
-    if (errM$beta <= my)
+  allBeta <- unique(sapply(W_unique, function(thresh_iter)
     {
-      alpha[[as.character(thresh_iter)]] <- errM$alpha
+      errorMeasures(emClassify(rpairs, thresh_iter))$beta
     }
-  } 
-  checkEqualsNumeric(alpha_result, min(unlist(alpha),na.rm=TRUE))  
+  ))
 
+  for (my in allBeta)
+  {
+    thresh <- optimalThreshold(rpairs, my=my)
+    alpha_result <- errorMeasures(emClassify(rpairs, thresh))$alpha
+    alpha=list()
+    for (thresh_iter in W_unique)
+    {
+      errM <- errorMeasures(emClassify(rpairs, thresh_iter))
+      if (errM$beta <= my)
+      {
+        alpha[[as.character(thresh_iter)]] <- errM$alpha
+      }
+    }
+    checkEqualsNumeric(alpha_result, min(unlist(alpha),na.rm=TRUE),
+      msg = sprintf("check for my=%g", my))
+  }
 
   # corresponding check for ny. threshold.upper must be used to obtain
   # legal beta errors
-  ny=runif(1,0.01, 0.2)
-  thresh <- optimalThreshold(rpairs, ny=ny)
-  beta_result <- errorMeasures(emClassify(rpairs, thresh))$beta
+
+  # calculate thresholds for all relevant values of alpha
   W_unique <- unique(rpairs$Wdata)
-  beta_all=list()
-  for (thresh_iter in W_unique)
-  {
-    errM <- errorMeasures(emClassify(rpairs, thresh_iter))
-    if (errM$alpha <= ny)
+  allAlpha <- unique(sapply(W_unique, function(thresh_iter)
     {
-      beta_all[[as.character(thresh_iter)]] <- errM$beta
+      errorMeasures(emClassify(rpairs, thresh_iter))$alpha
     }
-  } 
-  checkEqualsNumeric(beta_result, min(unlist(beta_all), na.rm=TRUE))  
-  
+  ))
+
+  for (ny in allAlpha)
+  {
+    thresh <- optimalThreshold(rpairs, ny=ny)
+    beta_result <- errorMeasures(emClassify(rpairs, thresh))$beta
+    beta_all=list()
+    for (thresh_iter in W_unique)
+    {
+      errM <- errorMeasures(emClassify(rpairs, thresh_iter))
+      if (errM$alpha <= ny)
+      {
+        beta_all[[as.character(thresh_iter)]] <- errM$beta
+      }
+    }
+    checkEqualsNumeric(beta_result, min(unlist(beta_all), na.rm=TRUE),
+      msg = sprintf("check for ny=%g", ny))
+  }
   # pairs with NA should be ignored, i.e. the result should be the same as if
   # these pairs were missing
   rpairs2 <- rpairs

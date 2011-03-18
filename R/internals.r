@@ -209,31 +209,42 @@ init_sqlite_extensions <- function(db)
 # NAs are converted to 0
 setGeneric(
   name = "getPatternCounts",
-  def = function(x, n=10000, cutoff=1) standardGeneric("getPatternCounts")
+  def = function(x, n=10000, cutoff=1, withProgressBar = (sink.number()==0))
+    standardGeneric("getPatternCounts")
 )
 
 setMethod(
   f = "getPatternCounts",
   signature = "RLBigData",
-  definition = function(x, n=10000, cutoff=1)
+  definition = function(x, n=10000, cutoff=1, withProgressBar = (sink.number()==0))
   {
-   on.exit(clear(x))
-   x <- begin(x)
-   patternCounts <- 0L
-   i = n
-   while(nrow(slice <- nextPairs(x, n)) > 0)
-   {
-    message(i)
-    flush.console()
-    # discard ids and matching status
-    slice <- slice[,-c(1,2,ncol(slice))]
-    slice[is.na(slice)] <- 0
-    slice[slice < cutoff] <- 0
-    slice[slice >= cutoff] <- 1
-    patternCounts <- patternCounts + countpattern(slice)
-     i <- i + n
-   }
-   patternCounts
+    if (withProgressBar)
+    {
+      expPairs <- getExpectedSize(x)
+      pgb <- txtProgressBar(max=expPairs)
+    }
+
+    patternCounts <- 0L
+    nPairs <- 0
+    on.exit(clear(x))
+    x <- begin(x)
+    while(nrow(slice <- nextPairs(x, n)) > 0)
+    {
+      # discard ids and matching status
+      slice <- slice[,-c(1,2,ncol(slice))]
+      slice[is.na(slice)] <- 0
+      slice[slice < cutoff] <- 0
+      slice[slice >= cutoff] <- 1
+      patternCounts <- patternCounts + countpattern(slice)
+      if (withProgressBar)
+      {
+        nPairs <- nPairs + nrow(slice)
+        setTxtProgressBar(pgb, nPairs)
+        flush.console()
+      }
+    }
+    if (withProgressBar) close(pgb)
+    patternCounts
   }
 )
 

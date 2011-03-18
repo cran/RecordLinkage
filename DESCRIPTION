@@ -1,5 +1,5 @@
 Package: RecordLinkage
-Version: 0.3-0
+Version: 0.3-1
 Title: Record Linkage in R
 Author: Andreas Borg <reclinkmainz@googlemail.com>, Murat Sariyar
         <reclinkmainz@googlemail.com>
@@ -23,6 +23,6 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         serialization.r tools.r
 Repository: CRAN
 Repository/R-Forge/Project: recordlinkage
-Repository/R-Forge/Revision: 334
-Date/Publication: 2011-03-15 10:27:19
-Packaged: 2011-03-14 21:43:17 UTC; rforge
+Repository/R-Forge/Revision: 347
+Date/Publication: 2011-03-24 16:55:42
+Packaged: 2011-03-18 21:41:57 UTC; rforge

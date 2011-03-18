@@ -415,6 +415,11 @@ test.classifySupv.exceptions <- function()
     newdata2$pairs[,2] <- NULL
     checkException(classifySupv(model, newdata2,
       msg = "format of newdata does not match model"))
+      
+  # RLBigData object with expired SQLite connection
+  rpairsBig <- RLBigDataDedup(RLdata500)
+  dbDisconnect(rpairsBig@con)
+  checkException(classifySupv(model, rpairsBig), msg = "invalid SQLite connection")
 }
 
 test.classifySupv <- function()
