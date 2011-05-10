@@ -1,3 +1,9 @@
+Changes in version 0.3-2
+	- performance improvements in various functions
+	- bug fixes:
+		- epiClassify failed for datasets with only one column
+		- getErrorMeasures returned wrong values in rare cases
+
 Changes in version 0.3-1
 	- fixed bug in emClassify that threw an error during  classification 
 	  with on-the-fly calculation of weights

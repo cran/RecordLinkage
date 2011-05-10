@@ -43,7 +43,7 @@ test.getErrorMeasures.RecLinkResult <- function()
 
 
 
-runit.getErrorMeasures.RLResult <- function()
+test.getErrorMeasures.RLResult <- function()
 {
   # create a test object
   data1 <- read.table("data1.compare.txt", sep=",", na.strings="",header=TRUE)
@@ -70,7 +70,9 @@ runit.getErrorMeasures.RLResult <- function()
     accuracy = 7/10,  # 7 correct / 10 total
     precision = 3/5,  # 3 TP / 5 classified as link
     sensitivity = 3/4, # 3 TP / 4 matches
-    specificity = 2/3 # 4 TN / 6 non-matches
+    specificity = 2/3, # 4 TN / 6 non-matches
+    ppv = 3/5,           # 3 TP / 5 classified as link (=precision)
+    npv = 4/5           # 4 TN / 5 classified as nonlink
   )
 
   checkEquals(measures, getErrorMeasures(result))
@@ -78,45 +80,59 @@ runit.getErrorMeasures.RLResult <- function()
   # check that possible links are not counted
   # test by removing one true link
   rpairs <- RLBigDataDedup(data1, identity = identity1)
-  linkInd <- matrix(c(3,4,3,5,1,3,1,4), ncol = 2, nrow = 5, byrow = TRUE)
+  linkInd <- matrix(c(3,4,3,5,1,3,1,4), ncol = 2, nrow = 4, byrow = TRUE)
   result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10,
-    possibleLinks = matrix(c(1,2),ncol=2, nrow=1))
+    possibleLinks = matrix(c(1,2),ncol=2, nrow=1, byrow = TRUE))
 
+  checkEqualsNumeric(getTable(result), matrix(c(4,1,0,1,2,2), ncol=3))
   # result is a table of the form
   #
   #   4 0 2
   #   1 1 2
   #
-  # which yields the follwoing error measures:
+  # which yields the follwoing error measures (possible links are not counted):
   measures <- list(
-    alpha = 1/4,      # 1 FN / 3 matches
+    alpha = 1/3,      # 1 FN / 2 matches
     beta = 1/3,       # 2 FP / 6 non-matches
     accuracy = 2/3,  # 6 correct / 9 total
     precision = 1/2,  # 2 TP / 4 classified as link
-    sensitivity = 1/3, # 2 TP / 3 matches
-    specificity = 2/3 # 4 TN / 6 non-matches
+    sensitivity = 2/3, # 2 TP / 3 matches
+    specificity = 2/3, # 4 TN / 6 non-matches
+    ppv = 1/2,           # 2 TP / 2 classified as link (=precision)
+    npv = 4/5           # 4 TN / 5 classified as nonlink
   )
+
+  checkEquals(measures, getErrorMeasures(result))
 
   # check that pairs with unknown status are not counted
   identity1 <- c(NA,1,3,3,3)
   rpairs <- RLBigDataDedup(data1, identity = identity1)
-  linkInd <- matrix(c(1,2,3,4,3,5,1,3,1,4), ncol = 2, nrow = 5, byrow = TRUE)
+  linkInd <- matrix(c(3,4,3,5,1,3,1,4), ncol = 2, nrow = 4, byrow = TRUE)
   result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10,
     possibleLinks = matrix(c(1,2),ncol=2, nrow=1))
 
   # result is a table of the form
   #
-  #   4 0 2
+  #   3 0 0
   #   1 1 2
+  #   1 0 2
   #
   # which yields the follwoing error measures:
   measures <- list(
-    alpha = 1/4,      # 1 FN / 3 matches
-    beta = 1/3,       # 2 FP / 6 non-matches
-    accuracy = 2/3,  # 6 correct / 9 total
-    precision = 1/2,  # 2 TP / 4 classified as link
-    sensitivity = 1/3, # 2 TP / 3 matches
-    specificity = 2/3 # 4 TN / 6 non-matches
+    alpha = 1/3,      # 1 FN / 3 matches
+    beta = 0,       # 0 FP / 3 non-matches
+    accuracy = 5/6,  # 5 correct / 6 total
+    precision = 1,  # 2 TP / 2 classified as link
+    sensitivity = 2/3, # 2 TP / 3 matches
+    specificity = 1, # 3 TN / 3 non-matches
+    ppv = 1,           # 2 TP / 2 classified as link (=precision)
+    npv = 3/4           # 3 TN / 4 classified as nonlink
   )
 
+  checkEquals(measures, getErrorMeasures(result))
+
+# error in dbDisconnect!
+#  # check for invalid database connection in object
+#  dbDisconnect(rpairs@con)
+#  checkException(getErrorMeasures(result))
 }

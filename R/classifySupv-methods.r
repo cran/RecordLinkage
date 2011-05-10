@@ -10,7 +10,7 @@ setGeneric(
 setMethod(
   f = "classifySupv",
   signature = c("RecLinkClassif", "RecLinkData"),
-  definition = function (model, newdata, ...)
+  definition = function (model, newdata, convert.na=TRUE, ...)
   {
 
     # type checks from previous version omitted, now enforced by 
@@ -24,7 +24,7 @@ setMethod(
       warning("Attribute names in newdata differ from training set!")
       colnames(x)=model$attrNames
     }
-  	x[is.na(x)]=0
+    if(convert.na) x[is.na(x)]=0
   
       predict=switch(model$method,
     		svm=predict(model$model, newdata=x,...),       
@@ -44,7 +44,7 @@ setMethod(
 setMethod(
   f = "classifySupv",
   signature = c("RecLinkClassif", "RLBigData"),
-  definition = function(model, newdata, withProgressBar = (sink.number()==0), ...)
+  definition = function(model, newdata, convert.na = TRUE, withProgressBar = (sink.number()==0), ...)
   {
     if(!isIdCurrent(newdata@con)) stop(paste("Invalid SQLite connection in newdata!",
       "See '?saveRLObject' on how to make persistant copies of such objects."))
@@ -66,7 +66,7 @@ setMethod(
       # Spaltennamen angleichen -> funktioniert so nicht!
       # TODO: Fehlerbehandlung für ungleiche Attributanzahl
       #     colnames(slice) <- c("id1", "id2", levels(model$model$frame$var)[-1])
-      slice[is.na(slice)] <- 0
+      if(convert.na) slice[is.na(slice)] <- 0
       prediction=switch(model$method,
         svm=predict(model$model, newdata=slice,...),
           rpart=predict(model$model, newdata=slice,type="class",...),

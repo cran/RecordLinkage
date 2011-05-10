@@ -52,18 +52,22 @@ summary.RecLinkResult <- function (object, ...)
         stop(sprintf("Wrong type for object: %s!", class(object)))
 
     summary.RecLinkData(object,...)
+    crossTable <- table(as.logical(object$pairs$is_match),object$prediction,
+          dnn=list("true status","classification"),useNA="ifany")
+
     cat("\n")
-    cat(sprintf("%d links detected",length(which(object$prediction=="L"))),"\n")
-    cat(sprintf("%d possible links detected",length(which(object$prediction=="P"))),"\n")
-    cat(sprintf("%d non-links detected",length(which(object$prediction=="N"))),"\n")
- 
+    cat(sprintf("%d links detected", sum(crossTable[,"L"])),"\n")
+    cat(sprintf("%d possible links detected", sum(crossTable[,"P"])),"\n")
+    cat(sprintf("%d non-links detected", sum(crossTable[,"N"])),"\n")
+
     cat("\n")
 
-    TP=length(which(object$pairs$is_match & object$prediction=="L")) # true positive
-    FP=length(which(!object$pairs$is_match & object$prediction=="L")) # false positive
-    TN=length(which(!object$pairs$is_match & object$prediction=="N")) # true negative
-    FN=length(which(object$pairs$is_match & object$prediction=="N")) # false negative
-    
+
+    TP=crossTable["TRUE", "L"] # true positive
+    FP=crossTable["FALSE", "L"] # false positive
+    TN=crossTable["FALSE", "N"] # true negative
+    FN=crossTable["TRUE", "N"] # false negative
+
     alpha=FN/(TP+FN)
     beta=FP/(TN+FP)
     accuracy=(TP+TN)/(TP+TN+FP+FN)
@@ -72,8 +76,7 @@ summary.RecLinkResult <- function (object, ...)
     cat(sprintf("accuracy: %f\n",accuracy))
     cat("\n\n")
     cat("Classification table:\n\n")
-    print(table(as.logical(object$pairs$is_match),object$prediction,
-          dnn=list("true status","classification"),useNA="ifany"))
+    print(crossTable)
   	return(invisible(NULL))
 }
 
@@ -90,7 +93,7 @@ texSummary <- function (object)
     accuracy=(TP+TN)/(TP+TN+FP+FN)
 
     cat("\\begin{description}\n")
-	cat(sprintf("\\item[alpha error] %f\n",alpha))
+    cat(sprintf("\\item[alpha error] %f\n",alpha))
     cat(sprintf("\\item[beta error] %f\n",beta))
     cat(sprintf("\\item[accuracy] %f\n",accuracy))
     cat("\\end{description}\n")
@@ -273,12 +276,17 @@ setMethod(
       RLBigDataDedup = object@data@identity,
       RLBigDataLinkage = object@data@identity2)
     # TP: true positive, FP: false positive, TN: true negative,
-    # FN: false negative
+    # FN: false negative, PM: possible links that are matches,
+    # PN: possible links that are non-matches
     TP <- sum(identity1[object@links[,1]]==identity2[object@links[,2]], na.rm=TRUE)
     FP <- sum(identity1[object@links[,1]]!=identity2[object@links[,2]], na.rm=TRUE)
+    PM <- sum(identity1[object@possibleLinks[,1]]==identity2[object@possibleLinks[,2]], na.rm=TRUE)
+    PN <- sum(identity1[object@possibleLinks[,1]]!=identity2[object@possibleLinks[,2]], na.rm=TRUE)
+
     nMatch <- getMatchCount(object@data)
-    FN <- nMatch - TP
-    TN <- object@nPairs - TP - FN - FP
+    nUnknown <- getNACount(object@data)
+    FN <- nMatch - TP - PM
+    TN <- object@nPairs - TP - FN - FP - PM - PN - nUnknown
     return(list(
       alpha=FN/(TP+FN),
       beta=FP/(TN+FP),

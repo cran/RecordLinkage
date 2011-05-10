@@ -114,6 +114,8 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 
         
 # print("blocking beginnt")
+    # Pair_ids collects ids of record pairs. It is a matrix because the following
+    # rbind() calls are much faster than with a data.frame
    pair_ids=matrix(as.integer(0),nrow=0,ncol=2) # each row holds indices of one record pair
    if (isFALSE(blockfld))
    {
@@ -214,7 +216,8 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
         block_data=dataset
       }
       # for each record, concatenate values in blocking fields
-      blockstr=apply(block_data,1,function(x) paste(x[blockelem],collapse=" "))
+      # do.call is faster than a former apply solution
+      blockstr <- do.call(paste, as.data.frame(block_data[,blockelem]))
 	  # exclude pairs with NA in blocking variable
 	  # (paste just converts to "NA")
       for (i in blockelem)
@@ -232,16 +235,15 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
        pair_ids=rbind(pair_ids,id_vec)
       rm(id_vec)
     }
-   } # end else
-    
-
     # return empty data frame if no pairs are obtained
     if (length(pair_ids)==0)
     {
       stop("No pairs generated. Check blocking criteria.")
     }
-  
+
     pair_ids=as.matrix(unique(as.data.frame(pair_ids)))  # runs faster with data frame
+   } # end else
+    
 
     # remove excluded fields
     if (is.numeric(exclude))
@@ -259,8 +261,8 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
         dataset[,phonetic]=pho_h(dataset[,phonetic])
     }
 
-    left=dataset[pair_ids[,1],,drop=FALSE]
-    right=dataset[pair_ids[,2],,drop=FALSE]
+    left <- dataset[pair_ids[,1],,drop=FALSE]
+    right <- dataset[pair_ids[,2],,drop=FALSE]
     # matrix to hold comparison patterns
     patterns=matrix(0,ncol=ncol(left),nrow=nrow(left)) 
     if (isTRUE(strcmp))
@@ -442,7 +444,8 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
       stop("strcmpfun is not a function!")
     }
 
-        
+    # Pair_ids collects ids of record pairs. It is a matrix because the following
+    # rbind() calls are much faster than with a data.frame
    pair_ids=matrix(as.integer(0),nrow=0,ncol=2) # each row holds indices of one record pair
    if (isFALSE(blockfld))
    { 
@@ -540,9 +543,10 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
         block_data2=full_data2
       }
       # for each record, concatenate values in blocking fields
-      blockstr1=apply(block_data1,1,function(x) paste(x[blockelem],collapse=" "))
-      blockstr2=apply(block_data2,1,function(x) paste(x[blockelem],collapse=" "))
-  	  # exclude pairs with NA in blocking variable 
+      # do.call is faster than a former apply solution
+      blockstr1 <- do.call(paste, as.data.frame(block_data1[,blockelem]))
+      blockstr2 <- do.call(paste, as.data.frame(block_data2[,blockelem]))
+  	  # exclude pairs with NA in blocking variable
       for (i in blockelem)
       {
         is.na(blockstr1)=is.na(block_data1[,i])

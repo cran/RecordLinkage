@@ -35,18 +35,16 @@ optimalThreshold <- function (rpairs, my=NaN, ny=NaN)
 
   if (length(indMissing >0)) rpairs <- rpairs[-indMissing]
 
-
-  errStat <- tapply(rpairs$pairs$is_match, rpairs$Wdata, function(x)
-    {
+  # grouped by weight, count number of non-matches and matches
+  errStatFun <- function(x)
+  {
       nMatch <- sum(x)
       nNonMatch <- length(x) - sum(x)
-      c(nMatch = nMatch, nNonMatch = nNonMatch)
-    }
-  )
-  # transform to matrix, each column corresponds to weight (increasing)
-  # first row is number of matches, second row number of non-matches with
-  # this weight
-  errStat <- matrix(unlist(errStat), nrow=2)
+      list(nMatch = nMatch, nNonMatch = nNonMatch)
+  }
+  dt <- data.table(is_match=rpairs$pairs$is_match,
+    Wdata=match(rpairs$Wdata, sort(rpairs$W)), key="Wdata")
+  errStat <- dt[,errStatFun(is_match), by=Wdata]
 
   # Count false negatives and positives per weight. The vectors correspond to
   # unique(sort(rpairsWdata)). Each position holds
@@ -54,15 +52,15 @@ optimalThreshold <- function (rpairs, my=NaN, ny=NaN)
   #           smaller or equal weight are classified as non-links
   #   for FP: the number of false positives if all record pairs with
   #           greater or equal weight are classified as links
-  FN <- cumsum(errStat[1,])
-  FP <- rev(cumsum(rev(errStat[2,])))
+  FN <- cumsum(errStat$nMatch)
+  FP <- rev(cumsum(rev(errStat$nNonMatch)))
 
   # Construct error measures therefrom. Because thresholds define
   # right-closed and left-open intervals, the range of weights has to be extended
   # by a value greater than all exisiting weights (the case that no pairs are
   # classified as links at all). The error rates are extended by zeros.
-  alphaErr <- c(0, FN / sum(errStat[1,]))
-  betaErr <- c(FP / sum(errStat[2,]), 0)
+  alphaErr <- c(0, FN/sum(errStat$nMatch))
+  betaErr <- c(FP/sum(errStat$nNonMatch), 0)
   accuracy <- (nrow(rpairs$pairs) - (FP + FN)) / nrow(rpairs$pairs)
 
   classWeights <- c(sort(unique(rpairs$Wdata)), Inf)

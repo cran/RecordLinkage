@@ -12,10 +12,11 @@
 
   classifySupv(model, newdata, ...)
 
-  \S4method{classifySupv}{RecLinkClassif,RecLinkData}(model, newdata, ...)
+  \S4method{classifySupv}{RecLinkClassif,RecLinkData}(model, newdata,
+    convert.na = TRUE, ...)
 
   \S4method{classifySupv}{RecLinkClassif,RLBigData}(model, newdata,
-  withProgressBar = (sink.number()==0), ...)
+    convert.na = TRUE, withProgressBar = (sink.number()==0), ...)
 }
 
 \arguments{
@@ -23,6 +24,8 @@
     calibrated model. See \code{\link{trainSupv}}.}
   \item{newdata}{Object of class \code{"\link{RecLinkData}"}
     or \code{"\linkS4class{RLBigData}"}. The data to classify.}
+  \item{convert.na}{Logical. Whether to convert missing values in the comparison
+    patterns to 0.}
   \item{withProgressBar}{Whether to display a progress bar}
   \item{\dots}{Further arguments for the \code{\link{predict}} method.}
 }

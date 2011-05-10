@@ -33,6 +33,8 @@
 \alias{getColumnNames,RLBigDataDedup-method}
 \alias{getColumnNames,RLBigDataLinkage-method}
 \alias{getThresholds}
+\alias{countpattern}
+
 \title{
   Internal functions and methods
 }
@@ -55,11 +57,13 @@
   getDbFile(object)
   getColumnNames(object, withExcluded = FALSE)
   getThresholds(W, M, U, my, ny)
+  countpattern(x, matching = FALSE)
 }
 
 \arguments{
   \item{x, object}{A \code{"\linkS4class{RLBigData}"} object (also
-    \code{"\linkS4class{RLResult}"} for \code{getDbFile}.}
+    \code{"\linkS4class{RLResult}"} for \code{getDbFile}. A matrix of binary
+      observations for \code{countpattern}.}
   \item{n}{Maximum number of comparison patterns to fetch.}
   \item{blockfld}{Blocking definition as in
     \code{\link[=RLBigDataDedup]{RLBigData*}}.}
@@ -75,6 +79,8 @@
     for details.}
   \item{W,M,U}{Error bounds. See \code{\link{emClassify}} for details.}
   \item{\dots}{Optional arguments.}
+  \item{matching}{If TRUE an additional vector is returned which stores which
+          row belongs to which pattern.}
 }
 
 \details{
@@ -106,6 +112,8 @@
       \code{"\linkS4class{RLBigData}"} object as a character vector.}
     \item{\code{getThresholds}}{Calculates upper and lower classification
       based on error bounds.}
+    \item{\code{countpattern}}{Modified version of \code{\link[e1071]{countpattern}}
+      in package e1071.}
 }
 
 }

@@ -231,7 +231,7 @@ setMethod(
     while(nrow(slice <- nextPairs(x, n)) > 0)
     {
       # discard ids and matching status
-      slice <- slice[,-c(1,2,ncol(slice))]
+      slice <- slice[,-c(1,2,ncol(slice)), drop=FALSE]
       slice[is.na(slice)] <- 0
       slice[slice < cutoff] <- 0
       slice[slice >= cutoff] <- 1
@@ -343,3 +343,23 @@ resample <- function(x, size, ...)
      if(length(x) <= 1) { if(!missing(size) && size == 0) x[FALSE] else x
      } else sample(x, size, ...)
 
+
+# modified function from package e1071, works also for data with only one column
+countpattern <- function (x, matching = FALSE)
+{
+    nvar <- dim(x)[2]
+    n <- dim(x)[1]
+    b <- matrix(0, 2^nvar, nvar)
+    for (i in 1:nvar) b[, nvar + 1 - i] <- rep(rep(c(0, 1), c(2^(i -
+        1), 2^(i - 1))), 2^(nvar - i))
+    namespat <- character(nrow(b))
+    for (i in 1:nvar) namespat <- paste(namespat, b[, i], sep = "")
+    xpat <- numeric(nrow(x))
+    for (i in 1:nvar) xpat <- 2 * xpat + x[, i]
+    xpat <- xpat + 1
+    pat <- tabulate(xpat, nb = 2^nvar)
+    names(pat) <- namespat
+    if (matching)
+        return(list(pat = pat, matching = xpat))
+    else return(pat)
+}

@@ -106,7 +106,7 @@ setMethod(
           return(sum(r*w,na.rm=TRUE))
         }
         sumW <- sum(w)
-        S=apply(slice[,-c(1,2,ncol(slice))],1,row_sum,w)/sumW
+        S=apply(slice[,-c(1,2,ncol(slice)),drop=FALSE],1,row_sum,w)/sumW
         if (any(is.na(S) | S < 0 | S > 1))
           warning("Some weights have illegal values. Check error rate and frequencies!")
         links <- rbind(links, as.matrix(slice[S >= threshold.upper,1:2]))

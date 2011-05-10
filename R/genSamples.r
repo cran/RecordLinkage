@@ -213,17 +213,15 @@ getMinimalTrain <- function(rpairs, nEx=1)
   if (any(rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))] > 0 &
       rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))] < 1, na.rm=TRUE))
     warning("Comparison patterns in rpairs contain string comparison values!")
-  p=rpairs$pairs
-  # Zeilen markieren, um Paare identifizieren zu können
-  rownames(p)=1:nrow(p)
-  p[is.na(p)]=0
-  # pro vorhandenem Vergleichsmuster werden bis zu nEx
-  # Repräsentanten gezogen
-  trainind=unlist(tapply(1:nrow(p),p[,-c(1,2,ncol(p))],
-    function(x) if (length(x) > 0) return (x[sample(1:length(x),
+  p <- rpairs$pairs
+  p[is.na(p)] <- 0
+  p=data.table(ID = 1:nrow(p), p)
+  keyCol <- names(rpairs$pairs)[-c(1,2,ncol(rpairs$pairs))]
+  key(p) <- keyCol
+  sampleFun <- function(x) (x[sample(1:length(x),
       min(length(x),nEx))])
-    else return (NULL),
-    simplify=FALSE))
+  trainind <- p[,sampleFun(ID), by=keyCol, nomatch=0]$V1
+
   train=rpairs
   train$pairs=rpairs$pairs[trainind,]
   train$Wdata=rpairs$Wdata[trainind]

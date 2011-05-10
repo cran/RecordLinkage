@@ -1,6 +1,9 @@
 #include <string.h>
+#include <stdlib.h>
 #include <math.h>
 #include <R.h>
+#include <Rinternals.h>
+#include <Rdefines.h>
 
 /*
  * Implementierung der Jaro-Metrik
@@ -29,11 +32,41 @@ void jarowinkler(const char ** strvec_1, const char ** strvec_2,
              double * W_1, double * W_2, double * W_t,
              double * r, double * ans);
 
+SEXP jarowinklerCALL(SEXP str1, SEXP str2, SEXP W_1, SEXP W_2, SEXP W_t, SEXP r);
+
 double jarowinkler_core(const char * str_1, const char * str_2,
              double W_1, double W_2, double W_t,
              double r);
 						  
 
+// version for .Call, faster because nothing is duplicated
+SEXP jarowinklerCALL(SEXP str1EXP, SEXP str2EXP, SEXP W_1EXP, SEXP W_2EXP, 
+  SEXP W_tEXP, SEXP rEXP)
+{
+  const char *str_1, *str_2;
+  double *W_1, *W_2, *W_t, *r, *ans;
+  int length_1, length_2, maxlen;
+  SEXP ret;
+  W_1 = NUMERIC_POINTER(W_1EXP);
+  W_2 = NUMERIC_POINTER(W_2EXP);
+  W_t = NUMERIC_POINTER(W_tEXP);
+  r = NUMERIC_POINTER(rEXP);
+  length_1 = LENGTH(str1EXP);
+  length_2 = LENGTH(str2EXP);
+  maxlen = length_1 > length_2 ? length_1 : length_2; 
+  PROTECT(ret = NEW_NUMERIC(maxlen));
+  ans = NUMERIC_POINTER(ret);
+  for (int str_ind=0; str_ind < maxlen; str_ind++)
+  {
+    str_1=CHAR(STRING_ELT(str1EXP, str_ind % length_1));
+    str_2=CHAR(STRING_ELT(str2EXP, str_ind % length_2));
+    ans[str_ind]=jarowinkler_core(str_1, str_2, *W_1, *W_2, *W_t, *r);
+  }
+  UNPROTECT(1);
+  return(ret);
+}
+
+// version for .C call, slow because arguments are duplicated
 void jarowinkler(const char ** strvec_1, const char ** strvec_2,
              int * length_1, int * length_2,
              double * W_1, double * W_2, double * W_t,
