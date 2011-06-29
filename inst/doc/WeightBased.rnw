@@ -1,4 +1,4 @@
-% \VignetteIndexEntry{Fellegi-Sunter Deduplication}
+% \VignetteIndexEntry{Weight-based deduplication}
 
 <<echo=false,results=hide>>=
 options(width=50)
@@ -10,7 +10,7 @@ options(width=50)
 
 \begin{document}
 
-\title{Example Session for Weight Based Deduplication}
+\title{Example session for Weight-based deduplication}
 \author{Andreas Borg, Murat Sariyar}
 \maketitle
 

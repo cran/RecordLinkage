@@ -1,7 +1,19 @@
+Changes in version 0.3-3
+	-added new classification method "bumping", see ?trainSupv
+	-bug fixes:
+		- string comparators crashed for character(0) input
+		  (reported by Dominik Reusser)
+		- getPairs could fail when the result is emtpy
+	-various performance improvements
+	-renamed vignette "Fellegi-Sunter Deduplication" to 
+	 "Weight-based deduplication"
+	-package is now in a namespace
+
 Changes in version 0.3-2
 	- performance improvements in various functions
 	- bug fixes:
 		- epiClassify failed for datasets with only one column
+		  (reported by Richard Herron)
 		- getErrorMeasures returned wrong values in rare cases
 
 Changes in version 0.3-1

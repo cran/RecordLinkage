@@ -218,11 +218,6 @@ setMethod(
       # Create table for individual weights
       dbGetQuery(rpairs@con, "create table Wdata (id1 integer, id2 integer, W double)")
 
-      # Create index, this speeds up the join operation of getPairs
-      # significantly
-      # The index for W helps when only a small range of weights is selected
-      dbGetQuery(rpairs@con, "create index index_Wdata_id on Wdata (id1, id2)")
-      dbGetQuery(rpairs@con, "create index index_Wdata_W on Wdata (W)")
 
       rpairs_copy <- begin(rpairs_copy)
 
@@ -241,6 +236,13 @@ setMethod(
           data.frame(slice[,1:2], W[indices]))
         i <- i + n
       }
+
+      # Create index, this speeds up the join operation of getPairs
+      # significantly
+      # The index for W helps when only a small range of weights is selected
+      dbGetQuery(rpairs@con, "create index index_Wdata_id on Wdata (id1, id2)")
+      dbGetQuery(rpairs@con, "create index index_Wdata_W on Wdata (W)")
+
       dbCommit(rpairs@con)
 
       # remove copied database

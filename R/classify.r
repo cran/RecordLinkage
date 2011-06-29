@@ -13,6 +13,13 @@ trainSupv <- function(rpairs,method,use.pred=FALSE,omit.possible=TRUE,
 #  if(isTRUE(use.pred) && length(unique(rpairs$prediction))==1)
 #    stop("Training examples have the same match status!")
 
+
+  # in case of bumping, refer to backend function (this
+  # method differs in terms of data handling)
+  if (method=="bumping") return(.bumping(rpairs, use.pred=use.pred,
+    omit.possible=omit.possible, convert.na=convert.na,
+    include.data=include.data, ...))
+
 	pairs=rpairs$pairs[,-c(1:2)]
 	if (convert.na)
 		pairs[is.na(pairs)]=0
@@ -94,3 +101,26 @@ classifyUnsup <- function(rpairs, method,...)
 }
 
 
+# backend function for bumping
+.bumping <- function(rpairs, n.bootstrap=25, cp=0.01, ...)
+{
+  # Besten cp-Wert bestimmen
+#  cpfit=trainSupv(rpairs,method="rpart",cp=0,minsplit=2,xval=10)
+#  cp=cpfit$model$cptable[which.min(cpfit$model$cptable[,"xerror"]),"CP"]
+#
+  # Liste für einzelne Bäume und Fehlermaß
+  classif_list=list()
+  performance_list=list()
+  n_data <- nrow(rpairs$pairs)
+  for (i in 1:n.bootstrap)
+  {
+    boot=rpairs[sample(n_data, replace=TRUE)]
+    classif_list[[i]]=trainSupv(boot,"rpart",cp=cp,minsplit=2,xval=0, ...)
+    performance_list[[i]]=errorMeasures(classifySupv(classif_list[[i]],rpairs))$accuracy
+  }
+  # Gesamte Daten zum Vergleich dazu
+  classif_list[[n.bootstrap+1]]=trainSupv(rpairs,"rpart",cp=cp,minsplit=2,xval=0)
+  performance_list[[n.bootstrap+1]]=errorMeasures(classifySupv(
+      classif_list[[n.bootstrap+1]],rpairs))$accuracy
+  return(classif_list[[which.max(performance_list)]])
+}

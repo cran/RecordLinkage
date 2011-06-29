@@ -88,31 +88,29 @@ setMethod(
       possibleLinks <- matrix(nrow=0, ncol=2)
       on.exit(clear(rpairs))
       rpairs <- begin(rpairs)
+
+      # weight computation
+      if (class(rpairs)=="RLBigDataDedup")
+        nAttr <- ncol(rpairs@data) - length(rpairs@excludeFld)
+      else # RLBigDataLinkage
+        nAttr <- ncol(rpairs@data1) - length(rpairs@excludeFld)
+
+      w=log((1-e)/f, base=2)
+      w <- w + numeric(nAttr)
+      sumW <- sum(w)
       while(nrow(slice <- nextPairs(rpairs, n)) > 0)
       {
         flush.console()
+        ids <- slice[,1:2]
+        slice <- t(slice[,-c(1,2,ncol(slice))])
         slice[is.na(slice)] <- 0
-        e=e+rep(0,ncol(slice)-3)
-        f=f+rep(0,ncol(slice)-3)
-        # adjust error rate
-        # error rate
-        w=log((1-e)/f, base=2)
-        #
-
-
-        # weight computation
-        row_sum <- function(r,w)
-        {
-          return(sum(r*w,na.rm=TRUE))
-        }
-        sumW <- sum(w)
-        S=apply(slice[,-c(1,2,ncol(slice)),drop=FALSE],1,row_sum,w)/sumW
+        S <- colSums(slice * w)/sumW
         if (any(is.na(S) | S < 0 | S > 1))
           warning("Some weights have illegal values. Check error rate and frequencies!")
-        links <- rbind(links, as.matrix(slice[S >= threshold.upper,1:2]))
+        links <- rbind(links, as.matrix(ids[S >= threshold.upper,]))
         possibleLinks <- rbind(possibleLinks,
-          as.matrix(slice[S >= threshold.lower & S < threshold.upper, 1:2]))
-        nPairs <- nPairs + nrow(slice)
+          as.matrix(ids[S >= threshold.lower & S < threshold.upper,]))
+        nPairs <- nPairs + nrow(ids)
         if (withProgressBar)
         {
           setTxtProgressBar(pgb, nPairs)
@@ -214,10 +212,6 @@ setMethod(
 
     dbGetQuery(rpairs@con, "create table Wdata (id1 integer, id2 integer, W real)")
 
-    # create index, this speeds up the join operation of getPairs
-    # significantly
-    dbGetQuery(rpairs@con, "create index index_Wdata_id on Wdata (id1, id2)")
-    dbGetQuery(rpairs@con, "create index index_Wdata_W on Wdata (W)")
 
     if (withProgressBar)
     {
@@ -249,11 +243,11 @@ setMethod(
 
     while(nrow(slice <- nextPairs(rpairs_copy, n)) > 0)
     {
-    ids <- slice[,1:2]
-    slice <- t(slice[,-c(1,2,ncol(slice))])
-      slice[is.na(slice)] <- 0
-      #
-    S <- colSums(slice * w)/sumW
+      ids <- slice[,1:2]
+      slice <- t(slice[,-c(1,2,ncol(slice))])
+        slice[is.na(slice)] <- 0
+        #
+      S <- colSums(slice * w)/sumW
 
       if (any(is.na(S) | S < 0 | S > 1))
         warning("Some weights have illegal values. Check error rate and frequencies!")
@@ -270,6 +264,12 @@ setMethod(
       }
     }
     if (withProgressBar) close(pgb)
+
+    # create index, this speeds up the join operation of getPairs
+    # significantly
+    dbGetQuery(rpairs@con, "create index index_Wdata_id on Wdata (id1, id2)")
+    dbGetQuery(rpairs@con, "create index index_Wdata_W on Wdata (W)")
+
     dbCommit(rpairs@con)
 
     # remove copied database

@@ -15,3 +15,16 @@ test.onecolumn <- function()
   rpairs <- epiWeights(rpairs)
   rpairs <- emWeights(rpairs)
 }
+
+
+# test behaviuor of string comparators and phonetic functions with empty strings
+# (bug reported by Dominik Reusser)
+test.strcmp.empty <- function()
+{
+  levenshteinDist("bla", character(0))
+  jarowinkler("bla", character(0))
+  levenshteinDist(character(0), "bla")
+  jarowinkler(character(0), "bla")
+  pho_h(character(0))
+  soundex(character(0))
+}

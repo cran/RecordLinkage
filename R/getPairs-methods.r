@@ -421,20 +421,24 @@ setMethod(
   		return (pairs)
   	}
 
+    if (is.na(ind) || length(ind)==0)
+    {
+      m <- data.frame(matrix(character(), nrow=0,
+        ncol=ncol(rpairs$data) + 2)) # one column is id, another weight
+      colnames(m) <- c("id", colnames(data1), "Weight")
+      return(m)
+    }
+
   	printfun=function(x)
     {
       c(x[1:((length(x)-1)/2)],c("",x[((length(x)+1)/2):length(x)]),
       rep("", (length(x) + 1) / 2))
-
     }
+
     m=apply(pairs,1,printfun)
     m=as.data.frame(matrix(m[TRUE],nrow=ncol(m)*3,ncol=nrow(m)/3,byrow=TRUE))
     colnames(m)=c("id", colnames(data1), "Weight")
   	# if no pairs at all meet the restrictions, empty frame
-    if (is.na(ind) || length(ind)==0)
-    {
-      m <- m[0,]
-    }
 
     return(m)
   }

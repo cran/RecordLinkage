@@ -69,7 +69,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     # ensure dataset is a data frame and has column names
     ret=list()  # return object
     ret$data=as.data.frame(dataset)
-    dataset=as.matrix(dataset)
+    dataset=as.matrix(dataset, rownames.force=FALSE)
     dataset[dataset==""]=NA # label missing values
 
 
@@ -129,7 +129,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 		# Matche bestimmen durch Join auf identity-Vektor 
 		pairs=merge(x=tempdat,y=tempdat,by=2)
 		# auf ungeordnete Matche beschränken 
-		match_ids=as.matrix(pairs[as.integer(pairs[,2])<as.integer(pairs[,3]),2:3])
+		match_ids=as.matrix(pairs[as.integer(pairs[,2])<as.integer(pairs[,3]),2:3], rownames.force=FALSE)
     n_available_matches=nrow(match_ids)
     n_available_non_matches=ndata*(ndata-1)/2 - n_available_matches
     if (n_available_matches < n_match && n_available_non_matches < n_non_match)
@@ -200,7 +200,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
      }
    }
 	 }
-   } else
+   } else # with blocking
    { 
      for (blockelem in blockfld) # loop over blocking definitions
      {
@@ -224,7 +224,6 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
       {
         is.na(blockstr)=is.na(block_data[,i])
       }
-#    	blockstr=gsub("NA", NA, blockstr)
       rm(block_data)
      id_vec=tapply(1:ndata,blockstr,function(x) if(length(x)>1) return(x))
      id_vec=delete.NULLs(id_vec)
@@ -240,8 +239,11 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     {
       stop("No pairs generated. Check blocking criteria.")
     }
-
-    pair_ids=as.matrix(unique(as.data.frame(pair_ids)))  # runs faster with data frame
+    pair_ids <- data.table(pair_ids)
+    key(pair_ids) <- names(pair_ids)
+#    browser()
+    pair_ids <- as.matrix(pair_ids[,1, by=names(pair_ids)], rownames.force=FALSE)[,1:2, drop=FALSE]
+#    pair_ids=as.matrix(unique(as.data.frame(pair_ids)), rownames.force=FALSE)  # runs faster with data frame
    } # end else
     
 
@@ -267,7 +269,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     patterns=matrix(0,ncol=ncol(left),nrow=nrow(left)) 
     if (isTRUE(strcmp))
     {
-        patterns=strcmpfun(as.matrix(left),as.matrix(right))
+        patterns=strcmpfun(as.matrix(left, rownames.force=FALSE),as.matrix(right, rownames.force=FALSE))
     } else if (is.numeric(strcmp)) 
     {
         patterns[,-strcmp]=(left[,-strcmp]==right[,-strcmp])*1
@@ -383,8 +385,8 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     ret=list()  # return object
     ret$data1=dataset1
     ret$data2=dataset2
-    full_data1=as.matrix(dataset1)
-    full_data2=as.matrix(dataset2)
+    full_data1=as.matrix(dataset1, rownames.force=FALSE)
+    full_data2=as.matrix(dataset2, rownames.force=FALSE)
 
 
 
@@ -420,8 +422,8 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     dataset2[dataset2==""]=NA # label missing values
     full_data1[full_data1==""]=NA # label missing values
     full_data2[full_data2==""]=NA # label missing values
-    dataset1=as.matrix(dataset1)        
-    dataset2=as.matrix(dataset2)        
+    dataset1=as.matrix(dataset1, rownames.force=FALSE)
+    dataset2=as.matrix(dataset2, rownames.force=FALSE)
 
     if (!is.function(phonfun))
     {
@@ -462,7 +464,7 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
 		
 		# Matche bestimmen durch Join auf identity-Vektor 
 		pairs=merge(x=tempdat1,y=tempdat2,by=2)
-		match_ids=as.matrix(pairs[,2:3])
+		match_ids=as.matrix(pairs[,2:3], rownames.force=FALSE)
     n_available_matches=nrow(match_ids)
     n_available_non_matches=ndata1*ndata2 - n_available_matches
     if (n_available_matches < n_match && n_available_non_matches < n_non_match)
@@ -581,11 +583,12 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     patterns=matrix(0,ncol=ncol(left),nrow=nrow(left)) 
     if (isTRUE(strcmp))
     {
-        patterns=strcmpfun(as.matrix(left),as.matrix(right))
+        patterns=strcmpfun(as.matrix(left, rownames.force=FALSE),as.matrix(right, rownames.force=FALSE))
     } else if (is.numeric(strcmp)) 
     {
-        patterns[,-strcmp]=(as.matrix(left[,-strcmp])==as.matrix(right[,-strcmp]))*1
-        patterns[,strcmp]=strcmpfun(as.matrix(left[,strcmp]),as.matrix(right[,strcmp])) #*1
+        patterns[,-strcmp]=(as.matrix(left[,-strcmp], rownames.force=FALSE)==as.matrix(right[,-strcmp], rownames.force=FALSE))*1
+        patterns[,strcmp]=strcmpfun(as.matrix(left[,strcmp], rownames.force=FALSE),
+          as.matrix(right[,strcmp], rownames.force=FALSE)) #*1
     } else
     {
        patterns=(left==right)*1

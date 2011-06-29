@@ -39,6 +39,7 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
     \item{\code{"ada"}}{Stochastic boosting model, see \code{\link[ada]{ada}}.}
     \item{\code{"bagging"}}{Bagging with classification trees, see \code{\link[ipred]{bagging}}.}
     \item{\code{"nnet"}}{Single-hidden-layer neural network, see \code{\link[nnet]{nnet}}.}
+    \item{\code{"bumping"}}{A bootstrap based method using classification trees, see details.}
   }
   Arguments in \code{...} are passed to the corresponding function.
 
@@ -53,6 +54,18 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
   Leaving \code{include.data=FALSE} saves memory, setting it to \code{TRUE}
   can be useful for saving the classificator while keeping track of the
   underlying training data.
+  
+  \acronym{Bumping}, (acronym for \dQuote{Bootstrap umbrella of model
+  parameters}), is an ensemble method described by \cite{Tibshirani and Knight,
+  1999}. Such as in bagging, multiple classifiers are trained on boostrap
+  samples of the training set. The key difference is that not the aggregated
+  decision of all classifiers (e.g. by majority vote) is used to classify new
+  data, but only the single model that performs best on the whole training set.
+  In combination with classification trees as underlying classifiers this
+  approach allows good interpretability of the trained model while being more
+  stable against outliers than traditionally induced decision trees. The number
+  of bootstrap samples to use can be controlled by supplying the argument
+  \code{n.bootstrap}, which defaults to 25.
 }
 
 \value{
@@ -68,6 +81,10 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
 \seealso{\code{\link{classifySupv}} for classifying with the trained model, 
   \code{\link{classifyUnsup}} for unsupervised classification}
 
+\references{
+Tibshirani R, Knight K: Model search by bootstrap \dQuote{bumping}.
+Journal of Computational and Graphical Statistics 8(1999):671--686.
+}
 \examples{
 # Train a rpart decision tree with additional parameter minsplit
 data(RLdata500)

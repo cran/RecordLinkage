@@ -187,7 +187,7 @@ test.getPairs <- function()
   }
 
   # check call with empty result
-  # chosse limits that fall between two existing weights
+  # choose limits that fall between two existing weights
   weights <- sort(rpairs$W)
   ind <- sample(length(weights-1),1)
   diff <- weights[ind+1] - weights[ind]
@@ -199,7 +199,12 @@ test.getPairs <- function()
     colnames(rpairs$pairs[-c(1,2,ncol(rpairs$pairs))]), "Weight"),
     msg="check column names of empty result")
   
-  
+
+  data(RLdata500)
+  rpairs2 <- compare.dedup(RLdata500, blockfld=list(1,3))
+  rpairs2 <- epiWeights(rpairs2)
+  getPairs(rpairs2, min.weight=max(rpairs2$Wdata) +  .Machine$double.eps ^ 0.5)
+
   
 ##### Repeat checks for single row output #####
   

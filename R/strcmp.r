@@ -16,8 +16,7 @@ jarowinkler <- function(str1, str2, W_1=1/3, W_2=1/3, W_3=1/3, r=0.5)
 
    if ((is.array(str1) || is.array(str2)) && dim(str1)!=dim(str2))
       stop ("non-conformable arrays")
-#   l1 <- length(str1)
-#   l2 <- length(str2)
+   if(length(str1)==0 || length(str2)==0) return(double(0))
     ans <- .Call("jarowinklerCALL", str1, str2, #l1,l2,
              as.double(W_1), as.double(W_2), as.double(W_3), as.double(r),
              PACKAGE="RecordLinkage")
@@ -48,9 +47,10 @@ levenshteinDist <- function(str1, str2)
     str=as.character(str2)
    if ((is.array(str1) || is.array(str2)) && dim(str1)!=dim(str2))
       stop ("non-conformable arrays")
+   if(length(str1)==0 || length(str2)==0) return(integer(0))
    l1 <- length(str1)
    l2 <- length(str2)
-   out <- .C("levenshtein", as.character(str1), as.character(str2),l1,l2, 
+   out <- .C("levenshtein", as.character(str1), as.character(str2),l1,l2,
              ans=integer(max(l1,l2)), 
              PACKAGE="RecordLinkage")
 
