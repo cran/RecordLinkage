@@ -1,3 +1,8 @@
+Changes in version 0.3-4
+	-added summary method for RLResult objects
+	-bug fixes:
+		-summary.RecLinkResult failed for object without known
+		 matching status
 Changes in version 0.3-3
 	-added new classification method "bumping", see ?trainSupv
 	-bug fixes:
