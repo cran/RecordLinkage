@@ -1,3 +1,6 @@
+Changes in version 0.3-5
+	-bug fixes:
+		-getExpectedSize failed in rare cases
 Changes in version 0.3-4
 	-added summary method for RLResult objects
 	-bug fixes:

@@ -61,7 +61,7 @@ setMethod(
     blockelemFun <- function(blockelem)
     {
       if(is.character(blockelem)) blockelem <- match(blockelem, colnames(object@data))
-      freq <- dbGetQuery(object@con,
+      freq <- as.numeric(dbGetQuery(object@con,
         sprintf("select count(*) as c from data group by %s having c > 1 and %s",
           paste("\"", coln[blockelem], "\"", sep="", collapse=", "),
           paste(
@@ -69,8 +69,8 @@ setMethod(
             collapse = " and "
           )
         )
-      )
-      1 - (sum(sapply(freq,  function(x) x * (x-1) /2)) / nAll)
+      )$c)
+      1 - (sum(freq * (freq - 1) / 2) / nAll)
     }
     res <- nAll * (1-prod(sapply(blockfld, blockelemFun)))
 

@@ -159,6 +159,17 @@ test.getExpectedSize.RLBigDataDedup <- function()
 
   # Blocking with x1 and x2 (intersect): only 1 pair
   checkEquals(getExpectedSize(RLBigDataDedup(testdat, blockfld=c(1,2))), 1)
+  
+  # check for bug that caused function to fail if one of the blocking columns
+  # does not have any matching values
+  testdat2 <- cbind(testdat, 1:nrow(testdat))
+  names(testdat2) <- c("x1", "x2", "x3")
+  checkEquals(getExpectedSize(RLBigDataDedup(testdat2, blockfld=list(1,3))), 3)
+
+  # for NULL values
+  testdat2$x3 <- NA
+  checkEquals(getExpectedSize(RLBigDataDedup(testdat2, blockfld=list(1,3))), 3)
+
 }
 
 
@@ -189,6 +200,12 @@ test.getExpectedSize.RLBigDataLinkage <- function()
 
   # Blocking with x1 and x2 (intersect): 5 pairs
   checkEquals(getExpectedSize(RLBigDataLinkage(testdat, testdat, blockfld=c(1,2))), 5)
+
+  # check for bug that caused function to fail if one of the blocking columns
+  # does not have any matching values (NULL values)
+  testdat2$x3 <- NA
+  checkEquals(getExpectedSize(RLBigDataLinkage(testdat2, testdat2, blockfld=list(1,3))), 9)
+
 }
 
 
