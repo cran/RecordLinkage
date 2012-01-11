@@ -55,8 +55,9 @@ test.getErrorMeasures.RLResult <- function()
 
   # select pairs as links such there are distinct numbers for false positives etc.
   # leads to 3 TP, 2 FP, 1 FN, 4 TN
-  linkInd <- matrix(c(1,2,3,4,3,5,1,3,1,4), ncol = 2, nrow = 5, byrow = TRUE)
-  result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10)
+  prediction <- ff(factor(c("L","L","L","N","N","N","N","L","L","N"), levels=c("N", "P", "L")))
+#  linkInd <- matrix(c(1,2, 3,4, 3,5, 1,3, 1,4), ncol = 2, nrow = 5, byrow = TRUE)
+  result <- new("RLResult", data = rpairs, prediction = prediction)
 
   # result is a table of the form
   #
@@ -80,9 +81,8 @@ test.getErrorMeasures.RLResult <- function()
   # check that possible links are not counted
   # test by removing one true link
   rpairs <- RLBigDataDedup(data1, identity = identity1)
-  linkInd <- matrix(c(3,4,3,5,1,3,1,4), ncol = 2, nrow = 4, byrow = TRUE)
-  result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10,
-    possibleLinks = matrix(c(1,2),ncol=2, nrow=1, byrow = TRUE))
+  prediction <- ff(factor(c("P","L","L","N","N","N","N","L","L","N"), levels=c("N", "P", "L")))
+  result <- new("RLResult", data = rpairs, prediction = prediction)
 
   checkEqualsNumeric(getTable(result), matrix(c(4,1,0,1,2,2), ncol=3))
   # result is a table of the form
@@ -107,9 +107,8 @@ test.getErrorMeasures.RLResult <- function()
   # check that pairs with unknown status are not counted
   identity1 <- c(NA,1,3,3,3)
   rpairs <- RLBigDataDedup(data1, identity = identity1)
-  linkInd <- matrix(c(3,4,3,5,1,3,1,4), ncol = 2, nrow = 4, byrow = TRUE)
-  result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10,
-    possibleLinks = matrix(c(1,2),ncol=2, nrow=1))
+  prediction <- ff(factor(c("P","L","L","N","N","N","N","L","L","N"), levels=c("N", "P", "L")))
+  result <- new("RLResult", data = rpairs, prediction = prediction)
 
   # result is a table of the form
   #
@@ -131,8 +130,4 @@ test.getErrorMeasures.RLResult <- function()
 
   checkEquals(measures, getErrorMeasures(result))
 
-# error in dbDisconnect!
-#  # check for invalid database connection in object
-#  dbDisconnect(rpairs@con)
-#  checkException(getErrorMeasures(result))
 }

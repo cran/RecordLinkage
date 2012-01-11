@@ -19,10 +19,7 @@
   testResultFun <<- function(...)
   {
     object <- RLBigDataDedup(...)
-    begin(object)
-    result <- nextPairs(object, n = -1)
-    clear(object)
-    return(result)
+    as.data.frame(object@pairs)
   }
 
 }
@@ -300,45 +297,47 @@ test.RLBigDataDedup <- function()
     
   # Check for bug that row names were stored as strings, resulting in an
   # unexpected ordering
-  rpairs <- RLBigDataDedup(data1)
-  testResult <- dbGetQuery(rpairs@con, "select row_names as id from data")
-  checkTrue(is.numeric(testResult$id),
-    msg = "Check that record ids are stored as numbers")
-
+  #
+  # obsolete for ff objects!
+#  rpairs <- RLBigDataDedup(data1)
+#  testResult <- dbGetQuery(rpairs@con, "select row_names as id from data")
+#  checkTrue(is.numeric(testResult$id),
+#    msg = "Check that record ids are stored as numbers")
+#
   # check that SQL keywords as column names are handled correctly
   # also if column appears in blocking, string comparison or phonetic code
-  data1SQLnames <- data1
-  colnames(data1SQLnames)=c("fname.c1", "fname.c2", "lname.c1", "lname.c2", "by", "where", "select")
+#  data1SQLnames <- data1
+#  colnames(data1SQLnames)=c("fname.c1", "fname.c2", "lname.c1", "lname.c2", "by", "where", "select")
+#
+#  rpairs <- RLBigDataDedup(data1SQLnames)
+#  begin(rpairs)
+#  pairs <- nextPairs(rpairs)
+#  checkEquals(colnames(pairs)[-c(1,2,ncol(pairs))], colnames(data1SQLnames),
+#    msg = " check SQL keywords as column names")
+#  clear(rpairs)
 
-  rpairs <- RLBigDataDedup(data1SQLnames)
-  begin(rpairs)
-  pairs <- nextPairs(rpairs)
-  checkEquals(colnames(pairs)[-c(1,2,ncol(pairs))], colnames(data1SQLnames),
-    msg = " check SQL keywords as column names")
-  clear(rpairs)
-
-  rpairs <- RLBigDataDedup(data1SQLnames, blockfld=list(5,6,7))
-  invisible(begin(rpairs))
-  pairs <- nextPairs(rpairs)
-  checkEquals(colnames(pairs)[-c(1,2,ncol(pairs))], colnames(data1SQLnames),
-    msg = " check SQL keywords as column names (in blocking)")
-  clear(rpairs)
-
-  rpairs <- RLBigDataDedup(data1SQLnames, strcmp=5:7)
-  invisible(begin(rpairs))
-  pairs <- nextPairs(rpairs)
-  checkEquals(colnames(pairs)[-c(1,2,ncol(pairs))], colnames(data1SQLnames),
-    msg = " check SQL keywords as column names (with string comparison)")
-  clear(rpairs)
-
+#  rpairs <- RLBigDataDedup(data1SQLnames, blockfld=list(5,6,7))
+#  invisible(begin(rpairs))
+#  pairs <- nextPairs(rpairs)
+#  checkEquals(colnames(pairs)[-c(1,2,ncol(pairs))], colnames(data1SQLnames),
+#    msg = " check SQL keywords as column names (in blocking)")
+#  clear(rpairs)
+#
+#  rpairs <- RLBigDataDedup(data1SQLnames, strcmp=5:7)
+#  invisible(begin(rpairs))
+#  pairs <- nextPairs(rpairs)
+#  checkEquals(colnames(pairs)[-c(1,2,ncol(pairs))], colnames(data1SQLnames),
+#    msg = " check SQL keywords as column names (with string comparison)")
+#  clear(rpairs)
+#
   # in this case
-  rpairs <- RLBigDataDedup(data1SQLnames, phonetic=5:7)
-  invisible(begin(rpairs))
-  pairs <- nextPairs(rpairs)
-  checkEquals(colnames(pairs)[-c(1,2,ncol(pairs))], colnames(data1SQLnames),
-    msg = " check SQL keywords as column names (with phonetic code)")
-  clear(rpairs)
-
+#  rpairs <- RLBigDataDedup(data1SQLnames, phonetic=5:7)
+#  invisible(begin(rpairs))
+#  pairs <- nextPairs(rpairs)
+#  checkEquals(colnames(pairs)[-c(1,2,ncol(pairs))], colnames(data1SQLnames),
+#    msg = " check SQL keywords as column names (with phonetic code)")
+#  clear(rpairs)
+#
   # check case when all columns except one are excluded (fix in rev 327)
   testResult=testResultFun(data1, exclude=2:ncol(data1))
   result1=read.table("result1.compare.txt",sep=",",colClasses="double",

@@ -11,7 +11,11 @@
 \usage{
 \method{summary}{RecLinkData}(object,...)
 
-\method{summary}{RecLinkResult}(object,...)                    
+\method{summary}{RecLinkResult}(object,...)
+
+#\method{summary}{RLBigDataDedup}(object,...)
+
+#\method{summary}{RLBigDataLinkage}(object,...)
 }
 
 \arguments{
@@ -20,6 +24,8 @@
 }                  
 
 \details{
+
+        (The following information is probably outdated as of Nov 17, 2011.)
 
        The printed information for \code{\link{RecLinkData}} objects
        includes:

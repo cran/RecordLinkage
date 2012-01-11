@@ -2,6 +2,9 @@
 \name{getParetoThreshold}
 \Rdversion{1.1}
 \alias{getParetoThreshold}
+\alias{getParetoThreshold-methods}
+\alias{getParetoThreshold,RecLinkData-method}
+\alias{getParetoThreshold,RLBigData-method}
 
 \title{
   Estimate Threshold from Pareto Distribution
@@ -13,12 +16,14 @@
 
 \usage{
 getParetoThreshold(rpairs, quantil = 0.95, interval = NA)
+\S4method{getParetoThreshold}{RecLinkData}(rpairs, quantil = 0.95, interval = NA)
+\S4method{getParetoThreshold}{RLBigData}(rpairs, quantil = 0.95, interval = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{rpairs}{
-    A \code{\link{RecLinkData}} object with weights. The data for which to
-    compute a threshold.
+    A \code{"\link{RecLinkData}"} or \code{"\linkS4class{RLBigData}"} object with weights.
+    The data for which to compute a threshold.
 }
 
   \item{quantil}{

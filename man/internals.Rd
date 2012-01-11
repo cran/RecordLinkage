@@ -21,19 +21,23 @@
 \alias{getMatchCount}
 \alias{getMatchCount-methods}
 \alias{getMatchCount,RLBigData-method}
+\alias{getNonMatchCount}
+\alias{getNonMatchCount-methods}
+\alias{getNonMatchCount,RLBigData-method}
 \alias{getNACount}
 \alias{getNACount-methods}
 \alias{getNACount,RLBigData-method}
-\alias{getDbFile}
-\alias{getDbFile-methods}
-\alias{getDbFile,RLBigData-method}
-\alias{getDbFile,RLResult-method}
 \alias{getColumnNames}
 \alias{getColumnNames-methods}
 \alias{getColumnNames,RLBigDataDedup-method}
 \alias{getColumnNames,RLBigDataLinkage-method}
 \alias{getThresholds}
 \alias{countpattern}
+\alias{hasWeights}
+\alias{hasWeights-methods}
+\alias{hasWeights,RecLinkData-method}
+\alias{hasWeights,RLBigData-method}
+
 
 \title{
   Internal functions and methods
@@ -47,29 +51,38 @@
   nextPairs(x, n = 10000, ...)
   clear(x, ...)
   blockfldfun(blockfld, phoneticFld, phoneticFun, coln)
-  getSQLStatement(object)
+  getSQLStatement(data1, data2 = data1, con, type, blockFld, excludeFld,
+    strcmpFld, strcmpFun, phoneticFld, phoneticFun)
   init_sqlite_extensions(db)
   .allows_extensions(db)
   .lib_path()
   getPatternCounts(x, n=10000, cutoff=1, withProgressBar = (sink.number()==0))
   getMatchCount(object)
+  getNonMatchCount(object)
   getNACount(object)
-  getDbFile(object)
   getColumnNames(object, withExcluded = FALSE)
   getThresholds(W, M, U, my, ny)
   countpattern(x, matching = FALSE)
+  hasWeights(object)
 }
 
 \arguments{
-  \item{x, object}{A \code{"\linkS4class{RLBigData}"} object (also
-    \code{"\linkS4class{RLResult}"} for \code{getDbFile}. A matrix of binary
-      observations for \code{countpattern}.}
+  \item{x, object}{Depends on the function, usually a \code{"\linkS4class{RecLinkData}"},
+    \code{"\linkS4class{RLBigData}"} or \code{"\linkS4class{RLResult}"}.
+    A matrix of binary observations for \code{countpattern}.}
   \item{n}{Maximum number of comparison patterns to fetch.}
   \item{blockfld}{Blocking definition as in
     \code{\link[=RLBigDataDedup]{RLBigData*}}.}
   \item{phoneticFld}{Indices of attributes for which phonetic code should be used.}
   \item{phoneticFun}{Name of phonetic function as in
     \code{\link[=RLBigDataDedup]{RLBigData*}}.}
+  \item{data1, data2}{Data frame with records.}
+  \item{type}{"linkage" or "deduplication", the type of linkage.}
+  \item{excludeFld}{Indices or names of fields to exclude from comparison.}
+  \item{strcmpFld}{Indices of attributes for which string comparison should be used.}
+  \item{strcmpFun}{Name of string comparison function as in
+    \code{\link[=RLBigDataDedup]{RLBigData*}}.}
+  \item{con}{A SQLite database connection.}
   \item{coln}{Column names of records.}
   \item{db}{Database connection.}
   \item{cutoff}{Threshold from which string comparison values are rounded to 1.}
@@ -114,6 +127,7 @@
       based on error bounds.}
     \item{\code{countpattern}}{Modified version of \code{\link[e1071]{countpattern}}
       in package e1071.}
+    \item{\code{hasWeights}}{Determines whether a data object has weights.}
 }
 
 }

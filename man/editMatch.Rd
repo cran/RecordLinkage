@@ -1,6 +1,10 @@
 \name{editMatch}
 \Rdversion{1.1}
 \alias{editMatch}
+\alias{editMatch-methods}
+\alias{editMatch,RecLinkData-method}
+\alias{editMatch,RLBigData-method}
+
 
 \title{
   Edit Matching Status
@@ -14,8 +18,9 @@ editMatch(rpairs)
 
 \arguments{
   \item{rpairs}{
-    A \code{\link{RecLinkData}} object. The record pairs to edit.
-}
+    A \code{"\link{RecLinkData}"} or \code{"\linkS4class{RLBigData}"} object.
+      The record pairs to edit.
+  }
 }
 
 \details{

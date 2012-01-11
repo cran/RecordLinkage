@@ -115,7 +115,6 @@ setMethod(
   definition = function(object)
   {
     # shortcut to database connection
-    con <- object@con
     if (class(object)=="RLBigDataDedup")
     {
       cat("\nDeduplication Data Set for large number of data\n\n")
@@ -128,27 +127,39 @@ setMethod(
       cat(sprintf("%d records in first data set",nrow(object@data1)),"\n")
       cat(sprintf("%d records in second data set",nrow(object@data2)),"\n")
     }
+    cat(sprintf("%d record pairs\n", nrow(object@pairs)))
+  }
+)
+
+setMethod(
+  f = "show",
+  signature = "RLResult",
+  definition = function(object)
+  {
+    cat("\nClassification result for large data set\n\n")
+    cat(sprintf("%d record pairs\n", nrow(object@pairs)))
   }
 )
 
 
-setMethod(
-  f = "summary",
-  signature = "RLBigDataDedup",
-  definition = function(object)
-  {
+#setMethod(
+#  f = "summary",
+#  signature = "RLBigDataDedup",
+#  definition = function(object)
+summary.RLBigDataDedup <- function(object, ...)  {
     val <- list()
-    val[["nData"]] <- as.vector(dbGetQuery(object@con, "select count(*) from data")$count)
-    val[["attributes"]] <- if (length(rpairs@excludeFld) == 0)
-        names(rpairs@data) else names(rpairs@data)[-rpairs@excludeFld]
-    val[["blockFld"]] <- lapply(object@blockFld, function(x) names(rpairs@data)[x])
-    val$expectedSize <- getExpectedSize(object)
+    val[["nData"]] <- nrow(object@data)
+    val[["attributes"]] <- if (length(object@excludeFld) == 0)
+        names(object@data) else names(object@data)[-object@excludeFld]
+    val[["blockFld"]] <- lapply(object@blockFld, function(x) names(object@data)[x])
+    val$nPairs <- nrow(object@pairs)
     val$nMatches <- getMatchCount(object)
-    # number of unknown pairs: rarely used, calculation may be time-consuming
-    #    val$nUnknown <- getNACount(object)
-    if(dbExistsTable(object@con, "Wdata"))
+    val$nNonMatches <- getNonMatchCount(object)
+    val$nUnknown <- getNACount(object)
+
+    if (hasWeights(object))
     {
-  		h=hist(dbReadTable(object@con, "Wdata")$W, plot=FALSE)
+  		h=hist(as.ram(object@Wdata), plot=FALSE)
   		c=h$counts
   		# nehme Gewichtsintervalle als Indizes, um Histogrammansicht zu erhalten
       names(c)=sapply(1:(length(h$breaks)-1),
@@ -157,11 +168,10 @@ setMethod(
       names(c)[1]=sprintf("[%g,%g]", h$breaks[1], h$breaks[2])
       val$weightHist <- c
     }
-
-    class(val) <- "summaryRLBigDataDedup"
+    class(val) <- c("summaryRLBigDataDedup", "list")
     val
   }
-)
+#)
 
 print.summaryRLBigDataDedup <- function(x, ...)
 {
@@ -171,10 +181,10 @@ print.summaryRLBigDataDedup <- function(x, ...)
   cat("Attributes:", paste(x$attributes, collapse=", "), "\n")
   cat("Blocking definition:", paste(sapply(x$blockFld,
     function(x) paste("[", paste(x, collapse=", "), "]", sep="")), collapse = ", "), "\n")
-  cat("Estimated number of record pairs:", x$expectedSize, "\n")
+  cat("Number of record pairs:", x$nPairs, "\n")
   cat("Number of matches:", x$nMatches, "\n")
-# number of unknown pairs: rarely used, calculation may be time-consuming
-#  cat("Number of pairs with unknown status:", x$nUnknown, "\n")
+  cat("Number of non-matches:", x$nNonMatches, "\n")
+  if (x$nUnknown > 0) cat("Number of pairs with unknown status:", x$nUnknown, "\n")
   if(!is.null(x$weightHist))
   {
     cat("Weight histogram:\n")
@@ -183,24 +193,24 @@ print.summaryRLBigDataDedup <- function(x, ...)
 }
 
 
-setMethod(
-  f = "summary",
-  signature = "RLBigDataLinkage",
-  definition = function(object)
-  {
+#setMethod(
+#  f = "summary",
+#  signature = "RLBigDataLinkage",
+#  definition = function(object)
+summary.RLBigDataLinkage <- function(object, ...)  {
     val <- list()
     val[["nData1"]] <- as.vector(dbGetQuery(object@con, "select count(*) from data1")$count)
     val[["nData2"]] <- as.vector(dbGetQuery(object@con, "select count(*) from data2")$count)
-    val[["attributes"]] <- if (length(rpairs@excludeFld) == 0)
-        names(rpairs@data1) else names(rpairs@data)[-rpairs@excludeFld]
-    val[["blockFld"]] <- lapply(object@blockFld, function(x) names(rpairs@data1)[x])
+    val[["attributes"]] <- if (length(object@excludeFld) == 0)
+        names(object@data1) else names(object@data)[-object@excludeFld]
+    val[["blockFld"]] <- lapply(object@blockFld, function(x) names(object@data1)[x])
     val$expectedSize <- getExpectedSize(object)
     val$nMatches <- getMatchCount(object)
-    # number of unknown pairs: rarely used, calculation may be time-consuming
-    #    val$nUnknown <- getNACount(object)
-    if(dbExistsTable(object@con, "Wdata"))
+    val$nNonMatches <- getNonMatchCount(object)
+    val$nUnknown <- getNACount(object)
+    if (hasWeights(object))
     {
-  		h=hist(dbReadTable(object@con, "Wdata")$W, plot=FALSE)
+  		h=hist(as.ram(object@Wdata), plot=FALSE)
   		c=h$counts
   		# nehme Gewichtsintervalle als Indizes, um Histogrammansicht zu erhalten
       names(c)=sapply(1:(length(h$breaks)-1),
@@ -210,10 +220,10 @@ setMethod(
       val$weightHist <- c
     }
 
-    class(val) <- "summaryRLBigDataLinkage"
+    class(val) <- c("summaryRLBigDataLinkage", "list")
     val
   }
-)
+#)
 
 print.summaryRLBigDataLinkage <- function(x, ...)
 {
@@ -224,10 +234,10 @@ print.summaryRLBigDataLinkage <- function(x, ...)
   cat("Attributes:", paste(x$attributes, collapse=", "), "\n")
   cat("Blocking definition:", paste(sapply(x$blockFld,
     function(x) paste("[", paste(x, collapse=", "), "]", sep="")), collapse = ", "), "\n")
-  cat("Estimated number of record pairs:", x$expectedSize, "\n")
+  cat("Number of record pairs:", x$nPairs, "\n")
   cat("Number of matches:", x$nMatches, "\n")
-# number of unknown pairs: rarely used, calculation may be time-consuming
-#  cat("Number of pairs with unknown status:", x$nUnknown, "\n")
+  cat("Number of non-matches:", x$nNonMatches, "\n")
+  if (x$nUnknown > 0) cat("Number of pairs with unknown status:", x$nUnknown, "\n")
   if(!is.null(x$weightHist))
   {
     cat("Weight histogram:\n")
@@ -236,27 +246,31 @@ print.summaryRLBigDataLinkage <- function(x, ...)
 }
 
 
-setMethod(
-  f = "summary",
-  signature = "RLResult",
-  definition = function(object)
+#setMethod(
+#  f = "summary",
+#  signature = "RLResult",
+#  definition = function(object)
+summary.RLResult <- function(object, ...)
   {
-    val <- list()
-    val[["nPairs"]] <- result@nPairs
-    val[["nLinks"]] <- nrow(result@links)
-    val[["nPossibleLinks"]] <- nrow(result@possibleLinks)
-    class(val) <- "summaryRLResult"
+    val <- summary(object@data)
+    val[["nLinks"]] <- sum(chunkify(function(x) sum(x=="L"))(object@prediction))
+    val[["nNonLinks"]] <- sum(chunkify(function(x) sum(x=="N"))(object@prediction))
+    val[["nPossibleLinks"]] <- sum(chunkify(function(x) sum(x=="P"))(object@prediction))
+    class(val) <- c("summaryRLResult", class(val))
     val
   }
-)
+#)
 
 print.summaryRLResult <- function(x, ...)
 {
-  cat("RLBigDataResult object\n")
+  cat("RLResult object\n")
+
   cat("\n")
-  cat("Number of record pairs:", x$nPairs, "\n")
+  NextMethod("print", object="x"  )
+  cat("\n")
   cat("Number of detected links:", x$nLinks, "\n")
   cat("Number of detected possible links:", x$nPossibleLinks, "\n")
+  cat("Number of detected non-links:", x$nNonLinks, "\n")
 }
 
 
@@ -296,25 +310,29 @@ setMethod(
   signature = "RLResult",
   definition = function(object, ...)
   {
-    identity1 <- switch(class(object@data),
-      RLBigDataDedup = object@data@identity,
-      RLBigDataLinkage = object@data@identity1)
 
-    identity2 <- switch(class(object@data),
-      RLBigDataDedup = object@data@identity,
-      RLBigDataLinkage = object@data@identity2)
     # TP: true positive, FP: false positive, TN: true negative,
     # FN: false negative, PM: possible links that are matches,
     # PN: possible links that are non-matches
-    TP <- sum(identity1[object@links[,1]]==identity2[object@links[,2]], na.rm=TRUE)
-    FP <- sum(identity1[object@links[,1]]!=identity2[object@links[,2]], na.rm=TRUE)
-    PM <- sum(identity1[object@possibleLinks[,1]]==identity2[object@possibleLinks[,2]], na.rm=TRUE)
-    PN <- sum(identity1[object@possibleLinks[,1]]!=identity2[object@possibleLinks[,2]], na.rm=TRUE)
+    nUnknown <- nMatch <- TP <- FP <- PM <- PN <- numeric(1)
+    
+    resultTable <- ffdf(is_match=object@data@pairs$is_match, class=object@prediction)
+    ffrowapply(
+    {
+      is_match <- resultTable[i1:i2,"is_match"]==1
+      is_link <-  resultTable[i1:i2,"class"]=="L"
+      is_possible <- resultTable[i1:i2,"class"]=="P"
+      TP <- TP + sum(is_match & is_link, na.rm=TRUE)
+      FP <- FP + sum(!is_match & is_link, na.rm=TRUE)
+      PM <- PM + sum(is_match & is_possible, na.rm=TRUE)
+      PN <- PN + sum(!is_match & is_possible, na.rm=TRUE)
+      nMatch <- nMatch + sum(is_match, na.rm=TRUE)
+      nUnknown <- nUnknown + sum(is.na(is_match))
+    }, X=resultTable)
 
-    nMatch <- getMatchCount(object@data)
-    nUnknown <- getNACount(object@data)
+
     FN <- nMatch - TP - PM
-    TN <- object@nPairs - TP - FN - FP - PM - PN - nUnknown
+    TN <- nrow(object@data@pairs) - TP - FN - FP - PM - PN - nUnknown
     return(list(
       alpha=FN/(TP+FN),
       beta=FP/(TN+FP),
@@ -335,3 +353,53 @@ errorMeasures <- function(result)
       stop(sprintf("Wrong type for result: %s!", class(result)))
   getErrorMeasures(result)
 }
+
+
+setGeneric(
+  name = "getTable",
+  def = function(object, ...) standardGeneric("getTable")
+)
+
+# constructs a contengency table of matches
+setMethod(
+  f = "getTable",
+  signature = "RecLinkResult",
+  definition = function(object, ...)
+  {
+    TP=length(which(object$pairs$is_match & object$prediction=="L")) # true positive
+    FP=length(which(!object$pairs$is_match & object$prediction=="L")) # false positive
+    TN=length(which(!object$pairs$is_match & object$prediction=="N")) # true negative
+    FN=length(which(object$pairs$is_match & object$prediction=="N")) # false negative
+
+    tab <- table(as.logical(object$pairs$is_match),object$prediction,
+            dnn=list("true status","classification"),useNA="ifany")
+    # if "NA" row appears in the table (for pairs with unknown true status),
+    # put it in the middle
+    if (nrow(tab) == 3)
+      tab[c(1,3,2),]
+    else
+      tab
+  }
+)
+
+setMethod(
+  f = "getTable",
+  signature = "RLResult",
+  definition = function(object, ...)
+  {
+    tab <- table.ff(object@data@pairs$is_match, object@prediction,
+      useNA = "ifany")
+    names(dimnames(tab)) <- c("true status", "classification")
+    dimnames(tab)[dimnames(tab)=="1"] <- "TRUE"
+    dimnames(tab)[dimnames(tab)=="0"] <- "FALSE"
+
+    # if "NA" row appears in the table (for pairs with unknown true status),
+    # put it in the middle
+    if (nrow(tab) == 3)
+      tab[c(1,3,2),]
+    else
+      tab
+
+  }
+)
+

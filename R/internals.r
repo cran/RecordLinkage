@@ -32,71 +32,58 @@ blockfldfun <- function(blockfld, phoneticFld, phoneticFun, coln)
 #' @value A list with components "select_list", "from_clause", "where_clause"
 #' representing the corresponding parts of the query without the keywords
 #' 'SELECT', 'FROM' and 'WHERE'.
-setGeneric(
-  name = "getSQLStatement",
-  def = function(object) standardGeneric("getSQLStatement")
-)
-
-setMethod(
-  f = "getSQLStatement",
-  signature = "RLBigData",
-  definition = function(object)
+getSQLStatement <- function(data1, data2 = data1, con, type, blockFld,
+  excludeFld, strcmpFld, strcmpFun, phoneticFld, phoneticFun)
+{
+  # constructs select for a single column, to be used by lapply 
+  # (see below)
+  selectListElem <- function(fldIndex, coln, excludeFld, strcmpFld, strcmpFun,
+                            phoneticFld, phoneticFun)
   {
-    # constructs select for a single column, to be used by lapply 
-    # (see below)
-    selectListElem <- function(fldIndex, coln, excludeFld, strcmpFld, strcmpFun,
-                              phoneticFld, phoneticFun)
+    # nothing if field is excluded
+    if (fldIndex %in% excludeFld)
+      return(character(0))
+      
+    # enclose fields in phonetic function if desired
+    if (fldIndex %in% phoneticFld)
     {
-      # nothing if field is excluded
-      if (fldIndex %in% excludeFld)
-        return(character(0))
-        
-      # enclose fields in phonetic function if desired
-      if (fldIndex %in% phoneticFld)
-      {
-        fld1 <- sprintf("%s(t1.'%s')", phoneticFun, coln[fldIndex])
-        fld2 <- sprintf("%s(t2.'%s')", phoneticFun, coln[fldIndex])
-      } else
-      {
-        fld1 <- sprintf("t1.'%s'", coln[fldIndex])
-        fld2 <- sprintf("t2.'%s'", coln[fldIndex])
-      }
-
-
-      # something like 'jarowinkler(t1.fname, t2.fname) as fname'
-      if (fldIndex %in% strcmpFld)
-        return(sprintf("%s(%s, %s) as '%s'", strcmpFun, fld1, fld2, coln[fldIndex]))
-
-
-      # direct comparison: something like 't1.fname=t2.fname as fname'      
-      return(sprintf("%s=%s as '%s'", fld1, fld2, coln[fldIndex]))
-    }
-    coln <- switch(class(object),
-      RLBigDataDedup = make.db.names(object@con, colnames(object@data),
-        keywords = SQLKeywords(object@drv)),
-      RLBigDataLinkage = make.db.names(object@con, colnames(object@data1),
-        keywords = SQLKeywords(object@drv)))
-    selectlist_id <- "t1.row_names as id1, t2.row_names as id2"
-    # use unlist to delete NULLs from list
-    selectlist <- paste(unlist(lapply(1:length(coln), selectListElem,
-      coln, object@excludeFld, object@strcmpFld, object@strcmpFun,
-      object@phoneticFld, object@phoneticFun)), collapse = ", ")
-    selectlist <- paste(selectlist, "t1.identity=t2.identity as is_match", sep=",")
-    fromclause <- switch(class(object), RLBigDataDedup = "data t1, data t2",
-                                        RLBigDataLinkage = "data1 t1, data2 t2")
-    whereclause <- switch(class(object), RLBigDataDedup = "t1.row_names < t2.row_names",
-                                        RLBigDataLinkage = "1")
-#    if (length(object@excludeFld) > 0)
-#      coln <- coln[-object@excludeFld]
-    if (length(object@blockFld)>0)
+      fld1 <- sprintf("%s(t1.'%s')", phoneticFun, coln[fldIndex])
+      fld2 <- sprintf("%s(t2.'%s')", phoneticFun, coln[fldIndex])
+    } else
     {
-     whereclause <- sprintf("%s and (%s)", whereclause, blockfldfun(object@blockFld,
-      object@phoneticFld, object@phoneticFun, coln))
+      fld1 <- sprintf("t1.'%s'", coln[fldIndex])
+      fld2 <- sprintf("t2.'%s'", coln[fldIndex])
     }
-    return(list(select_list = paste(selectlist_id, selectlist, sep=", "),
-                from_clause = fromclause, where_clause = whereclause) )
+
+
+    # something like 'jarowinkler(t1.fname, t2.fname) as fname'
+    if (fldIndex %in% strcmpFld)
+      return(sprintf("%s(%s, %s) as '%s'", strcmpFun, fld1, fld2, coln[fldIndex]))
+
+
+    # direct comparison: something like 't1.fname=t2.fname as fname'      
+    return(sprintf("%s=%s as '%s'", fld1, fld2, coln[fldIndex]))
   }
-)
+  coln <- make.db.names(con, colnames(data1), keywords = SQLKeywords(con))
+
+  selectlist_id <- "t1.row_names as id1, t2.row_names as id2"
+  # use unlist to delete NULLs from list
+  selectlist <- paste(unlist(lapply(1:length(coln), selectListElem,
+    coln, excludeFld, strcmpFld, strcmpFun,
+    phoneticFld, phoneticFun)), collapse = ", ")
+  selectlist <- paste(selectlist, "t1.identity=t2.identity as is_match", sep=",")
+  fromclause <- switch(type, deduplication = "data t1, data t2",
+                                      linkage = "data1 t1, data2 t2")
+  whereclause <- switch(type, deduplication = "t1.row_names < t2.row_names",
+                                      linkage = "1")
+  if (length(blockFld)>0)
+  {
+   whereclause <- sprintf("%s and (%s)", whereclause, blockfldfun(blockFld,
+    phoneticFld, phoneticFun, coln))
+  }
+  return(list(select_list = paste(selectlist_id, selectlist, sep=", "),
+                from_clause = fromclause, where_clause = whereclause))
+}
 
 
 #' Begin generation of data pairs
@@ -220,31 +207,20 @@ setMethod(
   {
     if (withProgressBar)
     {
-      expPairs <- getExpectedSize(x)
-      pgb <- txtProgressBar(max=expPairs)
+      pgb <- txtProgressBar(max=nrow(x@pairs))
     }
 
     patternCounts <- 0L
-    nPairs <- 0
-    on.exit(clear(x))
-    x <- begin(x)
-    while(nrow(slice <- nextPairs(x, n)) > 0)
-    {
-      # discard ids and matching status
-      slice <- slice[,-c(1,2,ncol(slice)), drop=FALSE]
-      slice[is.na(slice)] <- 0
-      slice[slice < cutoff] <- 0
-      slice[slice >= cutoff] <- 1
-      patternCounts <- patternCounts + countpattern(slice)
-      if (withProgressBar)
+    ffrowapply(
       {
-        nPairs <- nPairs + nrow(slice)
-        setTxtProgressBar(pgb, nPairs)
-        flush.console()
-      }
-    }
-    if (withProgressBar) close(pgb)
-    patternCounts
+        slice <- as.ram(x@pairs[i1:i2, 3:(ncol(x@pairs)-1), drop=FALSE])
+        slice[is.na(slice)] <- 0
+        slice[slice < cutoff] <- 0
+        slice[slice >= cutoff] <- 1
+        patternCounts <- patternCounts + countpattern(slice)
+        if (withProgressBar) setTxtProgressBar(pgb, i2)
+      }, X = x@pairs)
+      patternCounts
   }
 )
 
@@ -259,14 +235,24 @@ setMethod(
   signature = "RLBigData",
   definition = function(object)
   {
-    sql <- getSQLStatement(object)
-    sql_stmt <- sprintf(
-      "select count(*) from %s where %s and t1.identity==t2.identity",
-      sql$from_clause, sql$where_clause)
-    return(as.integer(dbGetQuery(object@con, sql_stmt)))
+    sum.ff(object@pairs$is_match, na.rm=TRUE)
   }
 )
 
+# get number of non-matches
+setGeneric(
+  name = "getNonMatchCount",
+  def = function(object) standardGeneric("getNonMatchCount")
+)
+
+setMethod(
+  f = "getNonMatchCount",
+  signature = "RLBigData",
+  definition = function(object)
+  {
+    sum(chunkify(function(x) x==0)(object@pairs$is_match), na.rm=TRUE)
+  }
+)
 
 # Get the number of pairs with unknown matching status
 setGeneric(
@@ -279,11 +265,7 @@ setMethod(
   signature = "RLBigData",
   definition = function(object)
   {
-    sql <- getSQLStatement(object)
-    sql_stmt <- sprintf(
-      "select count(*) from %s where %s and (t1.identity is null or t2.identity is null)",
-      sql$from_clause, sql$where_clause)
-    return(as.integer(dbGetQuery(object@con, sql_stmt)))
+    sum(chunkify(is.na)(object@pairs$is_match))
   }
 )
 
@@ -335,7 +317,7 @@ unorderedPairs <- function (x)
 
 isFALSE <- function(x) identical(x,FALSE)
 
-delete.NULLs  <-  function(x)
+deleteNULLs  <-  function(x)
     x[unlist(lapply(x, length) != 0)]
 
 # interprets a scalar x as a set with 1 element (see also man page for sample)

@@ -21,7 +21,7 @@
    (deduplication or linkage) and the number of records and the approximate
    number of record pairs as calculated by \code{\link{getExpectedSize}}.
    More information is obtained by the
-   \code{\link[=summary,RLBigDataDedup-method]{summary}} methods for these classes.
+   \code{\link[=summary.RLBigDataDedup]{summary}} methods for these classes.
 }
 
 

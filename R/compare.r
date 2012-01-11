@@ -226,7 +226,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
       }
       rm(block_data)
      id_vec=tapply(1:ndata,blockstr,function(x) if(length(x)>1) return(x))
-     id_vec=delete.NULLs(id_vec)
+     id_vec=deleteNULLs(id_vec)
      id_vec=makeBlockingPairs(id_vec)
       rm(blockstr)
       # reshape vector and attach to matrix of record pairs

@@ -1,6 +1,8 @@
 \name{subset}
 \alias{[.RecLinkData}
 \alias{[.RecLinkResult}
+\alias{[.RLBigData}
+\alias{[.RLResult}
 
 \title{
   Subset operator for record linkage objects
@@ -11,8 +13,9 @@
 }
 \usage{
   \method{[}{RecLinkData}(x, i)
-
   \method{[}{RecLinkResult}(x, i)
+  \method{[}{RLBigData}(x, i)
+  \method{[}{RLResult}(x, i)
 }
 
 \arguments{

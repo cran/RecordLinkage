@@ -1,8 +1,8 @@
 \name{summary.RLBigData}
 
 \alias{summary.RLBigData}
-\alias{summary,RLBigDataDedup-method}
-\alias{summary,RLBigDataLinkage-method}
+\alias{summary.RLBigDataDedup}
+\alias{summary.RLBigDataLinkage}
 \alias{print.summaryRLBigDataDedup}
 \alias{print.summaryRLBigDataLinkage}
 
@@ -15,8 +15,8 @@
 }
 
 \usage{
-  \S4method{summary}{RLBigDataDedup}(object)
-  \S4method{summary}{RLBigDataLinkage}(object)
+  \method{summary}{RLBigDataDedup}(object, ...)
+  \method{summary}{RLBigDataLinkage}(object, ...)
   \method{print}{summaryRLBigDataDedup}(x, ...)
   \method{print}{summaryRLBigDataLinkage}(x, ...)
 }
@@ -44,12 +44,13 @@
     Number of records in dataset 1.}
   \item{nData2}{Only for the \code{"\linkS4class{RLBigDataLinkage}"} method:
     Number of records in dataset 2.}
-  \item{attributes}{Column names of dataset.}
+  \item{attributes}{Column names of dataset(s).}
   \item{blockFld}{Blocking definition as a list of character vectors,
     representing column names.}
-  \item{expectedSize}{Approximate number of record pairs as calculated
-    by \code{\link{getExpectedSize}}}
+  \item{nPairs}{Number of record pairs}
   \item{nMatches}{Number of matches in the set of record pairs.}
+  \item{nNonMatches}{Number of non-matches in the set of record pairs.}
+  \item{nUnkonwn}{Number of record pairs with unknown matching status.}
   \item{weightHist}{Only if weights have been calculated for \code{object}:
     a summary of the weights in histogram style.}
 }
@@ -65,7 +66,8 @@
 }
 \examples{
   data(RLdata500)
-  rpairs <- RLBigDataDedup(RLdata500, blockfld=list(1,3,5:7))
+  rpairs <- RLBigDataDedup(RLdata500, identity = identity.RLdata500,
+     blockfld=list(1,3,5:7))
   rpairs <- epiWeights(rpairs)
   summary(rpairs)
 }

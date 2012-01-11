@@ -72,9 +72,6 @@ test.fsWeights.exceptions <- function()
   checkException(fsWeights(rpairs, m=c(0.99,0.5,0.9,0.5,0.98,0.92,0.97),
     u=0.55), msg = "m < u for some attributes")
 
-  rpairsBig <- RLBigDataDedup(RLdata500, blockfld = list(1,3,5,6,7))
-  dbDisconnect(rpairsBig@con)
-  checkException(fsWeights(rpairsBig), msg = "invalid SQLite connection")
 }
 
 
@@ -136,12 +133,6 @@ test.fsClassify.exceptions <- function()
   checkException(fsClassify(rpairs, threshold.upper=0, threshold.lower=runif(1)),
     msg = "lower threshold greater than upper threshold")
 
-  # RLBigData object with expired SQLite connection
-  rpairsBig <- RLBigDataDedup(RLdata500, blockfld = list(1,3,5,6,7))
-  rpairsBig <- fsWeights(rpairsBig)
-  dbDisconnect(rpairsBig@con)
-  checkException(fsClassify(rpairsBig, 0.6), msg = "invalid SQLite connection")
-
 
 }
 
@@ -190,18 +181,17 @@ test.fsClassify.RLBigData <- function()
 {
   rpairs <- RLBigDataDedup(RLdata500, identity=identity.RLdata500, blockfld=list(5:6,6:7,c(5,7)))
   rpairs <- fsWeights(rpairs)
-  Wdata <- dbReadTable(rpairs@con, "Wdata")
-  minWeight <- min(Wdata$W)
-  maxWeight <- max(Wdata$W)
+  Wdata <- as.ram(rpairs@Wdata)
+  minWeight <- min(Wdata)
+  maxWeight <- max(Wdata)
 
   # test with one threshold
   threshold.upper <- runif(1, minWeight, maxWeight)
   result <- fsClassify(rpairs, threshold.upper=threshold.upper)
-  reqLinks <- Wdata[Wdata$W >= threshold.upper, 1:2]
-  checkEqualsNumeric(result@links[order(result@links[,1], result@links[,2]),],
-    as.matrix(reqLinks[order(reqLinks$id1, reqLinks$id2), ]),
+  reqLinks <- which(Wdata >= threshold.upper)
+  checkEqualsNumeric(which(as.ram(result@prediction) == "L"), reqLinks,
     msg = "check links, only upper threshold, feasible value")
-  checkEqualsNumeric(nrow(result@possibleLinks), 0,
+  checkEqualsNumeric(sum(as.ram(result@prediction) == "P"), 0,
     msg = "check possible links, only upper threshold, feasible value")
 
 
@@ -209,42 +199,30 @@ test.fsClassify.RLBigData <- function()
   threshold.upper <- runif(1, 0.6, maxWeight)
   threshold.lower <- runif(1, minWeight, 0.5)
   result <- fsClassify(rpairs, threshold.upper, threshold.lower)
-  reqLinks <- Wdata[Wdata$W >= threshold.upper, 1:2]
-  reqPossibleLinks <- Wdata[Wdata$W < threshold.upper & Wdata$W >= threshold.lower, 1:2]
+  reqLinks <- which(Wdata >= threshold.upper)
+  reqPossibleLinks <- which(Wdata >= threshold.lower & Wdata < threshold.upper)
 
-  checkEqualsNumeric(result@links[order(result@links[,1], result@links[,2]),],
-    as.matrix(reqLinks[order(reqLinks$id1, reqLinks$id2), ]),
-    msg = "check links, only upper threshold, feasible value")
-  checkEqualsNumeric(result@possibleLinks[order(result@possibleLinks[,1],
-    result@possibleLinks[,2]),],
-    as.matrix(reqPossibleLinks[order(reqPossibleLinks$id1, reqPossibleLinks$id2), ]),
+  checkEqualsNumeric(which(as.ram(result@prediction) == "L"), reqLinks,
+    msg = "check links, two thresholda, feasible value")
+  checkEqualsNumeric(which(as.ram(result@prediction) == "P"), reqPossibleLinks,
     msg = "check possible links, two thresholds, feasible value")
 
 
   # check case with only links
   result <- fsClassify(rpairs, threshold.upper=minWeight)
-  reqLinks <- Wdata[ , 1:2]
-  checkEqualsNumeric(result@links[order(result@links[,1], result@links[,2]),],
-    as.matrix(reqLinks[order(reqLinks$id1, reqLinks$id2), ]),
+  checkTrue(all(as.ram(result@prediction) == "L"),
     msg = "check links, only upper threshold, only links")
-  checkEqualsNumeric(nrow(result@possibleLinks), 0,
-    msg = "check possible links, only upper threshold, only links")
 
 
   # check case with only non-links
   result <- fsClassify(rpairs, threshold.upper=maxWeight+0.1)
-  checkEqualsNumeric(nrow(result@links), 0,
-    msg = "check possible links, only upper threshold, only non-links")
-  checkEqualsNumeric(nrow(result@possibleLinks), 0,
-    msg = "check possible links, only upper threshold, only non-links")
+  checkTrue(all(as.ram(result@prediction) == "N"),
+    msg = "check non-links, only upper threshold, only non-links")
 
 
   # check case with only possible links
   result <- fsClassify(rpairs, maxWeight+0.1, minWeight)
-  reqPossibleLinks <- Wdata[ , 1:2]
-  checkEqualsNumeric(result@possibleLinks[order(result@possibleLinks[,1],
-    result@possibleLinks[,2]),],
-    as.matrix(reqPossibleLinks[order(reqPossibleLinks$id1, reqPossibleLinks$id2), ]),
+  checkTrue(all(as.ram(result@prediction) == "P"),
     msg = "check possible links, two thresholds, only possible links")
 }
 
@@ -253,16 +231,12 @@ test.fsWeights.RLBigDataDedup <- function()
   rpairs <- RLBigDataDedup(RLdata500, blockfld=list(1,3,5,6,7), strcmp=1:4)
   rpairs <- fsWeights(rpairs)
 
-  W <- getWeights(rpairs)
   # generate control object with same weights
   rpairs2 <- fsWeights(compare.dedup(RLdata500, blockfld=list(1,3,5,6,7), strcmp=1:4))
 
-  # Both methods should generate the same weights. A weak test on the sorted
-  # vector is conducted because the order of pairs differs.
-  checkEqualsNumeric(sort(W), sort(rpairs2$Wdata))
-  # Record pairs should be identified by id1, id2 with id1 < id2
-  ids <- dbReadTable(rpairs@con, "Wdata")[,1:2]
-  checkTrue(all(ids[,1] < ids[,2]),
-    msg = "Check id1 < id2 for all entries in Wdata")
-  
+  # Both methods should generate the same weights.
+  checkEqualsNumeric(as.ram(rpairs@Wdata[fforder(rpairs@pairs$id1, rpairs@pairs$id2)]),
+    rpairs2$Wdata[order(rpairs2$pairs$id1, rpairs2$pairs$id2)],
+    msg = "check that weights are equal to those of S3 method")
+
 }

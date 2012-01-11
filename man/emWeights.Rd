@@ -13,16 +13,14 @@
 
   \S4method{emWeights}{RecLinkData}(rpairs, cutoff = 0.95, ...)
 
-  \S4method{emWeights}{RLBigData}(rpairs, cutoff = 0.95, store.weights = TRUE,
-  verbose = TRUE, ...)
+  \S4method{emWeights}{RLBigData}(rpairs, cutoff = 0.95,
+    verbose = TRUE, ...)
 }
 \arguments{
   \item{rpairs}{The record pairs for which to
     compute weights. See details.}
   \item{cutoff}{Either a numeric value in the range [0,1] or a vector with the same 
   length as the number of attributes in the data. Cutoff value for string comparator.}
-  \item{store.weights}{Logical value. Whether to store individual weights in the
-    database}
   \item{verbose}{Logical. Whether to print progress messages.}
   \item{\dots}{Additional arguments passed to \code{\link{mygllm}}.}
 }
@@ -55,17 +53,6 @@
   In our experience, this increases stability and performance of the
   EM algorithm.
   
-  The \code{"\linkS4class{RLBigData}"} method writes the individual weight
-  for every record pairs into the database if called with
-  \code{store.weights=TRUE}. This speeds up subsequent calls of the
-  classification function \code{\link{emClassify}} and is in general recommended
-  if several classification calls are to be made (e.g. for testing different
-  thresholds). However, if a very large number of record pairs is processed,
-  saving individual weights can lead to excessive disk usage; in this case
-  \code{store.weights = FALSE} may be a better choice. Subsequent calls to
-  \code{\link{emClassify}} will then calculate individual weights on the fly
-  during classification without saving them.
-  
   Some progress messages are printed to the message stream (see
   \code{\link{message}} if \code{verbose == TRUE}.
   This includes progress bars, but these are supressed if output is diverted by
@@ -79,17 +66,12 @@
 }
 
 \section{Side effects}{
-  The \code{"\linkS4class{RLBigData}"} method writes weights to the database
+  The \code{"\linkS4class{RLBigData}"} method writes to a disk file containing
+  a \code{ffvector} that contains the calculated weights.
   belonging to \code{object}
 }
 
-\note{
-  The \code{"\linkS4class{RLBigData}"} method changes the database to which
-  \code{rpairs} points. If you want the object unchanged, make a copy via
-  \code{\link{clone}} first.
-}
-
-\references{William E. Winkler: Using the EM Algorithm for Weight Computation 
+\references{William E. Winkler: Using the EM Algorithm for Weight Computation
   in the Fellegi-Sunter Model of Record Linkage, in: Proceedings of the Section 
   on Survey Research Methods, American Statistical Association 1988, 
   pp. 667--671.}

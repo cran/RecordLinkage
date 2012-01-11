@@ -199,33 +199,88 @@ splitData <- function(dataset, prop=0.5, keep.mprop=FALSE, num.non=0,
 }
 
 
-getMinimalTrain <- function(rpairs, nEx=1)
-{
-  # catch erronous input
-  if (!(("RecLinkData" %in% class(rpairs)) ||
-    "RecLinkResult" %in% class(rpairs)))
-    stop("Wrong class for rpairs!")
+setGeneric(
+  name = "getMinimalTrain",
+  def = function(rpairs, nEx = 1) standardGeneric("getMinimalTrain")
+)
 
-  if (nEx < 1)
-    stop(sprintf("Illegal value for nEx: %d!", nEx))
+setMethod(
+  f = "getMinimalTrain",
+  signature = "RecLinkData",
+  definition = function(rpairs, nEx=1)
+  {
+    # catch erronous input
+    if (!(("RecLinkData" %in% class(rpairs)) ||
+      "RecLinkResult" %in% class(rpairs)))
+      stop("Wrong class for rpairs!")
 
-  # check if fuzzy values occur
-  if (any(rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))] > 0 &
-      rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))] < 1, na.rm=TRUE))
-    warning("Comparison patterns in rpairs contain string comparison values!")
-  p <- rpairs$pairs
-  p[is.na(p)] <- 0
-  p=data.table(ID = 1:nrow(p), p)
-  keyCol <- names(rpairs$pairs)[-c(1,2,ncol(rpairs$pairs))]
-  key(p) <- keyCol
-  sampleFun <- function(x) (x[sample(1:length(x),
-      min(length(x),nEx))])
-  trainind <- p[,sampleFun(ID), by=keyCol, nomatch=0]$V1
+    if (nEx < 1)
+      stop(sprintf("Illegal value for nEx: %d!", nEx))
 
-  train=rpairs
-  train$pairs=rpairs$pairs[trainind,]
-  train$Wdata=rpairs$Wdata[trainind]
-  train$prediction=rpairs$prediction[trainind]
-  return(train)
-}
+    # check if fuzzy values occur
+    if (any(rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))] > 0 &
+        rpairs$pairs[,-c(1,2,ncol(rpairs$pairs))] < 1, na.rm=TRUE))
+      warning("Comparison patterns in rpairs contain string comparison values!")
+    p <- rpairs$pairs
+    p[is.na(p)] <- 0
+    p=data.table(ID = 1:nrow(p), p)
+    keyCol <- names(rpairs$pairs)[-c(1,2,ncol(rpairs$pairs))]
+    key(p) <- keyCol
+    sampleFun <- function(x) (x[sample(1:length(x),
+        min(length(x),nEx))])
+    trainind <- p[,sampleFun(ID), by=keyCol, nomatch=0]$V1
 
+    train=rpairs
+    train$pairs=rpairs$pairs[trainind,]
+    train$Wdata=rpairs$Wdata[trainind]
+    train$prediction=rpairs$prediction[trainind]
+    return(train)
+  }
+)
+
+setMethod(
+  f = "getMinimalTrain",
+  signature = "RLBigData",
+  definition = function(rpairs, nEx=1)
+  {
+
+    if (nEx < 1)
+      stop(sprintf("Illegal value for nEx: %d!", nEx))
+
+    o <- ffdforder(rpairs@pairs[3:(length(rpairs@pairs)-1)])
+
+    pairs <- rpairs@pairs[o,] # sort geht wahrscheinlich nicht, weil nicht nach allem sortiert wird (?)
+    nPairs <- nrow(rpairs@pairs)
+
+    thisPattern <- pairs[1,3:(ncol(pairs)-1)]
+    patInd <- list(1)
+
+    ffrowapply(
+    {
+      chunk <- pairs[i1:i2,3:(ncol(pairs)-1)] # wichtig, enorme Beschleunigung!
+      chunk[is.na(chunk)] <- 0
+      dupInd <- which(!duplicated(chunk))
+      if (isTRUE(all.equal(chunk[1,], thisPattern, check.attributes=FALSE))) dupInd <- dupInd[-1]
+      if (length(dupInd) > 0) patInd <- append(patInd, dupInd + i1 - 1)
+      thisPattern <- chunk[nrow(chunk),]
+    }, X = pairs)
+    # convert list of indices to vector, add nrow(pairs) + 1 as last element
+    # (position of a virtual additional pattern after the existent ones)
+    patInd <- c(unlist(patInd), nrow(pairs))
+
+    # draw training examples
+    trainInd <- list()
+    for (i in 1:(length(patInd) - 1))
+    {
+      thisPatCount <- patInd[i+1] - patInd[i]
+      trainInd[[i]] <- sample(thisPatCount, min(thisPatCount, nEx)) + patInd[i] - 1
+    }
+    trainPairs <- pairs[unlist(trainInd),]
+
+    retObject <- list(data = rpairs@data, pairs = as.data.frame(trainPairs),
+      frequencies = getFrequencies(rpairs), type = switch(class(rpairs),
+      RLBigDataDedup = "deduplication", RLBigDataLinkage = "linkage"))
+    class(retObject) <- "RecLinkData"
+    retObject
+  }
+)

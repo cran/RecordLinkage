@@ -11,8 +11,8 @@ test.onecolumn <- function()
   rpairs <- emWeights(rpairs)
   
   rpairs <- RLBigDataDedup(RLdata500, exclude=1:6, strcmp=TRUE)
-  result <- epiClassify(rpairs, 0.9)
   rpairs <- epiWeights(rpairs)
+  result <- epiClassify(rpairs, 0.9)
   rpairs <- emWeights(rpairs)
 }
 

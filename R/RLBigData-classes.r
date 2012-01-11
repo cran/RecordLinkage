@@ -3,6 +3,8 @@
 .supportedStrcmp <- c("jarowinkler", "levenshtein")
 .supportedPhonetic <- c("pho_h", "soundex") # soundex directly by sqlite
 
+setOldClass("ffdf")
+setOldClass("ff_vector")
 
 #' Abstract class for large datasets
 #'
@@ -26,10 +28,21 @@ setClass(
     strcmpFun = "character",
     phoneticFld = "numeric",
     phoneticFun ="character",
-    drv = "DBIDriver",
-    con = "DBIConnection",
-    dbFile = "character",
+#    drv = "DBIDriver",
+#    con = "DBIConnection",
+#    dbFile = "character",
+    pairs = "ffdf",
+    Wdata = "ff_vector",
+    WdataInd = "ff_vector",
+    M = "ff_vector",
+    U = "ff_vector",
     "VIRTUAL"
+  ),
+  prototype = prototype(
+    M = ff(0),
+    U = ff(0),
+    Wdata = ff(0),
+    WdataInd = ff(0)
   )
 )    
 
@@ -69,7 +82,9 @@ setClass(
   )
 )    
 
+
 # constructor
+# TODO withProgressBar
 RLBigDataDedup <- function(dataset, identity = NA, blockfld = list(), 
   exclude = numeric(0), strcmp = numeric(0), 
   strcmpfun = "jarowinkler", phonetic=numeric(0), phonfun = "pho_h")
@@ -141,14 +156,6 @@ RLBigDataDedup <- function(dataset, identity = NA, blockfld = list(),
   con <- dbConnect(drv, dbname=tmpfile)
   coln <- make.db.names(con,colnames(dataset))
 
-  # construct object  
-  object <- new("RLBigDataDedup", data=dataset, identity=factor(identity),
-    blockFld = blockfld, excludeFld = exclude, strcmpFld = strcmp,
-    strcmpFun = strcmpfun, phoneticFld = phonetic, phoneticFun = phonfun,
-    drv = drv, con = con, frequencies = sapply(dataset, function(x) 1/length(unique(x))),
-    dbFile = tmpfile
-  )
-
   # write records to database
   dbWriteTable(con, "data", data.frame(row_names = 1:nrow(dataset), dataset, identity = identity),
     row.names=FALSE)
@@ -170,13 +177,39 @@ RLBigDataDedup <- function(dataset, identity = NA, blockfld = list(),
 
   # init extension functions (string comparison, phonetic code) for SQLite
   init_sqlite_extensions(con)
-  
-  # check that set of generated pairs is not empty
-  begin(object)
-  res <- nextPairs(object, 1)
-  clear(object)
-  if(nrow(res)==0) stop("No pairs generated. Check blocking criteria.")
 
+
+  # generate pairs
+  sql <- getSQLStatement(data1 = dataset, con = con,
+    type = "deduplication", blockFld = blockfld, excludeFld = exclude,
+    strcmpFld = strcmp, strcmpFun = strcmpfun, phoneticFld = phonetic,
+    phoneticFun = phonfun)
+  query <- sprintf("select %s from %s where %s", sql$select_list,
+    sql$from_clause, sql$where_clause)
+  res <- dbSendQuery(con, query)
+  expectedSize <- getExpectedSize(dataset, blockfld)
+  pairsff <- .toFF(res, withProgressBar = (sink.number()==0), expectedSize)
+
+  dbClearResult(res)
+  
+    # column names may have changed due to SQL conform conversion, reset them
+  colnames(pairsff)[-c(1,2,ncol(pairsff))] <-
+    if(length(exclude) > 0) colnames(dataset)[-exclude]
+    else colnames(dataset)
+
+  # create empty weight vectors
+  Wdata <- WdataInd <- ff(length = nrow(pairsff), vmode = "double")
+  M <- U <- ff(length = 2^(ncol(pairsff) - 3), vmode="double")
+
+
+  # construct object  
+  object <- new("RLBigDataDedup", data=dataset, identity=factor(identity),
+    blockFld = blockfld, excludeFld = exclude, strcmpFld = strcmp,
+    strcmpFun = strcmpfun, phoneticFld = phonetic, phoneticFun = phonfun,
+    frequencies = sapply(dataset, function(x) 1/length(unique(x))),
+    pairs = pairsff, Wdata = Wdata, WdataInd = WdataInd, M = M, U = U)
+
+  dbDisconnect(con)
   return(object)
 }
 
@@ -269,27 +302,14 @@ RLBigDataLinkage <- function(dataset1, dataset2, identity1 = NA,
   identLevels <- as.character(unique(c(identity1, identity2)))
   identity1 <- factor(identity1, levels = identLevels)
   identity2 <- factor(identity2, levels = identLevels)
-  
-  # calculate frequencies
-  # construct object  
-  frequencies = sapply(rbind(dataset1, dataset2),
-     function(x) 1/length(unique(x)))
-  object <- new("RLBigDataLinkage", data1=as.data.frame(dataset1), 
-    data2 = as.data.frame(dataset2), identity1 = identity1,
-    identity2 = identity2, blockFld = blockfld, 
-    excludeFld = exclude, strcmpFld = strcmp, strcmpFun = strcmpfun, 
-    phoneticFld = phonetic, phoneticFun = phonfun, drv = drv, con = con, 
-    frequencies = frequencies, dbFile = tmpfile
-  ) 
 
   # write records to database
-  dbWriteTable(con, "data1", data.frame(row_names = 1:nrow(dataset1), dataset1,
-    identity = identity1), row.names=FALSE)
-  dbWriteTable(con, "data2", data.frame(row_names = 1:nrow(dataset2), dataset2,
-    identity = identity2), row.names=FALSE)
-#  dbWriteTable(con, "data1", data.frame(dataset1, identity = identity1))
-#  dbWriteTable(con, "data2", data.frame(dataset2, identity = identity2))
-#
+  dbWriteTable(con, "data1", data.frame(row_names = 1:nrow(dataset1), dataset1, identity = identity1),
+    row.names=FALSE)
+
+  dbWriteTable(con, "data2", data.frame(row_names = 1:nrow(dataset2), dataset2, identity = identity2),
+    row.names=FALSE)
+
   # create indices to speed up blocking
   for (tablename in c("data1", "data2"))
   {
@@ -307,18 +327,91 @@ RLBigDataLinkage <- function(dataset1, dataset2, identity1 = NA,
         tablename, tablename))
   }
 
-  # create index on id to speed up join operations (in getTable)
-  dbGetQuery(con, "create index index_data1_id on data1 (row_names)")
-  dbGetQuery(con, "create index index_data2_id on data2 (row_names)")
-
   # init extension functions (string comparison, phonetic code) for SQLite
   init_sqlite_extensions(con)
-  
-  # check that set of generated pairs is not empty
-  begin(object)
-  res <- nextPairs(object, 1)
-  clear(object)
-  if(nrow(res)==0) stop("No pairs generated. Check blocking criteria.")
 
+
+  # generate pairs
+  sql <- getSQLStatement(data1 = dataset1, data2 = dataset2, con = con,
+    type = "linkage", blockFld = blockfld, excludeFld = exclude,
+    strcmpFld = strcmp, strcmpFun = strcmpfun, phoneticFld = phonetic,
+    phoneticFun = phonfun)
+  query <- sprintf("select %s from %s where %s", sql$select_list,
+    sql$from_clause, sql$where_clause)
+  res <- dbSendQuery(con, query)
+  expectedSize <- getExpectedSize(rbind(dataset1, dataset2), blockfld)
+  pairsff <- .toFF(res, withProgressBar = (sink.number()==0), expectedSize)
+  dbClearResult(res)
+  
+    # column names may have changed due to SQL conform conversion, reset them
+  colnames(pairsff)[-c(1,2,ncol(pairsff))] <-
+    if(length(exclude) > 0) colnames(dataset1)[-exclude]
+    else colnames(dataset1)
+
+  # create empty weight vectors
+  Wdata <- WdataInd <- ff(length = nrow(pairsff), vmode = "double")
+  M <- U <- ff(length = 2^(ncol(pairsff) - 3), vmode="double")
+
+  # calculate average value frequency
+  frequencies = sapply(rbind(dataset1, dataset2),
+     function(x) 1/length(unique(x)))
+
+
+  # construct object
+  object <- new("RLBigDataLinkage", data1=dataset1, data2=dataset2,
+    identity1=factor(identity1), identity2=factor(identity2),
+    blockFld = blockfld, excludeFld = exclude, strcmpFld = strcmp,
+    strcmpFun = strcmpfun, phoneticFld = phonetic, phoneticFun = phonfun,
+    frequencies = frequencies,
+    pairs = pairsff, Wdata = Wdata, WdataInd = WdataInd, M = M, U = U)
+
+  dbDisconnect(con)
   return(object)
 }
+
+.toFF <- function(res, withProgressBar, expectedSize)
+{
+    n <- 20000
+    slice <- fetch(res, n)
+    if(nrow(slice)==0) stop("No pairs generated. Check blocking criteria.")
+    # expected size can be 0 when there is really 1 record pair, make
+    # sure txtProgressBar gets a legal value
+    if (withProgressBar) pgb <- txtProgressBar(0, max(expectedSize, nrow(slice)))
+    # Spalten, die nur NA enthalten, werden als character ausgegeben, deshalb
+    # Umwandlung nicht-numerischer Spalten in numeric
+    for (i in 1:ncol(slice))
+    {
+      if (!is.numeric(slice[,i]))
+        slice[,i] <- as.numeric(slice[,i])
+    }
+
+    pairsff <- do.call(ffdf, lapply(slice, ff))
+    while(nrow(slice <- fetch(res, n)) > 0)
+    {
+      currentLength <- nrow(pairsff)
+      newLength <- currentLength + nrow(slice)
+      nrow(pairsff) <- newLength
+      pairsff[(currentLength + 1):newLength,] <- slice
+      if (withProgressBar) setTxtProgressBar(pgb, newLength)
+    }
+    if (withProgressBar) close(pgb)
+    pairsff
+}
+
+# Function to check (implementation-independent) if RL object has weights
+setGeneric(
+  name = "hasWeights",
+  def = function(object) standardGeneric("hasWeights")
+)
+
+setMethod(
+  f = "hasWeights",
+  signature = "RecLinkData",
+  def = function(object) !is.null(object$Wdata)
+)
+
+setMethod(
+  f = "hasWeights",
+  signature = "RLBigData",
+  def = function(object) !isTRUE(all.equal(range(object@Wdata), c(0,0)))
+)

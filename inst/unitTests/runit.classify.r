@@ -160,8 +160,8 @@ test.trainSupv <- function()
 {
   data(RLdata500)
   rpairs <- compare.dedup(RLdata500, identity=identity.RLdata500,
-    blockfld=list(1,3,5,6,7))
-  
+    blockfld=list(5,6,7))
+
   # check if generated models have the right properties
     classif <- trainSupv(rpairs, method="rpart")
     checkEquals(class(classif$model), "rpart",
@@ -175,13 +175,13 @@ test.trainSupv <- function()
     checkEquals(classif$attrNames, colnames(rpairs$pairs)[-c(1,2,ncol(rpairs$pairs))],
       msg = "Check attribute names")
 
-    classif <- trainSupv(rpairs, method="bagging")
+    classif <- trainSupv(rpairs, method="bagging", nbagg = 10)
     checkEquals(class(classif$model), "classbagg",
       msg=sprintf("check class of generated model"))
     checkEquals(classif$method, "bagging",
       msg=sprintf("check method component"))
 
-    classif <- trainSupv(rpairs, method="ada")
+    classif <- trainSupv(rpairs, method="ada", iter = 10)
     checkEquals(class(classif$model), "ada",
       msg=sprintf("check class of generated model"))
     checkEquals(classif$method, "ada",
@@ -198,7 +198,7 @@ test.trainSupv <- function()
       msg=sprintf("check class of generated model"))
     checkEquals(classif$method, "nnet",
       msg=sprintf("check method component"))
-      
+
   # check that all attributes are included in the model
   classif <- trainSupv(rpairs, "svm")
   checkEquals(attr(classif$model$terms, "term.labels"),
@@ -233,22 +233,22 @@ test.trainSupv <- function()
   rpairs2 <- rpairs
   rpairs2$prediction <- factor(rep("P", nrow(rpairs2$pairs)), levels=c("N","P","L"))
   rpairs2$prediction[rpairs2$pairs$is_match==1]="L"
-  rpairs2$prediction[rpairs2$pairs$is_match==0]="N"  
+  rpairs2$prediction[rpairs2$pairs$is_match==0]="N"
   classif <- trainSupv(rpairs2, "svm", include.data=TRUE, omit.possible=TRUE)
   checkEquals(classif$train, rpairs2,
     msg="Check copied data")
-  
+
   # check if training with use.pred yields the same result
   set.seed(1)
   result1 <- trainSupv(rpairs, "rpart", xval=0)
   rpairs2 <- rpairs
   rpairs2$prediction <- factor(rep("P", nrow(rpairs2$pairs)), levels=c("N","P","L"))
   rpairs2$prediction[rpairs2$pairs$is_match==1]="L"
-  rpairs2$prediction[rpairs2$pairs$is_match==0]="N"  
+  rpairs2$prediction[rpairs2$pairs$is_match==0]="N"
   set.seed(1)
   result2 <- trainSupv(rpairs2, "rpart", use.pred = TRUE, xval=0)
-  checkEquals(result1, result2, 
-    msg="Check equal result when using prediction vector")  
+  checkEquals(result1, result2,
+    msg="Check equal result when using prediction vector")
 
   # check if examples are omitted correctly
   rpairs2 <- rpairs
@@ -269,9 +269,9 @@ test.trainSupv <- function()
   is.na(rpairs2$pairs$is_match) <- s
   rpairs2$prediction <- factor(rep("P", nrow(rpairs2$pairs)), levels=c("N","P","L"))
   rpairs2$prediction[rpairs2$pairs$is_match==1]="L"
-  rpairs2$prediction[rpairs2$pairs$is_match==0]="N"  
+  rpairs2$prediction[rpairs2$pairs$is_match==0]="N"
   rpairs2$pairs$is_match=NA
-  classif <- trainSupv(rpairs2, "rpart", omit.possible=TRUE, convert.na=FALSE, 
+  classif <- trainSupv(rpairs2, "rpart", omit.possible=TRUE, convert.na=FALSE,
     x=TRUE, use.pred=TRUE)
   checkEqualsNumeric(as.matrix(classif$model$x), as.matrix(rpairs2$pairs[-s,-c(1,2,ncol(rpairs$pairs))]),
     msg="Check if unknown pairs are omitted correctly using prediction")
@@ -390,10 +390,12 @@ test.classifySupv.exceptions <- function()
     checkException(classifySupv(model2, newdata,
       msg = "wrong method"))
 
-    model2 <- model
-    class(model2$model) <- "glm"
-    checkException(classifySupv(model2, newdata,
-      msg = "wrong model"))
+# Removed the following check because the error is to obscure.
+# Will give an error message (passed from predict.lm) anyway.
+#    model2 <- model
+#    class(model2$model) <- "glm"
+#    checkException(classifySupv(model2, newdata,
+#      msg = "wrong model"))
 
   # errors concerning newdata
     # wrong class
@@ -416,20 +418,16 @@ test.classifySupv.exceptions <- function()
     checkException(classifySupv(model, newdata2,
       msg = "format of newdata does not match model"))
       
-  # RLBigData object with expired SQLite connection
-  rpairsBig <- RLBigDataDedup(RLdata500)
-  dbDisconnect(rpairsBig@con)
-  checkException(classifySupv(model, rpairsBig), msg = "invalid SQLite connection")
 }
 
 test.classifySupv <- function()
 {
   data(RLdata500)
   rpairs <- compare.dedup(RLdata500, identity=identity.RLdata500,
-    blockfld=list(5:6, 6:7, c(5,7)))
+    blockfld=list(5:6))
   data(RLdata10000)
   newdata <- compare.dedup(RLdata10000, identity=identity.RLdata10000,
-    blockfld=list(5:6, 6:7, c(5,7)))
+    blockfld=list(5:6))
 
   for (method in c("rpart", "bagging", "ada", "svm", "nnet"))
   {
@@ -442,22 +440,22 @@ test.classifySupv <- function()
       msg = sprintf(" check class of result for method %s", method))
 
     # check copied components
-    checkEquals(result$pairs, newdata$pairs, 
+    checkEquals(result$pairs, newdata$pairs,
       msg = sprintf(" check pairs component of result for method %s", method))
-    checkEquals(result$data, newdata$data, 
+    checkEquals(result$data, newdata$data,
       msg = sprintf(" check data component of result for method %s", method))
-    checkEquals(result$frequencies, newdata$frequencies, 
+    checkEquals(result$frequencies, newdata$frequencies,
       msg = sprintf(" check frequencies component of result for method %s", method))
 
     # check prediction
-    checkEqualsNumeric(length(result$prediction), nrow(newdata$pairs), 
+    checkEqualsNumeric(length(result$prediction), nrow(newdata$pairs),
       msg = sprintf(" check length of prediction for method %s", method))
     checkEquals(class(result$prediction), "factor",
       msg = sprintf(" check class of prediction for method %s", method))
     checkEquals(levels(result$prediction), c("N", "P", "L"),
       msg = sprintf(" check levels of prediction for method %s", method))
 
-    # feasible results are hard to check, check that more non-matches than 
+    # feasible results are hard to check, check that more non-matches than
     # matches exist
     checkTrue(sum(result$prediction=="N") > sum(result$prediction=="L"),
       msg = sprintf(" check feasible match proportion for method %s", method))
@@ -469,12 +467,12 @@ test.classifySupv.RLBigData <- function()
 {
   data(RLdata500)
   rpairs <- compare.dedup(RLdata500, identity=identity.RLdata500,
-    blockfld=list(5:6, 6:7, c(5,7)))
+    blockfld=list(1,3))
   data(RLdata10000)
   newdata <- RLBigDataDedup(RLdata10000, identity=identity.RLdata10000,
-    blockfld=list(5:6, 6:7, c(5,7)))
+    blockfld=5:6)
   newdataS3 <- compare.dedup(RLdata10000, identity=identity.RLdata10000,
-    blockfld=list(5:6, 6:7, c(5,7)))
+    blockfld=5:6)
 
   for (method in c("rpart", "bagging", "ada", "svm", "nnet"))
   {
@@ -486,11 +484,9 @@ test.classifySupv.RLBigData <- function()
 
     # check that result is equal when applying the RecLinkData-method
     resultS3 <- classifySupv(classif, newdataS3)
-    linkIds <- result@links
-    linkIds <- linkIds[order(linkIds[,1], linkIds[,2]),]
-    linkIdsS3 <- as.matrix(resultS3$pairs[resultS3$prediction=="L", 1:2])
-    linkIdsS3 <- linkIdsS3[order(linkIdsS3[,1], linkIdsS3[,2]),]
-    checkEqualsNumeric(linkIds, linkIdsS3, msg = paste("check that result is",
+    checkEqualsNumeric(as.ram(result@prediction[fforder(result@data@pairs$id1,
+      result@data@pairs$id2)]), resultS3$prediction[order(resultS3$pairs$id1,
+      resultS3$pairs$id1)], msg = paste("check that result is",
       "equal to that of RecLinkData-method for", method))
 
   }

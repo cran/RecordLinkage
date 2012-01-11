@@ -18,13 +18,10 @@
   \describe{
     \item{\code{data}:}{Object of class \code{"RLBigData"}. The data set
       which was classified.}
-    \item{\code{links}:}{Object of class \code{"matrix"} with two columns,
-      holding the ids of pairs which were classified as a link.}
-    \item{\code{possibleLinks}:}{Object of class \code{"matrix"} with two
-      columns, holding the ids of pairs which were classified as a
-      possible link.}
-    \item{\code{nPairs}:}{Object of class \code{"numeric"}. The total number of
-    classified record pairs.}
+    \item{\code{prediction}:}{Object of class \code{"ff"}. A vector
+      with classification result for every record pair, coded by levels
+      \code{"N"} for a non-link, \code{"P"} for a possible link and \code{"L"}
+      for a link.}
   }
 }
 
@@ -36,7 +33,7 @@
     \item{getPairs}{\code{signature(object = "RLResult")}}
     \item{getTable}{\code{signature(object = "RLResult")}}
     \item{saveRLObject}{\code{signature(object = "RLResult")}}
-         }
+  }
 }
 
 \author{

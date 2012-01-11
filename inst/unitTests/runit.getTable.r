@@ -7,9 +7,10 @@ test.getTable.RLResult <- function()
 
 
   # select pairs as links such there are distinct numbers for false positives etc.
-  # leads to 3 TP, 2 FP, 1 FN, 4 TN
-  linkInd <- matrix(c(1,2,3,4,3,5,1,3,1,4), ncol = 2, nrow = 5, byrow=TRUE)
-  result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10)
+  linkInd <- matrix(c(1,2, 3,4, 3,5, 1,3, 1,4), ncol = 2, nrow = 5, byrow=TRUE)
+  pred <- ff(c("L", "L", "L", "N", "N", "N", "N", "L", "L", "N"),
+    levels = c("N", "P", "L"))
+  result <- new("RLResult", data = rpairs, prediction = pred)
 
   # result should be a table of the form
   #
@@ -24,9 +25,9 @@ test.getTable.RLResult <- function()
   # test by removing one true link
   identity1 <- c(1,1,3,3,3)
   rpairs <- RLBigDataDedup(data1, identity = identity1)
-  linkInd <- matrix(c(3,4,3,5,1,3,1,4), ncol = 2, nrow = 4, byrow=TRUE)
-  result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10,
-    possibleLinks = matrix(c(1,2),ncol=2, nrow=1))
+  pred <- ff(c("P", "L", "L", "N", "N", "N", "N", "L", "L", "N"),
+    levels = c("N", "P", "L"))
+  result <- new("RLResult", data = rpairs, prediction = pred)
 
   # results in the follwing pairs:
   #
@@ -52,8 +53,9 @@ test.getTable.RLResult <- function()
   # check with pairs of unknown status
   identity1 <- c(NA,1,3,3,3)
   rpairs <- RLBigDataDedup(data1, identity = identity1)
-  linkInd <- matrix(c(1,2,3,4,3,5,1,3,1,4), ncol = 2, nrow = 5, byrow=TRUE)
-  result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10)
+  pred <- ff(c("L", "L", "L", "N", "N", "N", "N", "L", "L", "N"),
+    levels = c("N", "P", "L"))
+  result <- new("RLResult", data = rpairs, prediction = pred)
 
   # results in the follwing pairs:
   #
@@ -81,9 +83,9 @@ test.getTable.RLResult <- function()
   # both possible links and missing identity information
   identity1 <- c(NA,1,3,3,3)
   rpairs <- RLBigDataDedup(data1, identity = identity1)
-  linkInd <- matrix(c(3,4,3,5,1,3,1,4), ncol = 2, nrow = 4, byrow=TRUE)
-  result <- new("RLResult", data = rpairs, links = linkInd, nPairs = 10,
-    possibleLinks = matrix(c(1,2), nrow=1, ncol=2))
+  pred <- ff(c("P", "L", "L", "N", "N", "N", "N", "L", "L", "N"),
+    levels = c("N", "P", "L"))
+  result <- new("RLResult", data = rpairs, prediction = pred)
 
   # results in the follwing pairs:
   #

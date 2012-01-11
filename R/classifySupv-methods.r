@@ -46,48 +46,35 @@ setMethod(
   signature = c("RecLinkClassif", "RLBigData"),
   definition = function(model, newdata, convert.na = TRUE, withProgressBar = (sink.number()==0), ...)
   {
-    if(!isIdCurrent(newdata@con)) stop(paste("Invalid SQLite connection in newdata!",
-      "See '?saveRLObject' on how to make persistant copies of such objects."))
+    prediction=switch(model$method,
+  		svm=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, ...),
+	 	 rpart=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="class",...),
+		  ada=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="vector",...),
+		  bagging=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="class",...),
+		  nnet=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="class",...),
+      stop("Illegal classification method!"))
 
-    links <- matrix(0L, 0L, nrow=0, ncol=2)
-    possibleLinks <- matrix(0L, 0L, nrow=0, ncol=2)
-    nPairs <- 0
-    if (withProgressBar)
-    {
-      expPairs <- getExpectedSize(newdata)
-      pgb <- txtProgressBar(max=expPairs)
-    }
-
-    on.exit(clear(newdata))
-    newdata <- begin(newdata)
-
-    while(nrow(slice <- nextPairs(newdata)) > 0)
-    {
-      # Spaltennamen angleichen -> funktioniert so nicht!
-      # TODO: Fehlerbehandlung für ungleiche Attributanzahl
-      #     colnames(slice) <- c("id1", "id2", levels(model$model$frame$var)[-1])
-      if(convert.na) slice[is.na(slice)] <- 0
-      prediction=switch(model$method,
-        svm=predict(model$model, newdata=slice,...),
-          rpart=predict(model$model, newdata=slice,type="class",...),
-      	  ada=predict(model$model, newdata=slice,type="vector",...),
-      	  bagging=predict(model$model, newdata=slice,type="class",...),
-      	  nnet=predict(model$model, newdata=slice,type="class",...),
-          stop("Illegal classification method!"))
-      links <- rbind(links, as.matrix(slice[prediction=="L",1:2]))
-      possibleLinks <- rbind(possibleLinks, as.matrix(slice[prediction=="P",1:2]))
-      nPairs <- nPairs + nrow(slice)
-
-      if (withProgressBar)
-      {
-        setTxtProgressBar(pgb, nPairs)
-        flush.console()
-      }
-    }
-
-    if (withProgressBar) close(pgb)
-
-    result <- new("RLResult", data = newdata, links = links,
-      possibleLinks = possibleLinks, nPairs = nPairs)
+    result <- new("RLResult", data = newdata, prediction = prediction)
   }
 )
+
+
+.ffpredict <- function(model, newdata, withProgressBar, convert.na, ...)
+{
+    if (withProgressBar)
+    {
+      pgb <- txtProgressBar(0, nrow(newdata))
+    }
+
+    prediction <- ff("N", length = nrow(newdata), levels = c("N", "P", "L"))
+    ffrowapply(
+      {
+        slice <- newdata[i1:i2,,drop = FALSE]
+        if (convert.na) slice[is.na(slice)] <- 0
+        prediction[i1:i2] <- predict(model, slice, ...)
+        if (withProgressBar) setTxtProgressBar(pgb, i2)
+      },
+      X = newdata)
+    if (withProgressBar) close(pgb)
+    prediction
+}

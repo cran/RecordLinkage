@@ -54,6 +54,8 @@ test.getPairs.exceptions <- function()
 test.getPairs <- function()
 {
   load("rpairs.em.rda")
+  set.seed(1)
+  
   # classification result is needed in some of the tests
   thresh1 <- optimalThreshold(rpairs, my=0.05)
   thresh2 <- optimalThreshold(rpairs, ny=0.05)
@@ -207,7 +209,8 @@ test.getPairs <- function()
 
   
 ##### Repeat checks for single row output #####
-  
+    message("DEBUG")
+
   
   # use with default arguments and data with weights
   result <- getPairs(rpairs, single.rows=TRUE)

@@ -1,6 +1,10 @@
 # Test File for Package Record Linkage
 #
-# Test Functions in tools.r
+# Test Functions for tools.r and internals.r
+
+# load internal (not exported) objects
+attach(loadNamespace("RecordLinkage"))
+
 
 test.unorderedPairs <- function()
 {
@@ -47,17 +51,18 @@ test.isFALSE <- function()
   checkEquals(isFALSE(x), FALSE)
 }
 
-test.delete.NULLs <- function()
-{
-  x <- list(1,c(2,3), NULL, list("A","B"))
-  checkEquals(delete.NULLs(x), list(1,c(2,3), list("A","B")))
-  x <- list(1,c(2,3), "NULL", list("A","B"))
-  checkEquals(delete.NULLs(x), x)
-  x <- list(1,c(2,3), NA, list("A","B"))
-  checkEquals(delete.NULLs(x), x)
-  x <- list(1,c(2,3), NaN, list("A","B"))
-  checkEquals(delete.NULLs(x), x)  
-}
+# not used in this package version
+#test.delete.NULLs <- function()
+#{
+#  x <- list(1,c(2,3), NULL, list("A","B"))
+#  checkEquals(delete.NULLs(x), list(1,c(2,3), list("A","B")))
+#  x <- list(1,c(2,3), "NULL", list("A","B"))
+#  checkEquals(delete.NULLs(x), x)
+#  x <- list(1,c(2,3), NA, list("A","B"))
+#  checkEquals(delete.NULLs(x), x)
+#  x <- list(1,c(2,3), NaN, list("A","B"))
+#  checkEquals(delete.NULLs(x), x)
+#}
 
 test.resample <- function()
 {
@@ -98,6 +103,71 @@ test.subset <- function()
   checkEquals(result$Wdata[s], resultSamp$Wdata)
   checkEquals(result$prediction[s], resultSamp$prediction)
 
+  # For BigData objects
+  rpairs <- RLBigDataDedup(RLdata500, blockfld = list(1,3, 5:7),
+    identity = identity.RLdata500)
+  rpairs <- epiWeights(rpairs)
+  nPairs <- nrow(rpairs@pairs)
+
+  s <- sample(nPairs, nPairs / 2)
+  rpairsSamp <- rpairs[s]
+  for (slotN in slotNames("RLBigDataDedup"))
+  {
+    if (slotN %in% c("Wdata", "WdataInd"))
+    {
+      checkEquals(as.ram(slot(rpairsSamp, slotN)),
+        as.ram(slot(rpairs, slotN))[s],
+        check.attributes = FALSE,
+        msg = sprintf("check attribute %s", slotN))
+    } else if (identical(slotN, "pairs"))
+    {
+      checkEquals(as.data.frame(rpairsSamp@pairs),
+        as.data.frame(rpairs@pairs)[s,],
+        check.attributes = FALSE,
+        msg = sprintf("check attribute %s", slotN))
+    } else
+    {
+      checkEquals(as.ram(slot(rpairsSamp, slotN)),
+        as.ram(slot(rpairsSamp, slotN)),
+        check.attributes = FALSE,
+        msg = sprintf("check attribute %s", slotN))
+    }
+  }
+
+  # RLResult
+  result <- epiClassify(rpairs, optimalThreshold(rpairs))
+  resultSamp <- result[s]
+  checkEquals(as.ram(resultSamp@prediction),
+    as.ram(resultSamp@prediction),
+    check.attributes = FALSE,
+    msg = "check attribute prediction")
+
+
+  for (slotN in slotNames("RLBigDataDedup"))
+  {
+    if (identical(slotN, "data"))
+    {
+      next
+    } else if (slotN %in% c("Wdata", "WdataInd"))
+    {
+      checkEquals(as.ram(slot(resultSamp@data, slotN)),
+        as.ram(slot(result@data, slotN))[s],
+        check.attributes = FALSE,
+        msg = sprintf("check attribute %s", slotN))
+    } else if (identical(slotN, "pairs"))
+    {
+      checkEquals(as.data.frame(resultSamp@data@pairs),
+        as.data.frame(result@data@pairs)[s,],
+        check.attributes = FALSE,
+        msg = sprintf("check attribute %s", slotN))
+    } else
+    {
+      checkEquals(as.ram(slot(resultSamp@data, slotN)),
+        as.ram(slot(result@data, slotN)),
+        check.attributes = FALSE,
+        msg = sprintf("check attribute %s", slotN))
+    }
+  }
 }
 
 test.getExpectedSize.data.frame <- function()
@@ -203,6 +273,10 @@ test.getExpectedSize.RLBigDataLinkage <- function()
 
   # check for bug that caused function to fail if one of the blocking columns
   # does not have any matching values (NULL values)
+  testdat2 <- cbind(testdat, 1:nrow(testdat))
+  names(testdat2) <- c("x1", "x2", "x3")
+  checkEquals(getExpectedSize(RLBigDataLinkage(testdat2, testdat2, blockfld=list(1,3))), 9)
+
   testdat2$x3 <- NA
   checkEquals(getExpectedSize(RLBigDataLinkage(testdat2, testdat2, blockfld=list(1,3))), 9)
 
@@ -303,4 +377,48 @@ test.show <- function()
 # deactivated: show was modified, this information is now in summary()
 #  checkTrue(any(grepl("1 match", testResult)))
 #  checkTrue(any(grepl("0 pairs with unknown status", testResult)))
+}
+
+
+test.searchThreshold <- function()
+{
+  # generate vector of random numbers
+  # X has uneven length in order to get a robust median
+  X <- sample(1:10000, 999)
+  o <- order(X)
+
+  # tests inclusive threshold with order of elements supplied
+  threshold <- median(X)
+  result <- .searchThreshold(X, threshold, TRUE, o)
+  checkTrue(all(X[o[result:length(X)]] >= threshold),
+    msg = "inclusive, unsorted vector")
+  checkEqualsNumeric(X[o[result]], threshold,
+    msg = "inclusive, unsorted vector")
+
+  # exclusive threshold with order of elements supplied
+  threshold <- median(X)
+  result <- .searchThreshold(X, threshold, FALSE, o)
+  checkTrue(all(X[o[result:length(X)]] > threshold),
+    msg = "exclusive, unsorted vector")
+  checkEqualsNumeric(X[o[result-1]], threshold,
+    msg = "exclusive, unsorted vector")
+
+  # tests inclusive threshold with sorted vector
+  Xsorted <- sort(X)
+  threshold <- median(Xsorted)
+  result <- .searchThreshold(Xsorted, threshold, TRUE)
+  checkTrue(all(Xsorted[result:length(Xsorted)] >= threshold),
+    msg = "inclusive, sorted vector")
+  checkEqualsNumeric(Xsorted[result], threshold,
+    msg = "inclusive, unsorted vector")
+
+  # tests exclusive threshold with sorted vector
+  Xsorted <- sort(X)
+  threshold <- median(Xsorted)
+  result <- .searchThreshold(Xsorted, threshold, FALSE)
+  checkTrue(all(Xsorted[result:length(Xsorted)] > threshold),
+    msg = "exclusive, sorted vector")
+  checkEqualsNumeric(Xsorted[result-1], threshold,
+    msg = "exclusive, unsorted vector")
+
 }

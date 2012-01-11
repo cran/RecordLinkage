@@ -12,18 +12,19 @@ setMethod(
   definition = function(object, blockfld=list())
   {
     if(!is.list(blockfld)) blockfld = list(blockfld)
-    rpairs <- RLBigDataDedup(object)
+    con <- dbConnect(dbDriver("SQLite"))
+    dbWriteTable(con, "data", object)
     nData <- nrow(object)
     nAll <- nData * (nData - 1) / 2
     if (length(blockfld)==0) return(nAll)
-    coln <- make.db.names(rpairs@con, colnames(object))
+    coln <- make.db.names(con, colnames(object))
 
     # ergibt Wahrscheinlichkeit, dass mit gegebenen Blockingfeldern
     # ein Paar nicht gezogen wird
     blockelemFun <- function(blockelem)
     {
       if(is.character(blockelem)) blockelem <- match(blockelem, colnames(object))
-      freq <- dbGetQuery(rpairs@con,
+      freq <- dbGetQuery(con,
         sprintf("select count(*) as c from data group by %s having c > 1 and %s",
           paste("\"", coln[blockelem], "\"", sep="", collapse=", "),
           paste(
@@ -32,14 +33,11 @@ setMethod(
           )
         )
       )
+      if (nrow(freq)==0) return(1)
       1 - (sum(sapply(freq,  function(x) x * (x-1) /2)) / nAll)
     }
     res <- nAll * (1-prod(sapply(blockfld, blockelemFun)))
-
-    # avoid clutter from temporary files
-    dbDisconnect(rpairs@con)
-    unlink(rpairs@dbFile)
-
+    dbDisconnect(con)
     round(res)
   }
 )
@@ -49,33 +47,9 @@ setMethod(
   signature = "RLBigDataDedup",
   definition = function(object)
   {
-    blockfld <- object@blockFld
-    if(!is.list(blockfld)) blockfld <- list(blockfld)
-    nData <- nrow(object@data)
-    nAll <- nData * (nData - 1) / 2
-    if (length(blockfld)==0) return(nAll)
-    coln <- make.db.names(object@con, colnames(object@data))
-
-    # ergibt Wahrscheinlichkeit, dass mit gegebenen Blockingfeldern
-    # ein Paar nicht gezogen wird
-    blockelemFun <- function(blockelem)
-    {
-      if(is.character(blockelem)) blockelem <- match(blockelem, colnames(object@data))
-      freq <- as.numeric(dbGetQuery(object@con,
-        sprintf("select count(*) as c from data group by %s having c > 1 and %s",
-          paste("\"", coln[blockelem], "\"", sep="", collapse=", "),
-          paste(
-            sapply(coln[blockelem], sprintf, fmt = "\"%s\" is not null"),
-            collapse = " and "
-          )
-        )
-      )$c)
-      1 - (sum(freq * (freq - 1) / 2) / nAll)
-    }
-    res <- nAll * (1-prod(sapply(blockfld, blockelemFun)))
-
-
-    round(res)
+    # With ff pairs, this function is actually not necessary. For compatibility,
+    # the actual number of record pairs is returned
+    nrow(object@pairs)
   }
 )
 
@@ -84,37 +58,15 @@ setMethod(
   signature = "RLBigDataLinkage",
   definition = function(object)
   {
-    blockfld <- object@blockFld
-    if(!is.list(blockfld)) blockfld <- list(blockfld)
-    nData1 <- nrow(object@data1)
-    nData2 <- nrow(object@data2)
-    nAll <- nData1 * nData2
-    if (length(blockfld)==0) return(nAll)
-    coln <- make.db.names(object@con, colnames(object@data1))
-
-    # ergibt Wahrscheinlichkeit, dass mit gegebenen Blockingfeldern
-    # ein Paar nicht gezogen wird
-    blockelemFun <- function(blockelem)
-    {
-      if(is.character(blockelem)) blockelem <- match(blockelem, colnames(object@data))
-      freq <- dbGetQuery(object@con,
-        sprintf("select count(*) as c from data1 t1, data2 t2 where %s",
-          paste(
-            sapply(coln[blockelem], sprintf, fmt = "t1.\"%1$s\"=t2.\"%1$s\""),
-            collapse = " and "
-          )
-        )
-      )$c
-      1 - (freq / nAll)
-    }
-    res <- nAll * (1-prod(sapply(blockfld, blockelemFun)))
-    round(res)
+    # With ff pairs, this function is actually not necessary. For compatibility,
+    # the actual number of record pairs is returned
+    nrow(object@pairs)
   }
 )
 
 
 
-# Subscript operator for RecLinkData and RecLinkResult objects
+# Subscript operator for Record Linkage objects
 "[.RecLinkData" <- function(x,i)
 {
   ret <- x
@@ -127,6 +79,24 @@ setMethod(
 {
   ret <- "[.RecLinkData"(x, i)
   ret$prediction <- x$prediction[i]
+  ret
+}
+
+"[.RLBigData" <- function(x,i)
+{
+  ret <- x
+  # this should be recoded more efficiently!
+  ret@pairs <- as.ffdf(x@pairs[i,])
+  ret@Wdata <- ff(x@Wdata[i])
+  ret@WdataInd <- ff(x@WdataInd[i])
+  ret
+}
+
+"[.RLResult" <- function(x,i)
+{
+  ret <- x
+  ret@data <- x@data[i]
+  ret@prediction <- ff(x@prediction[i])
   ret
 }
 
@@ -165,3 +135,70 @@ setMethod(
     ret
   }
 )
+
+# determine position with smallest x > or >= given threshold by binary search
+# x must be sorted in ascending order or order be given in o
+.searchThreshold <- function(x, threshold, inclusive=TRUE, o=NA)
+{
+  if (missing(o)) getX <- function(i) x[i] else getX <- function(i) x[o[i]]
+  # choose appropriate comparison operator
+  compFun <- if (inclusive) `>=` else `>`
+  # return NA if all data are below threshold <=> the largest element of x does
+  # not satisfy the condition
+  if (!compFun(getX(length(x)), threshold)) return(NA)
+  # if smallest value satisfies the condition, all of x do
+  if (compFun(getX(1), threshold)) return(1)
+  else
+  {
+    lower <- 1
+    upper <- length(x)
+    minInd <- round(length(x) / 2)
+    # search until current value satisfies condition and its lower neighbour
+    # does not
+    while(!(compFun(getX(minInd), threshold) && !compFun(getX(minInd-1), threshold)))
+    {
+#      message(minInd)
+      if (!compFun(getX(minInd), threshold)) # zu far left
+      {
+        lower <- minInd
+        minInd <- ceiling((minInd + upper) / 2)
+      } else
+      {
+        upper <- minInd
+        minInd <- floor((lower + minInd) / 2)
+      }
+    }
+  }
+  minInd
+}
+
+# backend function for weight-based classification of big data sets
+.ffWeightClassify <- function(rpairs, threshold.upper, threshold.lower)
+{
+    # get breakpoints between links, possible links and non-links
+    # in sorted vector of weights
+    minMatchInd <- .searchThreshold(rpairs@Wdata, threshold.upper, o=rpairs@WdataInd)
+    minPossibleInd <- .searchThreshold(rpairs@Wdata, threshold.lower, o=rpairs@WdataInd)
+    # if NA is returned (threshold too large), assign length + 1
+    if (is.na(minMatchInd)) minMatchInd <- length(rpairs@Wdata) + 1
+    if (is.na(minPossibleInd)) minPossibleInd <- length(rpairs@Wdata) + 1
+    # determine number of links etc. by positions of breakpoints
+    nMatches <- length(rpairs@Wdata) - minMatchInd + 1
+    nPossibles <- length(rpairs@Wdata) - nMatches - minPossibleInd + 1
+    nNonMatches <- length(rpairs@Wdata) - nMatches - nPossibles
+    # index ranges for non-matches, possible matches, matches
+    threshInd <- c(0, minPossibleInd-1, minMatchInd-1, length(rpairs@Wdata))
+    # fill prediciton vector with the value that occurs most, fill in the others
+    lev <- c("N", "P", "L")
+    predOrder <- order(c(nNonMatches, nPossibles, nMatches))
+    prediction <- ff(lev[predOrder[3]], levels=lev, length=length(rpairs@Wdata))
+    for (i in 1:2)
+    {
+      # calculate Indices of lowest and highest weight of the current classification
+      ind1 <- threshInd[predOrder[i]] + 1
+      ind2 <- threshInd[predOrder[i]+1]
+      if(ind2 >= ind1)
+        prediction[rpairs@WdataInd[ind1:ind2]] <- lev[predOrder[i]]
+    }
+    new("RLResult", data = rpairs, prediction = prediction)
+}

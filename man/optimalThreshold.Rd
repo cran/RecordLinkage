@@ -1,6 +1,9 @@
 \name{optimalThreshold}
 \Rdversion{1.1}
 \alias{optimalThreshold}
+\alias{optimalThreshold-methods}
+\alias{optimalThreshold,RecLinkData-method}
+\alias{optimalThreshold,RLBigData-method}
 
 \title{
   Optimal Threshold for Record Linkage
@@ -10,24 +13,25 @@
 }
 \usage{
 optimalThreshold(rpairs, my = NaN, ny = NaN)
+\S4method{optimalThreshold}{RecLinkData}(rpairs, my = NaN, ny = NaN)
+\S4method{optimalThreshold}{RLBigData}(rpairs, my = NaN, ny = NaN)
 }
 \arguments{
   \item{rpairs}{
-    \code{\link{RecLinkData}} object. Record pairs for which to calculate
-    a threshold.
-}
+    Record pairs for which to calculate a threshold.
+  }
   \item{my}{
     A real value in the range [0,1]. Error bound for false positives.
-}
+  }
   \item{ny}{
     A real value in the range [0,1]. Error bound for false negatives.
-}
+  }
 }
 \details{
-  \code{rpairs} must contain weights in \code{rpairs$Wdata}, calculated by
-  a suitable function such as \code{\link{emWeights}} or 
-  \code{\link{epiWeights}}. The true match result must be known for
-  \code{rpairs}.
+  Weights must have been calculated for \code{rpairs}, for example by
+  \code{\link{emWeights}} or \code{\link{epiWeights}}.
+  The true match result must be known for \code{rpairs}, mostly this is provided
+  through the \code{identity} argument of \code{\link[=compare.dedup]{compare.*}}
   
   For the following, it is assumed that all records with weights greater than or
   equal to the threshold are classified as links, the remaining as non-links.

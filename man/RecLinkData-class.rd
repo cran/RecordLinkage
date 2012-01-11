@@ -24,15 +24,8 @@
 Class \code{"\linkS4class{oldClass}"}, directly.
 }
 \section{Methods}{
-  \describe{
-    \item{\%append\%}{\code{signature(x = "RecLinkData", y = "RecLinkData")}}
-    \item{classifySupv}{\code{signature(model = "RecLinkClassif", newdata = "RecLinkData")}}
-    \item{emClassify}{\code{signature(rpairs = "RecLinkData")}}
-    \item{emWeights}{\code{signature(rpairs = "RecLinkData")}}
-    \item{epiClassify}{\code{signature(rpairs = "RecLinkData")}}
-    \item{epiWeights}{\code{signature(rpairs = "RecLinkData")}}
-    \item{getPairs}{\code{signature(object = "RecLinkData")}}
-  }
+  Use \code{getMethods(classes = "RecLinkData")} to list the methods defined for
+  this class.
 }
 
 \author{

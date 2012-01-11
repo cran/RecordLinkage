@@ -1,6 +1,10 @@
 \name{getMinimalTrain}
 \Rdversion{1.1}
 \alias{getMinimalTrain}
+\alias{getMinimalTrain-methods}
+\alias{getMinimalTrain,RecLinkData-method}
+\alias{getMinimalTrain,RLBigData-method}
+
 
 \title{
   Create a minimal training set
@@ -17,8 +21,8 @@ getMinimalTrain(rpairs, nEx = 1)
 
 \arguments{
   \item{rpairs}{
-    \code{RecLinkData} object. The data set from which to create a minimal
-      training set.
+    A \code{"RecLinkData"} or \code{"RLBigData"} object. The data set
+    from which to create a minimal training set.
 }
   \item{nEx}{
     The desired number of examples per comparison pattern.
@@ -44,10 +48,9 @@ getMinimalTrain(rpairs, nEx = 1)
 }
 
 \value{
-  A \code{\link{RecLinkData}} object representing a minimal comprehensive training set.
-  Component \code{pairs} represents the selected training pairs.
-  The corresponding values of \code{rpairs$prediction} and \code{rpairs$W}
-  are copied only if present. All other components are copied automatically from \code{rpairs}.
+  An object of the same class as \code{rpairs}, representing a minimal
+  comprehensive training set. The appropriate subset of comparison patterns
+  (and weights, if present) is taken, all other components are copied.
 }
 
 \note{

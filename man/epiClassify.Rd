@@ -45,14 +45,6 @@ epiClassify(rpairs, threshold.upper, threshold.lower = threshold.upper,
   For the \code{"RecLinkData"} method, weights must have been calculated
   for \code{rpairs} using \code{\link{epiWeights}}.
 
-  The \code{"RLBigData"}
-  method checks if weights are present in the underlying database.
-  If this is the case, classification
-  is based on the existing weights. If not, weights are calculated on the fly
-  during classification, but not stored. The latter behaviour might be preferable
-  when a very large dataset is to be classified or disk space is limited
-  (see also the notes to \code{\link{epiWeights}}).
-
   A progress bar is displayed by the \code{"RLBigData"} method only if
   weights are calculated on the fly and, by default, unless output is diverted by
   \code{\link{sink}} (e.g. in a Sweave script).

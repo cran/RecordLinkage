@@ -1,0 +1,87 @@
+% \VignetteIndexEntry{Supervised Classification}
+
+<<echo=false,results=hide>>=
+options(width=50)
+@
+
+\documentclass[a4paper]{article}
+
+\usepackage[ansinew]{inputenc}
+
+\begin{document}
+
+\title{Example Session for Supervised Classification}
+\author{Andreas Borg, Murat Sariyar}
+\maketitle
+
+This document shows an example session for using supervised classification
+in the package \textit{RecordLinkage} for deduplication of a single data set.
+Conducting linkage of two data sets differs only in the step of generating
+record pairs.
+
+See also the vignette on Fellegi-Sunter deduplication for some general
+information on using the package.
+
+\section{Generating comparison patterns}
+
+<<results=hide,echo=false>>=
+library(RecordLinkage)
+library(xtable)
+@
+
+In this session, a training set with 50 matches and 250
+non-matches is generated from the included data set \texttt{RLData10000}. 
+Record pairs from the set \texttt{RLData500} are used to calibrate and 
+subsequently evaluate the classifiers.
+<<>>=
+data(RLdata500)
+data(RLdata10000)
+train_pairs=compare.dedup(RLdata10000, identity=identity.RLdata10000,
+  n_match=500, n_non_match=500)
+
+eval_pairs=compare.dedup(RLdata500,identity=identity.RLdata500)
+@
+
+
+\section{Training}
+
+\texttt{trainSupv} handles calibration of supervised classificators which are 
+selected through the argument \texttt{method}. In the
+following, a single decision tree (rpart), a bootstrap aggregation of decision trees
+(bagging) and a support vector machine are calibrated (svm).
+
+<<>>=
+model_rpart=trainSupv(train_pairs, method="rpart")
+model_bagging=trainSupv(train_pairs, method="bagging")
+model_svm=trainSupv(train_pairs, method="svm")
+@
+
+\section{Classification}
+
+\texttt{classifySupv} handles classification for all supervised classificators,
+taking as arguments the structure returned by \texttt{trainSupv} which contains
+the classification model and the set of record pairs which to classify.
+
+<<>>=
+result_rpart=classifySupv(model_rpart, eval_pairs)
+result_bagging=classifySupv(model_bagging, eval_pairs)
+result_svm=classifySupv(model_svm, eval_pairs)
+@
+
+\section{Results}
+
+\subsection{Rpart}
+<<results=tex,echo=false>>=
+texSummary(result_rpart)
+@
+
+\subsection{Bagging}
+<<results=tex,echo=false>>=
+texSummary(result_bagging)
+@
+
+\subsection{SVM}
+<<results=tex,echo=false>>=
+texSummary(result_svm)
+@
+\end{document}

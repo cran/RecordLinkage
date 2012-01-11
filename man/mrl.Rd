@@ -16,7 +16,7 @@
 mrl(data, umin = min(data), umax = max(data) - 0.1, 
   nint = round(max(data) - min(data)) * 20)
 
-plotMRL(rpairs, l = mrl(rpairs$Wdata))
+plotMRL(rpairs, l = .computeMRL(sort(as.ram((rpairs$Wdata)))))
 }
 
 \arguments{

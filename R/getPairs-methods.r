@@ -255,15 +255,17 @@ setGeneric(
   def = function(object, ...) standardGeneric("getPairs")
 )
 
+
+
+
 setMethod(
   f = "getPairs",
   signature = "RLBigData",
   definition = function(object, max.weight = Inf, min.weight = -Inf,
     filter.match = c("match", "unknown", "nonmatch"),
-    withWeight = dbExistsTable(object@con, "Wdata"), withMatch = TRUE,
-    single.rows = FALSE, sort = TRUE)
+    withWeight = hasWeights(object), withMatch = TRUE,
+    single.rows = FALSE, sort = withWeight)
   {
-  
     # check arguments
     if (!is.logical(single.rows) || is.na(single.rows))
       stop(paste("Illegal value for single.rows:", single.rows))
@@ -274,15 +276,110 @@ setMethod(
     if (any(naind <- is.na(match(filter.match, c("match", "unknown", "nonmatch")))))
       stop(paste("Illegal value in filter.match:", filter.match[naind]))
 
+    # working copy of record pairs
+    pairs <- object@pairs
 
-    # call backend function
-    getPairsBackend(object, filter.match=filter.match, max.weight = max.weight,
-      min.weight = min.weight, withWeight = withWeight, withMatch = withMatch,
-      sort = withWeight, single.rows = single.rows)
+    if(!all(c("match", "unknown", "nonmatch") %in% filter.match))
+    {
+      matchFilterExpr <- paste("(", paste(c(
+        if ("match" %in% filter.match) "pairs[i1:i2,'is_match']==1" else NULL,
+        if ("nonmatch" %in% filter.match) "pairs[i1:i2,'is_match']==0" else NULL,
+        if ("unknown" %in% filter.match) "is.na(pairs[i1:i2,'is_match'])" else NULL
+       ), collapse = " | "), ")", sep = "")
+    } else matchFilterExpr <- NULL
 
+
+    filterExpr <- c(
+      if (!missing(min.weight)) "pairs[i1:i2,'W'] >= min.weight" else NULL,
+      if (!missing(max.weight)) "pairs[i1:i2,'W'] <= max.weight" else NULL,
+      matchFilterExpr
+    )
+    if (length(filterExpr) == 0)
+    {
+      pairIds <- 1:nrow(pairs)
+    } else
+    {
+      filterExpr <- parse(text=paste(filterExpr, collapse=" & "))
+      pairs$W <- object@Wdata
+      pgb <- txtProgressBar(0, nrow(object@pairs))
+      pairIds <- ffrowapply(
+      {
+        setTxtProgressBar(pgb, i2)
+        which(eval(filterExpr)) + i1 - 1
+      }, X = pairs, RETURN = TRUE, CFUN = "c")
+      close(pgb)
+    }
+    # sort descending by weight if desired
+    if (sort) pairIds <- pairIds[order(object@Wdata[pairIds], decreasing = TRUE)]
+
+    if (is(object, "RLBigDataDedup"))
+    {
+      left <- object@data[pairs[pairIds,1],]
+      right <- object@data[pairs[pairIds,2],]
+    } else if (is(object, "RLBigDataLinkage"))
+    {
+      left <- object@data1[pairs[pairIds,1],]
+      right <- object@data2[pairs[pairIds,2],]
+    } else stop("Cannot handle class %s", class(object))
+
+    result <- data.frame(id1=pairs[pairIds,1],
+                    left,
+                    id2=pairs[pairIds,2],
+                    right)
+    names(result) <- c("id.1", paste(names(left), ".1", sep=""), "id.2",
+      paste(names(left), ".2", sep=""))
+    if (withMatch) result$is_match <- as.logical(pairs[pairIds, "is_match"])
+    if (withWeight) result$Weight <- object@Wdata[pairIds]
+
+    if(single.rows)
+    {
+      if (nrow(result) > 0) rownames(result) <- 1:nrow(result)
+      return (result)
+    }
+    else
+    {
+
+      cnames=c("id",
+        colnames(left),
+        if (withMatch) "is_match",
+#        if (withClass) "Class",
+        if (withWeight) "Weight"
+      )
+
+      if (nrow(result)==0)
+        return(data.frame(matrix(nrow=0, ncol=length(cnames),
+          dimnames=list(character(0), cnames))))
+      # if pairs are to be printed on consecutive lines, some formatting is
+      # necassery
+
+      # This function inserts some white space:
+      #   1. The second row of every pair has possible the matching status,
+      #       classification and weight, the other one blank fields
+      #   2. A line of white space seperates record pairs
+
+      # compute number of additional fields (weight etc)
+      nAdditional <- as.numeric(withMatch) + as.numeric(withWeight) #+ as.numeric(withClass)
+    	printfun=function(x)
+      {
+        c(x[1:((length(x)-nAdditional)/2)],rep("", nAdditional),
+          x[((length(x)-nAdditional)/2 + 1):length(x)],
+          rep("", (length(x)+nAdditional)/2)) # blank line
+
+      }
+
+      # Apply helper function to every line
+      m=apply(result,1,printfun)
+      # reshape result into a table of suitable format
+      m=as.data.frame(matrix(m[TRUE],nrow=ncol(m)*3,ncol=nrow(m)/3,byrow=TRUE))
+
+
+      colnames(m) <- cnames
+
+
+      return(m)
+    }
   }
 )
-
 
 
 setMethod(
@@ -290,43 +387,134 @@ setMethod(
   signature = "RLResult",
   definition = function(object, filter.match = c("match", "unknown", "nonmatch"),
     filter.link = c("nonlink", "possible", "link"), max.weight = Inf, min.weight = -Inf,
-    withMatch = TRUE, withClass=TRUE, withWeight=dbExistsTable(object@data@con, "Wdata"),
-    single.rows = FALSE, sort=withWeight)
+    withMatch = TRUE, withClass = TRUE, withWeight = hasWeights(object@data),
+    single.rows = FALSE, sort = withWeight)
   {
-    # assing data base connection to local variable
-    con <- object@data@con
-    # insert match result in database and create indeces to speed up lookup
-    # dbWrite does not create table if an empty data frame is passed,
-    # create empty table in this case
-    dbGetQuery(con, "drop table if exists links")
-    dbGetQuery(con, "create table links (id1 integer, id2 integer)")
-    dbGetQuery(con, "drop table if exists possible_links")
-    dbGetQuery(con, "create table possible_links (id1 integer, id2 integer)")
-    if (nrow(object@links) > 0)
+    # check arguments
+    if (!is.logical(single.rows) || is.na(single.rows))
+      stop(paste("Illegal value for single.rows:", single.rows))
+
+    if (!is.character(filter.match))
+      stop(paste("Illegal class for filter.match:", class(filter.match)))
+
+    if (any(naind <- is.na(match(filter.match, c("match", "unknown", "nonmatch")))))
+      stop(paste("Illegal value in filter.match:", filter.match[naind]))
+
+    # working copy of record pairs
+    pairs <- object@data@pairs
+    if (withWeight) pairs$W <- object@data@Wdata
+    # need class if it is displayed or result is filtered by it
+    if (withClass || !all(c("nonlink", "possible", "link") %in% filter.link))
+      pairs$prediction <- object@prediction
+
+    if(!all(c("match", "unknown", "nonmatch") %in% filter.match))
     {
-      dbWriteTable(con, "links", as.data.frame(object@links), append=TRUE,
-        row.names=FALSE)
-    }
-    if (nrow(object@possibleLinks) > 0)
+      matchFilterExpr <- paste("(", paste(c(
+        if ("match" %in% filter.match) "pairs[i1:i2,'is_match']==1" else NULL,
+        if ("nonmatch" %in% filter.match) "pairs[i1:i2,'is_match']==0" else NULL,
+        if ("unknown" %in% filter.match) "is.na(pairs[i1:i2,'is_match'])" else NULL
+       ), collapse = " | "), ")", sep = "")
+    } else matchFilterExpr <- NULL
+
+    if(!all(c("nonlink", "possible", "link") %in% filter.link))
     {
-      dbWriteTable(con, "possible_links", as.data.frame(object@possibleLinks), append=TRUE,
-        row.names=FALSE)
+      linkFilterExpr <- paste("(", paste(c(
+        if ("link" %in% filter.link) "pairs[i1:i2,'prediction']=='L'" else NULL,
+        if ("nonlink" %in% filter.link) "pairs[i1:i2,'prediction']=='N'" else NULL,
+        if ("possible" %in% filter.link) "pairs[i1:i2,'prediction']=='P'" else NULL
+       ), collapse = " | "), ")", sep = "")
+    } else linkFilterExpr <- NULL
+
+
+    filterExpr <- c(
+      if (min.weight > -Inf) "pairs[i1:i2,'W'] >= min.weight" else NULL,
+      if (max.weight < Inf) "pairs[i1:i2,'W'] <= max.weight" else NULL,
+      linkFilterExpr, matchFilterExpr
+    )
+    if (length(filterExpr) == 0)
+    {
+      pairIds <- 1:nrow(pairs)
+    } else
+    {
+      filterExpr <- parse(text=paste(filterExpr, collapse=" & "))
+      pgb <- txtProgressBar(0, nrow(pairs))
+      pairIds <- ffrowapply(
+      {
+        setTxtProgressBar(pgb, i2)
+        which(eval(filterExpr)) + i1 - 1
+      }, X = pairs, RETURN = TRUE, CFUN = "c")
+      close(pgb)
     }
+    # sort descending by weight if desired
+    if (sort) pairIds <- pairIds[order(object@data@Wdata[pairIds], decreasing = TRUE)]
 
-    dbGetQuery(object@data@con, "create index index_links on links(id1, id2)")
-    dbGetQuery(object@data@con, "create index index_possible on possible_links(id1, id2)")
+    if (is(object@data, "RLBigDataDedup"))
+    {
+      left <- object@data@data[pairs[pairIds,1],]
+      right <- object@data@data[pairs[pairIds,2],]
+    } else if (is(object@data, "RLBigDataLinkage"))
+    {
+      left <- object@data@data1[pairs[pairIds,1],]
+      right <- object@data@data2[pairs[pairIds,2],]
+    } else stop("Cannot handle class %s", class(object@data))
 
-    # call backend function
-    res <- getPairsBackend(object, filter.match=filter.match, filter.link = filter.link,
-      max.weight = max.weight, min.weight = min.weight, withMatch = withMatch,
-      withClass = withClass, withWeight = withWeight,
-      sort = withWeight, single.rows = single.rows)
+    result <- data.frame(id1=pairs[pairIds,1],
+                    left,
+                    id2=pairs[pairIds,2],
+                    right)
+    names(result) <- c("id.1", paste(names(left), ".1", sep=""), "id.2",
+      paste(names(left), ".2", sep=""))
+    if (withMatch) result$is_match <- as.logical(pairs[pairIds, "is_match"])
+    if (withClass) result$Class <- pairs[pairIds, "prediction"]
+    if (withWeight) result$Weight <- object@data@Wdata[pairIds]
 
-    # clean up temporary tables
-    dbGetQuery(object@data@con, "drop table links")
-    dbGetQuery(object@data@con, "drop table possible_links")
-    
-    res
+    if(single.rows)
+    {
+      if (nrow(result) > 0) rownames(result) <- 1:nrow(result)
+      return (result)
+    }
+    else
+    {
+
+      cnames=c("id",
+        colnames(left),
+        if (withMatch) "is_match",
+        if (withClass) "Class",
+        if (withWeight) "Weight"
+      )
+
+      if (nrow(result)==0)
+        return(data.frame(matrix(nrow=0, ncol=length(cnames),
+          dimnames=list(character(0), cnames))))
+      # if pairs are to be printed on consecutive lines, some formatting is
+      # necassery
+
+      # This function inserts some white space:
+      #   1. The second row of every pair has possible the matching status,
+      #       classification and weight, the other one blank fields
+      #   2. A line of white space seperates record pairs
+
+      # compute number of additional fields (weight etc)
+      nAdditional <- as.numeric(withMatch) + as.numeric(withWeight) + as.numeric(withClass)
+    	printfun=function(x)
+      {
+        c(x[1:((length(x)-nAdditional)/2)],rep("", nAdditional),
+          x[((length(x)-nAdditional)/2 + 1):length(x)],
+          rep("", (length(x)+nAdditional)/2)) # blank line
+
+      }
+
+      # Apply helper function to every line
+      m=apply(result,1,printfun)
+      # reshape result into a table of suitable format
+      m=as.data.frame(matrix(m[TRUE],nrow=ncol(m)*3,ncol=nrow(m)/3,byrow=TRUE))
+
+
+      colnames(m) <- cnames
+
+
+      return(m)
+    }
   }
 )
 
@@ -466,3 +654,5 @@ getFalse <- function(object, single.rows=FALSE)
     getFalseNeg(object, single.rows = single.rows)
   )
 }
+
+

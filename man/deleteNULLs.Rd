@@ -1,12 +1,12 @@
-\name{delete.NULLs}
-\alias{delete.NULLs}
+\name{deleteNULLs}
+\alias{deleteNULLs}
 
 \title{Remove NULL Values}
 \description{
   Removes all \code{NULL} elements from a list or vector.
 }
 \usage{
-delete.NULLs(x)
+deleteNULLs(x)
 }
 
 \arguments{

@@ -80,25 +80,13 @@ Calculate EpiLink weights
   \code{"\linkS4class{RLBigDataLinkage}"}) on how weights are stored.
   
   For the \code{"RLBigData"} method, the returned object is only a shallow
-  copy in the sense that it links to the same database file as \code{rpairs}
+  copy in the sense that it links to the same ff data files as database file as
+  \code{rpairs}.
 }
 
 \section{Side effects}{
-  The \code{"RLBigData"} method writes a table with weights in the database
-  file of \code{rpairs}, which means that changes apply to the provided object
-  (similar to pass-by-reference style). If the existing state of \code{rpairs}
-  is to be preserved, a copy should be made using \code{\link{clone}} before
-  applying this function.
-}
-
-\note{The \code{"RLBigData"} method writes record IDs and weight for every
-  record pair to the database file, potentially resulting to large files.
-  If disk space is an issue, \code{\link{epiClassify}} can be called directy;
-  it will then calculate weights during classification without storing them
-  in the database. Furthermore, using \code{\link{epiClassify}} directly
-  is faster for a single classification run while precalculation by
-  \code{epiWeights} is preferable if several runs of \code{\link{epiClassify}}
-  (e.g. for testing different thresholds) are to be made.
+  The \code{"RLBigData"} method creates a \code{"ffvector"} object,
+  for which a disk file is created.
 }
 
 \references{

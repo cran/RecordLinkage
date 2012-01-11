@@ -1,0 +1,94 @@
+% \VignetteIndexEntry{Weight-based deduplication}
+
+<<echo=false,results=hide>>=
+options(width=50)
+@
+
+\documentclass[a4paper]{article}
+
+\usepackage[ansinew]{inputenc}
+
+\begin{document}
+
+\title{Example session for Weight-based deduplication}
+\author{Andreas Borg, Murat Sariyar}
+\maketitle
+
+This document shows an example session using the package 
+\textit{RecordLinkage}. A single data set is deduplicated using an EM 
+algorithm for weight calculation.
+Conducting linkage of two data sets differs only in the step of generating
+record pairs.
+
+\section{Generating record pairs}
+
+<<results=hide,echo=false>>=
+library(RecordLinkage)
+library(xtable)
+@
+
+The data to be deduplicated is expected to reside in a data frame or matrix,
+each row containing one record. Example data sets of 500 and 10000 records
+are included in the package as \texttt{RLData500} and \texttt{RLData10000}. 
+
+<<>>=
+data(RLdata500)
+RLdata500[1:5,]
+@
+
+For deduplication, \texttt{compare.dedup} is to be used. In this example,
+blocking is set to return only record pairs which agree in at least two 
+components of the subdivided date of birth, resulting in 810 pairs. 
+The argument \texttt{identity} preserves the 
+true matching status for later evaluation.
+
+<<>>=
+pairs=compare.dedup(RLdata500,identity=identity.RLdata500,blockfld=list(c(5,6),c(6,7),c(5,7)))
+summary(pairs)
+@
+
+\section{Weight calculation}
+
+Weights are calculated by means of an EM algorithm. This step is computationally
+intensive and might take a while.
+The histogram shows the resulting weight distribution.
+<<>>=
+pairs=emWeights(pairs)
+hist(pairs$Wdata, plot=FALSE)
+@
+
+\section{Classification}
+
+For determining thresholds, 
+record pairs within a given range of weights can be printed using 
+\texttt{getPairs}\footnote{The output of \texttt{getPairs} is shortened in this
+document.}. In this case, $24$ is set as upper and $-7$ as lower threshold,
+dividing links, possible links and non-links. The summary shows the resulting 
+contingency table and error measures.
+
+
+<<results=hide>>=
+getPairs(pairs,30,20)
+@
+<<echo=false>>=
+getPairs(pairs,30,20)[23:36,]
+@
+<<>>=
+pairs=emClassify(pairs, threshold.upper=24, threshold.lower=-7)
+summary(pairs)
+@
+Review of the record pairs denoted as possible links is facilitated by
+\texttt{getPairs}, which can be forced to show only possible links via argument
+\texttt{show}. A list with the ids of linked pairs can be extracted from the 
+output of \texttt{getPairs} with argument \texttt{single.rows} set to 
+\texttt{TRUE}.
+
+<<>>=
+possibles <- getPairs(pairs, show="possible")
+possibles[1:6,]
+links=getPairs(pairs,show="links", single.rows=TRUE)
+link_ids <- links[, c("id1", "id2")]
+link_ids
+
+@
+\end{document}

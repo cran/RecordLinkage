@@ -32,11 +32,15 @@
   }
 }
 \details{
-  Estimation is based on the assumption that agreement or disagreement of one
-  attribute is independent of the other attributes.
+  The \code{"RLBigData*"} methods are only left for backward compability.
+  Since version 0.4, all record pairs for such objects are generated and stored
+  in a disk file. The methods return the true number of record pairs.
+
+  For the \code{"data.frame"} method, estimation is based on the assumption
+  that agreement or disagreement of one attribute is independent of the other attributes.
   
-  For the \code{"data.frame"} method, the blocking definition has to be
-  provided, for the other methods, it is taken from the object.
+  \code{blockfld} is a blocking definition such as for
+  \code{\link{RLBigDataDedup}}.
 }
 \value{
   The expected number of record pairs.

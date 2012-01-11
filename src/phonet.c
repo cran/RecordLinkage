@@ -1,3 +1,7 @@
+/* Includes some changes for R integration, 
+  * namely: replace malloc with R_alloc, printf with REprintf
+  */   
+
 /*
  * phonet.c
  * --------
@@ -75,7 +79,7 @@ static void trace_info (char text[], int n, char err_text[])
   s2 = (phonet_rules[n+1] == NULL) ? (char *) "(NULL)" : phonet_rules[n+1];
   s3 = (phonet_rules[n+2] == NULL) ? (char *) "(NULL)" : phonet_rules[n+2];
 
-  printf ("%s %d:  \"%s\"%s\"%s\" %s\n", text, ((n/3)+1), s,s2,s3, err_text);
+  Rprintf ("%s %d:  \"%s\"%s\"%s\" %s\n", text, ((n/3)+1), s,s2,s3, err_text);
 }
 
 
@@ -97,7 +101,7 @@ static int initialize_phonet (void)
        {
         if (run_mode & DO_TRACE)
           {
-           printf ("Error: %s  is not allowed\n",
+           REprintf ("Error: %s  is not allowed\n",
                 "strlen (letters_a_to_z) > 26");
           }
         return (-1);
@@ -106,7 +110,7 @@ static int initialize_phonet (void)
        {
         if (run_mode & DO_TRACE)
           {
-           printf ("Error: %s  is not allowed\n",
+           REprintf ("Error: %s  is not allowed\n",
                 "strlen(letters_a_to_z) != strlen(letters_a_to_z)");
           }
         return (-1);
@@ -115,7 +119,7 @@ static int initialize_phonet (void)
        {
         if (run_mode & DO_TRACE)
           {
-           printf ("Error: %s  is not allowed\n",
+           REprintf ("Error: %s  is not allowed\n",
                 "strlen(umlaut_lower) != strlen(umlaut_upper)");
           }
         return (-1);
@@ -323,7 +327,7 @@ int phonet (char src[], char dest[], int len, int mode)
     /****  wrong arg's  ****/
     if (run_mode & DO_TRACE)
       {
-       printf ("Error: wrong arguments.\n");
+       REprintf ("Error: wrong arguments.\n");
       }
     return (-1);
    }
@@ -350,7 +354,7 @@ int phonet (char src[], char dest[], int len, int mode)
       }
     if (run_mode & DO_TRACE)
       {
-       printf ("%s\n", s);
+       REprintf ("%s\n", s);
       }
     if (phonet_init == NULL  ||  phonet_hash == NULL  ||  phonet_rules == NULL)
       {
@@ -370,7 +374,7 @@ int phonet (char src[], char dest[], int len, int mode)
       {
        if (run_mode & DO_TRACE)
          {
-          printf ("Error: initialization failed\n");
+          REprintf ("Error: initialization failed\n");
          }
        strcpy (dest,"");
        return (-3);
@@ -388,7 +392,7 @@ int phonet (char src[], char dest[], int len, int mode)
        /****  "R_alloc" failed  ****/
        if (run_mode & DO_TRACE)
          {
-          Rprintf ("Error: \"R_alloc\" for %d Bytes failed.\n", i+1);
+          REprintf ("Error: \"R_alloc\" for %d Bytes failed.\n", i+1);
          }
        strcpy (dest,"");
        return (-4);
@@ -417,8 +421,8 @@ int phonet (char src[], char dest[], int len, int mode)
    }
  if (run_mode & DO_TRACE)
    {
-    printf ("\n\nphonetic conversion for  :  \"%s\"\n", src_2);
-    printf ("(%s rules)\n", s);
+    REprintf ("\n\nphonetic conversion for  :  \"%s\"\n", src_2);
+    REprintf ("(%s rules)\n", s);
    }
 
  /****  check "src"  ****/
@@ -429,8 +433,8 @@ int phonet (char src[], char dest[], int len, int mode)
    {
     if (run_mode & DO_TRACE)
       {
-       printf ("\ncheck position %d:  src = \"%s\",", j, src+i);
-       printf ("  dest = \"%.*s\"\n", j, dest);
+       REprintf ("\ncheck position %d:  src = \"%s\",", j, src+i);
+       REprintf ("  dest = \"%.*s\"\n", j, dest);
       }
 
     n = alpha_pos [(unsigned char) c];
@@ -901,7 +905,7 @@ int check_rules (int language, int trace_only)
    }
  if (i < 0)
    {
-    printf ("Error: initialization for language %d failed\n", language);
+    REprintf ("Error: initialization for language %d failed\n", language);
     return (-1);
    }
 
@@ -1420,35 +1424,35 @@ int check_rules (int language, int trace_only)
 
  if (i % 3 != 0)
    {
-    printf ("Error: string count is not a multiple of 3.\n");
+    REprintf ("Error: string count is not a multiple of 3.\n");
     errors++;
    }
  isletter [(unsigned char) TEST_char] = 0;
  run_mode = run_mode & (~CHECK_RULES);
 
- printf ("Language \"%s\"  (%d phonetic rules):\n", phonet_language, rule_count);
- printf ("Check of all phonetic rules:  ");
+ REprintf ("Language \"%s\"  (%d phonetic rules):\n", phonet_language, rule_count);
+ REprintf ("Check of all phonetic rules:  ");
 
  if (errors == 0)
    {
-    printf ("No syntax error or inconsistency found.\n");
+    REprintf ("No syntax error or inconsistency found.\n");
    }
  else
    {
-    printf ("%d errors have been found.\n\n", errors);
-    printf ("Remarks:\n");
-    printf ("a) The correct syntax for search strings is:\n");
-    printf ("      <word> [<->..] [<] [<0-9>] [^[^]] [$]\n");
-    printf ("   The end of <word> may contain as a simple regular expression\n");
-    printf ("   one array of letters that must be enclosed in '(' and ')'.\n");
-    printf ("b) Rules with a '<' demand that the replacement string may not\n");
-    printf ("   be longer than the search string.\n");
-    printf ("c) The placement of rules determines their priority.\n");
-    printf ("   Therefore, the rules for \"SH\" must be placed before the rules\n");
-    printf ("   for \"S\" (otherwise, a conversion error will occur for \"SH\").\n");
-    printf ("d) Another common source of errors is ignorance of dependencies.\n");
-    printf ("   For example, in German the replacement string \"NJE\" would be wrong,\n");
-    printf ("   because the 'J' is subject to another phonetic rule.\n");
+    REprintf ("%d errors have been found.\n\n", errors);
+    REprintf ("Remarks:\n");
+    REprintf ("a) The correct syntax for search strings is:\n");
+    REprintf ("      <word> [<->..] [<] [<0-9>] [^[^]] [$]\n");
+    REprintf ("   The end of <word> may contain as a simple regular expression\n");
+    REprintf ("   one array of letters that must be enclosed in '(' and ')'.\n");
+    REprintf ("b) Rules with a '<' demand that the replacement string may not\n");
+    REprintf ("   be longer than the search string.\n");
+    REprintf ("c) The placement of rules determines their priority.\n");
+    REprintf ("   Therefore, the rules for \"SH\" must be placed before the rules\n");
+    REprintf ("   for \"S\" (otherwise, a conversion error will occur for \"SH\").\n");
+    REprintf ("d) Another common source of errors is ignorance of dependencies.\n");
+    REprintf ("   For example, in German the replacement string \"NJE\" would be wrong,\n");
+    REprintf ("   because the 'J' is subject to another phonetic rule.\n");
    }
 
  return (errors);
@@ -1456,177 +1460,177 @@ int check_rules (int language, int trace_only)
 
 
 
-int main (int argc, char *argv[])
-{
-  FILE *fr;
-  char *s,text[201];
-  int  n=0,i=-1,r=-1;
-
-  if (argc < 2
-  ||  strcmp (argv[1], "-?") == 0
-  ||  strcmp (argv[1], "-h") == 0
-  ||  strcmp (argv[1], "-help") == 0)
-    {
-     printf ("Usage:  phonet  <orig>       [ <language> ]  [ -trace ]\n");
-     printf (" or  :  phonet -file  <file>  <FIRST_RULES | SECOND_RULES>  [ <language> ]\n");
-     printf (" or  :  phonet -check_rules  [ <language> ]  [ -trace [<rule_no>] ]\n");
-     printf (" or  :  phonet -write_rules  [ <language> ]\n");
-     printf ("\n");
-     printf ("Program for phonetic string conversion  (%s).\n\n", PHONET_VERSION);
-     printf ("Options:\n");
-     printf ("-file <file> :  Phonetically convert the given file.\n");
-     printf ("-check_rules :  Check all phonetic rules. If no language is\n");
-     printf ("                specified, all rules of all languages are checked.\n");
-     printf ("\n");
-     printf ("-trace       :  Output trace info. If a rule number is specified\n");
-     printf ("                for \"-check_rules\", then only this rule will be\n");
-     printf ("                traced.\n\n");
-     printf ("Language may be one of the following numbers:\n");
-
-     for (i=FIRST_RULES; i< SECOND_RULES; i++)
-       {
-        if (set_phonet_language(i) >= 0)
-          {
-           s = "";
-           if (i == PHONET_DEFAULT_LANGUAGE)
-             {
-              s = "  (default language)";
-             }
-           printf (" %2d:  %s%s\n", i,phonet_language,s);
-          }
-       }
-     return (1);
-    }
-
-
-   /****  parse arguments  ****/
-  if (argc >= 4  &&  strcmp (argv[1], "-file") == 0)
-    {
-     if (strncmp (argv[3], "FIRST",5) == 0
-     ||  strncmp (argv[3], "first",5) == 0)
-       {
-        r = FIRST_RULES;
-       }
-     else if (strncmp (argv[3], "SECOND",6) == 0
-     ||  strncmp (argv[3], "second",6) == 0)
-       {
-        r = SECOND_RULES;
-       }
-     else
-       {
-        printf ("Warning:  rule set not specified; using first rules\n");
-        r = FIRST_RULES;
-       }
-
-     i = PHONET_DEFAULT_LANGUAGE;
-     if (argc >= 5)
-       {
-        i = atoi (argv[4]);
-       }
-     if (i < 0  ||  set_phonet_language(i) < 0)
-       {
-        i = PHONET_DEFAULT_LANGUAGE;
-       }
-     (void) set_phonet_language (i);
-
-     /****  convert file  ****/
-     if ((fr = fopen (argv[2],"r")) == NULL)
-       {
-        printf ("Error:  could not open source file '%s'\n", argv[2]);
-        return (1);
-       }
-
-     while (! feof (fr))
-       {
-        /****  read data  ****/
-        if (fgets (text,200,fr) != NULL)
-          {
-           i = (int) strlen (text);
-           if (i > 0  &&  text[i-1] == '\n')
-             {
-              /****  important  ****/
-              text[i-1] = '\0';
-              if (i == 1)
-                {
-                 continue;
-                }
-             }
-
-           phonet (text, text,201, r);
-           printf ("%s\n", text);
-          }
-       }
-
-     fclose (fr);
-     return (0);
-    }
-
-  if (argc >= 3  &&  isdigit ((unsigned char) argv[2][0]))
-    {
-     i = atoi (argv[2]);
-     if (argc >= 4  &&  strcmp (argv[3], "-trace") == 0)
-       {
-        if (argc >= 5  &&  atoi (argv[4]) > 0)
-          {
-           r = atoi (argv[4]);
-          }
-        run_mode = run_mode | DO_TRACE;
-       }
-    }
-  if (argc >= 3  &&  strcmp (argv[2], "-trace") == 0)
-    {
-     if (argc >= 4  &&  atoi (argv[3]) > 0)
-       {
-        r = atoi (argv[3]);
-       }
-     run_mode = run_mode | DO_TRACE;
-    }
-
-   /****  check_rules  ****/
-  if (strcmp (argv[1], "-check_rules") == 0)
-    {
-     if (i >= 0)
-       {
-        n = check_rules (i,r);
-       }
-     else
-       {
-        for (i=FIRST_RULES; i< SECOND_RULES; i++)
-          {
-           if (set_phonet_language(i) >= 0)
-             {
-              n += check_rules (i,r);
-              printf ("\n\n");
-             }
-          }
-       }
-     return (n);
-    }
-
-  /****  phonet conversion of string "argv[1]"  ****/
-  if (i < 0  ||  set_phonet_language(i) < 0)
-    {
-     i = PHONET_DEFAULT_LANGUAGE;
-    }
-  (void) set_phonet_language (i);
-
-  strcpy (text,"            ");
-  s = argv[1];
-  if ((int) strlen (s) > 200)
-    {
-     strcpy (text, "(too long; shortened)");
-     s[200] = '\0';
-    }
-  printf ("Original string %s:  \"%s\"\n", text, s);
-  printf ("(language = %s)\n\n", phonet_language);
-
-  phonet (s, text,201, FIRST_RULES);
-  printf ("Conversion with first  rules:  \"%s\"\n", text);
-
-  phonet (s, text,201, SECOND_RULES);
-  printf ("Conversion with second rules:  \"%s\"\n", text);
-
-  return (0);
-}
+// int main (int argc, char *argv[])
+// {
+//   FILE *fr;
+//   char *s,text[201];
+//   int  n=0,i=-1,r=-1;
+// 
+//   if (argc < 2
+//   ||  strcmp (argv[1], "-?") == 0
+//   ||  strcmp (argv[1], "-h") == 0
+//   ||  strcmp (argv[1], "-help") == 0)
+//     {
+//      printf ("Usage:  phonet  <orig>       [ <language> ]  [ -trace ]\n");
+//      printf (" or  :  phonet -file  <file>  <FIRST_RULES | SECOND_RULES>  [ <language> ]\n");
+//      printf (" or  :  phonet -check_rules  [ <language> ]  [ -trace [<rule_no>] ]\n");
+//      printf (" or  :  phonet -write_rules  [ <language> ]\n");
+//      printf ("\n");
+//      printf ("Program for phonetic string conversion  (%s).\n\n", PHONET_VERSION);
+//      printf ("Options:\n");
+//      printf ("-file <file> :  Phonetically convert the given file.\n");
+//      printf ("-check_rules :  Check all phonetic rules. If no language is\n");
+//      printf ("                specified, all rules of all languages are checked.\n");
+//      printf ("\n");
+//      printf ("-trace       :  Output trace info. If a rule number is specified\n");
+//      printf ("                for \"-check_rules\", then only this rule will be\n");
+//      printf ("                traced.\n\n");
+//      printf ("Language may be one of the following numbers:\n");
+// 
+//      for (i=FIRST_RULES; i< SECOND_RULES; i++)
+//        {
+//         if (set_phonet_language(i) >= 0)
+//           {
+//            s = "";
+//            if (i == PHONET_DEFAULT_LANGUAGE)
+//              {
+//               s = "  (default language)";
+//              }
+//            printf (" %2d:  %s%s\n", i,phonet_language,s);
+//           }
+//        }
+//      return (1);
+//     }
+// 
+// 
+//    /****  parse arguments  ****/
+//   if (argc >= 4  &&  strcmp (argv[1], "-file") == 0)
+//     {
+//      if (strncmp (argv[3], "FIRST",5) == 0
+//      ||  strncmp (argv[3], "first",5) == 0)
+//        {
+//         r = FIRST_RULES;
+//        }
+//      else if (strncmp (argv[3], "SECOND",6) == 0
+//      ||  strncmp (argv[3], "second",6) == 0)
+//        {
+//         r = SECOND_RULES;
+//        }
+//      else
+//        {
+//         printf ("Warning:  rule set not specified; using first rules\n");
+//         r = FIRST_RULES;
+//        }
+// 
+//      i = PHONET_DEFAULT_LANGUAGE;
+//      if (argc >= 5)
+//        {
+//         i = atoi (argv[4]);
+//        }
+//      if (i < 0  ||  set_phonet_language(i) < 0)
+//        {
+//         i = PHONET_DEFAULT_LANGUAGE;
+//        }
+//      (void) set_phonet_language (i);
+// 
+//      /****  convert file  ****/
+//      if ((fr = fopen (argv[2],"r")) == NULL)
+//        {
+//         printf ("Error:  could not open source file '%s'\n", argv[2]);
+//         return (1);
+//        }
+// 
+//      while (! feof (fr))
+//        {
+//         /****  read data  ****/
+//         if (fgets (text,200,fr) != NULL)
+//           {
+//            i = (int) strlen (text);
+//            if (i > 0  &&  text[i-1] == '\n')
+//              {
+//               /****  important  ****/
+//               text[i-1] = '\0';
+//               if (i == 1)
+//                 {
+//                  continue;
+//                 }
+//              }
+// 
+//            phonet (text, text,201, r);
+//            printf ("%s\n", text);
+//           }
+//        }
+// 
+//      fclose (fr);
+//      return (0);
+//     }
+// 
+//   if (argc >= 3  &&  isdigit ((unsigned char) argv[2][0]))
+//     {
+//      i = atoi (argv[2]);
+//      if (argc >= 4  &&  strcmp (argv[3], "-trace") == 0)
+//        {
+//         if (argc >= 5  &&  atoi (argv[4]) > 0)
+//           {
+//            r = atoi (argv[4]);
+//           }
+//         run_mode = run_mode | DO_TRACE;
+//        }
+//     }
+//   if (argc >= 3  &&  strcmp (argv[2], "-trace") == 0)
+//     {
+//      if (argc >= 4  &&  atoi (argv[3]) > 0)
+//        {
+//         r = atoi (argv[3]);
+//        }
+//      run_mode = run_mode | DO_TRACE;
+//     }
+// 
+//    /****  check_rules  ****/
+//   if (strcmp (argv[1], "-check_rules") == 0)
+//     {
+//      if (i >= 0)
+//        {
+//         n = check_rules (i,r);
+//        }
+//      else
+//        {
+//         for (i=FIRST_RULES; i< SECOND_RULES; i++)
+//           {
+//            if (set_phonet_language(i) >= 0)
+//              {
+//               n += check_rules (i,r);
+//               printf ("\n\n");
+//              }
+//           }
+//        }
+//      return (n);
+//     }
+// 
+//   /****  phonet conversion of string "argv[1]"  ****/
+//   if (i < 0  ||  set_phonet_language(i) < 0)
+//     {
+//      i = PHONET_DEFAULT_LANGUAGE;
+//     }
+//   (void) set_phonet_language (i);
+// 
+//   strcpy (text,"            ");
+//   s = argv[1];
+//   if ((int) strlen (s) > 200)
+//     {
+//      strcpy (text, "(too long; shortened)");
+//      s[200] = '\0';
+//     }
+//   printf ("Original string %s:  \"%s\"\n", text, s);
+//   printf ("(language = %s)\n\n", phonet_language);
+// 
+//   phonet (s, text,201, FIRST_RULES);
+//   printf ("Conversion with first  rules:  \"%s\"\n", text);
+// 
+//   phonet (s, text,201, SECOND_RULES);
+//   printf ("Conversion with second rules:  \"%s\"\n", text);
+// 
+//   return (0);
+// }
 
 #endif
