@@ -170,8 +170,8 @@ init_sqlite_extensions <- function(db)
 # taken from RSQLite.extfuns
 .allows_extensions <- function(db)
 {
-    v <- dbGetInfo(db)[["loadableExtensions"]]
-    isTRUE(v) || (v == "on")
+    v <- db@loadable.extensions
+    isTRUE(v)
 }
 
 
@@ -339,7 +339,7 @@ countpattern <- function (x, matching = FALSE)
     xpat <- numeric(nrow(x))
     for (i in 1:nvar) xpat <- 2 * xpat + x[, i]
     xpat <- xpat + 1
-    pat <- tabulate(xpat, nb = 2^nvar)
+    pat <- tabulate(xpat, nbins = 2^nvar)
     names(pat) <- namespat
     if (matching)
         return(list(pat = pat, matching = xpat))

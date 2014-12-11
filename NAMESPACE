@@ -1,3 +1,4 @@
 exportPattern("^[^\\.]")
-import(ff)
+import(e1071, rpart, ada, ipred, stats, DBI, RSQLite, evd, methods, data.table, ff, nnet, xtable)
+importFrom(ffbase, table.ff, chunkify, sum.ff)
 useDynLib(RecordLinkage)

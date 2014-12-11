@@ -153,7 +153,7 @@ RLBigDataDedup <- function(dataset, identity = NA, blockfld = list(),
   # set up database
   tmpfile <- tempfile()
   drv <- dbDriver("SQLite")
-  con <- dbConnect(drv, dbname=tmpfile)
+  con <- dbConnect(drv, dbname=tmpfile, loadable.extensions=TRUE)
   coln <- make.db.names(con,colnames(dataset))
 
   # write records to database
@@ -292,7 +292,7 @@ RLBigDataLinkage <- function(dataset1, dataset2, identity1 = NA,
   # set up database
   tmpfile <- tempfile()
   drv <- dbDriver("SQLite")
-  con <- dbConnect(drv, dbname=tmpfile)
+  con <- dbConnect(drv, dbname=tmpfile, loadable.extensions=TRUE)
   coln <- make.db.names(con,colnames(dataset1))
 
   # convert identity to factors (so that only level indices are used in the

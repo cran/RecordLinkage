@@ -23,9 +23,9 @@
     sort = withWeight)
 
 \S4method{getPairs}{RLResult}(object, filter.match = c("match", "unknown", "nonmatch"),
-    filter.link = c("nonlink", "possible", "link"), max.weight = Inf, min.weight = -Inf,
-    withMatch = TRUE, withClass = TRUE, withWeight = hasWeights(object@data),
-    single.rows = FALSE, sort = withWeight)
+    filter.link = c("nonlink", "possible", "link"), max.weight = Inf, 
+    min.weight = -Inf, withMatch = TRUE, withClass = TRUE, 
+    withWeight = hasWeights(object@data), single.rows = FALSE, sort = withWeight)
 
 getFalsePos(object, single.rows = FALSE)
 getFalseNeg(object, single.rows = FALSE)
@@ -70,7 +70,7 @@ getFalse(object, single.rows = FALSE)
   }
 
   The weight limits are inclusive, i.e. a record pair with weight \code{w}
-  is included only if \code{w >= min.weight && w <= max.weight}.
+  is included only if \cr \code{w >= min.weight && w <= max.weight}.
 
   If \code{single.rows} is not \code{TRUE}, pairs are output on two consecutive
   lines in a more readable format. All data are converted to character, which

@@ -58,7 +58,7 @@ setMethod(
   }
 )
 
-
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("i1", "i2"))
 .ffpredict <- function(model, newdata, withProgressBar, convert.na, ...)
 {
     if (withProgressBar)

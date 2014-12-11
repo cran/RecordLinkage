@@ -240,7 +240,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
       stop("No pairs generated. Check blocking criteria.")
     }
     pair_ids <- data.table(pair_ids)
-    key(pair_ids) <- names(pair_ids)
+    setkeyv(pair_ids, names(pair_ids))
 #    browser()
     pair_ids <- as.matrix(pair_ids[,1, by=names(pair_ids)], rownames.force=FALSE)[,1:2, drop=FALSE]
 #    pair_ids=as.matrix(unique(as.data.frame(pair_ids)), rownames.force=FALSE)  # runs faster with data frame

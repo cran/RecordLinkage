@@ -12,9 +12,13 @@
 }
 
 \usage{
-RLBigDataDedup(dataset, identity = NA, blockfld = list(), exclude = numeric(0), strcmp = numeric(0), strcmpfun = "jarowinkler", phonetic = numeric(0), phonfun = "pho_h")
+RLBigDataDedup(dataset, identity = NA, blockfld = list(), exclude = numeric(0), 
+  strcmp = numeric(0), strcmpfun = "jarowinkler", phonetic = numeric(0), 
+  phonfun = "pho_h")
 
-RLBigDataLinkage(dataset1, dataset2, identity1 = NA, identity2 = NA, blockfld = list(), exclude = numeric(0), strcmp = numeric(0), strcmpfun = "jarowinkler", phonetic = numeric(0), phonfun = "pho_h")
+RLBigDataLinkage(dataset1, dataset2, identity1 = NA, identity2 = NA, 
+  blockfld = list(), exclude = numeric(0), strcmp = numeric(0), 
+  strcmpfun = "jarowinkler", phonetic = numeric(0), phonfun = "pho_h")
 }
 \arguments{
   \item{dataset, dataset1, dataset2}{Table of records to be deduplicated or linked.

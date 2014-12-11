@@ -24,10 +24,8 @@
 \S4method{fsWeights}{RLBigData}(rpairs, m=0.95, u=getFrequencies(rpairs),
     cutoff=1, withProgressBar = (sink.number()==0))
 \S4method{fsClassify}{RecLinkData}(rpairs, ...)
-\S4method{fsClassify}{RLBigData}(rpairs, threshold.upper,
-                        threshold.lower=threshold.upper, m=0.95,
-                        u=getFrequencies(rpairs), withProgressBar = (sink.number()==0),
-                        cutoff=1)
+\S4method{fsClassify}{RLBigData}(rpairs, threshold.upper, threshold.lower=threshold.upper, 
+  m=0.95, u=getFrequencies(rpairs), withProgressBar = (sink.number()==0), cutoff=1)
 
 }
 

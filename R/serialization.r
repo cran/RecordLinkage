@@ -66,6 +66,8 @@ setMethod(
 )
 
 # Load object from disk.
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("patterns", "Wdata", 
+  "WdataInd", "M", "U"))
 loadRLObject <- function(file)
 {
   # get file contents and unzip file into temporary directory

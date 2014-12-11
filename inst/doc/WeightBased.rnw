@@ -24,7 +24,6 @@ record pairs.
 
 <<results=hide,echo=false>>=
 library(RecordLinkage)
-library(xtable)
 @
 
 The data to be deduplicated is expected to reside in a data frame or matrix,

@@ -86,7 +86,6 @@ summary.RecLinkResult <- function (object, ...)
 
 texSummary <- function (object)
 {
-    library(xtable)
     TP=length(which(object$pairs$is_match & object$prediction=="L")) # true positive
     FP=length(which(!object$pairs$is_match & object$prediction=="L")) # false positive
     TN=length(which(!object$pairs$is_match & object$prediction=="N")) # true negative

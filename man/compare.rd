@@ -39,7 +39,7 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
                and \code{dataset[j,]} are a true match if and only if 
               \code{identity[i,]==identity[j,]}. In a linkage process, two 
               records \code{dataset1[i,]} and \code{dataset2[j,]} are a true 
-              match if and only if \code{identity1[i,]==identity2[j,]}.}
+              match if and only if \cr \code{identity1[i,]==identity2[j,]}.}
   \item{n_match, n_non_match}{Number of desired matches and non-matches in
       the result.}
 }
@@ -123,7 +123,7 @@ data(RLdata500)
 data(RLdata10000)
 
 # deduplication without blocking, use string comparator on names
-rpairs=compare.dedup(RLdata500,strcmp=1:4)
+\dontrun{rpairs=compare.dedup(RLdata500,strcmp=1:4)}
 # linkage with blocking on first name and year of birth, use phonetic
 # code on first components of first and last name
 rpairs=compare.linkage(RLdata500,RLdata10000,blockfld=c(1,7),phonetic=c(1,3))
@@ -132,7 +132,7 @@ rpairs=compare.linkage(RLdata500,RLdata10000,blockfld=c(1,7),phonetic=c(1,3))
 rpairs=compare.dedup(RLdata500, identity=identity.RLdata500, strcmp=TRUE,
   blockfld=list(1,c(5,6,7)))
 # Draw 100 matches and 1000 non-matches
-rpairs=compare.dedup(RLdata10000,identity=identity.RLdata10000,n_match=100,
-  n_non_match=10000)
+\dontrun{rpairs=compare.dedup(RLdata10000,identity=identity.RLdata10000,n_match=100,
+  n_non_match=10000)}
 }
 \keyword{classif}

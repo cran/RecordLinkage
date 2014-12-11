@@ -74,11 +74,11 @@ getParetoThreshold(rpairs, quantil = 0.95, interval = NA)
 \examples{
   data(RLdata500)
   rpairs=compare.dedup(RLdata500, identity=identity.RLdata500, strcmp=TRUE,
-    blockfld=list(1,3,5,6,7))
+    blockfld=list(1,3,5:7))
   rpairs=epiWeights(rpairs)
   # leave out argument interval to choose from plot
-  threshold=getParetoThreshold(rpairs,interval=c(0.68, 0.79))
-  summary(epiClassify(rpairs,threshold))
+  \dontrun{threshold=getParetoThreshold(rpairs,interval=c(0.68, 0.79))}
+  \dontrun{summary(epiClassify(rpairs,threshold))}
 }
 \keyword{models}
 \keyword{classif}

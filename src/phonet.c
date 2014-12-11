@@ -70,6 +70,17 @@ static int  alpha_pos[HASH_COUNT];
 static int  isletter[HASH_COUNT];
 
 
+/* Utility function: Implementation of strcpy that allows 
+ * src and dest to overlap as long as src<dest
+ */  
+char *mystrcpy(char *dest, const char *src)
+{
+  unsigned i;
+  for (i=0; src[i] != '\0'; ++i)
+    dest[i] = src[i];
+  dest[i] = '\0';
+  return dest;
+}
 
 static void trace_info (char text[], int n, char err_text[])
 /****  output trace info  ****/
@@ -294,7 +305,7 @@ static void string_prepare (char *text, char *s, char *s2)
      *text = '-';
      text++;
     }
-  strcpy (text, s);
+  mystrcpy (text, s);
 }
 
 #endif
@@ -788,7 +799,7 @@ int phonet (char src[], char dest[], int len, int mode)
                   }
                 if (k0 < k)
                   {
-                   strcpy (src+i+k0, src+i+k);
+                   mystrcpy (src+i+k0, src+i+k);
                   }
                 if ((run_mode & CHECK_RULES)
                 &&  (*s != '\0'  ||  k0 > k))
@@ -1173,11 +1184,11 @@ int check_rules (int language, int trace_only)
              s++;
              while (*s != ')'  &&  *s != '\0')
                {
-                strcpy (s,s+1);
+                mystrcpy (s,s+1);
                }
              if (*s == ')')
                {
-                strcpy (s,s+1);
+                mystrcpy (s,s+1);
                }
             }
 
@@ -1187,8 +1198,8 @@ int check_rules (int language, int trace_only)
 
           if (strchr (phonet_rules[i-n],'^') != NULL)
             {
-             sprintf (orig, orig+1);
-             sprintf (orig2,orig2+1);
+             mystrcpy (orig, orig+1);
+             mystrcpy (orig2,orig2+1);
             }
           if (strchr (phonet_rules[i-n],'-') != NULL
           ||  strchr (phonet_rules[i-n],'$') == NULL)
@@ -1402,7 +1413,7 @@ int check_rules (int language, int trace_only)
                {
                 while (*s == TEST_char)
                   {
-                   strcpy (s,s+1);
+                   mystrcpy (s,s+1);
                   }
                 s++;
                }

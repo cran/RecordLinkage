@@ -1,17 +1,17 @@
 Package: RecordLinkage
-Version: 0.4-1
+Version: 0.4-6
 Title: Record Linkage in R
-Author: Andreas Borg <reclinkmainz@googlemail.com>, Murat Sariyar
-        <reclinkmainz@googlemail.com>
-Maintainer: Murat Sariyar <reclinkmainz@googlemail.com>
-Description: Provides functions for linking and deduplicating data
-        sets.  Methods based on a stochastical approach are implemented
-        as well as classification algorithms from the machine learning
-        domain.
+Author: Andreas Borg <borga@uni-mainz.de>, Murat Sariyar <murat.sariyar@charite.de>
+Maintainer: Andreas Borg <borga@uni-mainz.de>
+Contact: reclinkmainz@googlemail.com
+Description: Provides functions for linking and de-duplicating data sets.
+  Methods based on a stochastic approach are implemented as well as 
+  classification algorithms from the machine learning domain. 
 License: GPL (>= 2)
-Depends: R (>= 2.10.0), e1071, rpart, ada, ipred, stats, evd, RSQLite,
-        methods, data.table (>= 1.6.1), ff, ffbase
-Suggests: xtable, RUnit
+Depends: R (>= 2.10.0), DBI, RSQLite(>= 0.9-1), ff, ffbase
+Imports: e1071, rpart, ada, ipred, stats, evd, methods, data.table (>=
+        1.7.8), nnet, xtable
+Suggests: RUnit
 LinkingTo: RSQLite
 URL: https://r-forge.r-project.org/projects/recordlinkage/,
         http://journal.r-project.org/archive/2010-2/RJournal_2010-2_Sariyar+Borg.pdf
@@ -21,8 +21,10 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         em-methods.r internals.r em.r mygllm.r epilink-methods.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
+Packaged: 2014-12-11 09:26:14 UTC; rforge
 Repository: CRAN
 Repository/R-Forge/Project: recordlinkage
-Repository/R-Forge/Revision: 416
-Date/Publication: 2012-01-12 09:39:19
-Packaged: 2012-01-11 22:00:29 UTC; rforge
+Repository/R-Forge/Revision: 437
+Repository/R-Forge/DateTimeStamp: 2014-12-11 09:20:46
+Date/Publication: 2014-12-11 19:37:43
+NeedsCompilation: yes

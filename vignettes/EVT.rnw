@@ -27,7 +27,6 @@ the record pairs to classify. In this case an EM algorithm is applied.
 
 <<results=hide,echo=false>>=
 library(RecordLinkage)
-library(xtable)
 @
 
 <<>>=

@@ -8,7 +8,9 @@
   Backend function for \code{\link{getPairs}} methods. Not to be called directly.
 }
 \usage{
-getPairsBackend(object, filter.match, filter.link = c("nonlink", "possible", "link"), max.weight = Inf, min.weight = -Inf, withMatch = TRUE, withClass = FALSE, withWeight = FALSE, sort = FALSE, single.rows = FALSE)
+getPairsBackend(object, filter.match, filter.link = c("nonlink", "possible", "link"), 
+  max.weight = Inf, min.weight = -Inf, withMatch = TRUE, withClass = FALSE, 
+  withWeight = FALSE, sort = FALSE, single.rows = FALSE)
 }
 \arguments{
   \item{object}{The object from which to extract pairs.}

@@ -26,7 +26,6 @@ information on using the package.
 
 <<results=hide,echo=false>>=
 library(RecordLinkage)
-library(xtable)
 @
 
 In this session, a training set with 50 matches and 250

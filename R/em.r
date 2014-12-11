@@ -6,6 +6,8 @@
 #                        threshold.lower=threshold.upper,my=Inf, ny=Inf)
 
 
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("is_match", "W",
+  "nMatch", "nAll", "nNonMatch", "Wdata"))
 
 setGeneric(
   name = "optimalThreshold",
@@ -142,7 +144,7 @@ setMethod(
           nAll=sum(!is.na(is_match))), by=W]
       }, X = wMatch, RETURN = TRUE, CFUN = "rbind")
     close(pgb)
-    key(summaryTable) <- "W"
+    setkeyv(summaryTable, "W")
     summaryTable <- summaryTable[,list(nMatch=sum(nMatch), nAll=sum(nAll)), by=W]
     summaryTable$nNonMatch <- summaryTable[,nAll - nMatch]
 #browser()
