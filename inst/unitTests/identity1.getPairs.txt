@@ -1,2 +1,0 @@
-# identity-Vektor for data1.getPairs.txt
-1,1,2,NA

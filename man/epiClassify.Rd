@@ -70,7 +70,7 @@ epiClassify(rpairs, threshold.upper, threshold.lower = threshold.upper,
 # generate record pairs
 data(RLdata500)
 p=compare.dedup(RLdata500,strcmp=TRUE ,strcmpfun=levenshteinSim,
-  identity=identity.RLdata500)
+  identity=identity.RLdata500, blockfld=list("by", "bm", "bd"))
 
 # calculate weights
 p=epiWeights(p)

@@ -1,2 +1,0 @@
-# value frequencies for test data data1.compare.txt
-0.25, 0.333333, 0.25, 1.0, 0.333333, 0.333333, 0.25 

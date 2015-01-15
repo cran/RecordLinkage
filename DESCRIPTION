@@ -1,5 +1,5 @@
 Package: RecordLinkage
-Version: 0.4-6
+Version: 0.4-7
 Title: Record Linkage in R
 Author: Andreas Borg <borga@uni-mainz.de>, Murat Sariyar <murat.sariyar@charite.de>
 Maintainer: Andreas Borg <borga@uni-mainz.de>
@@ -21,10 +21,7 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         em-methods.r internals.r em.r mygllm.r epilink-methods.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
-Packaged: 2014-12-11 09:26:14 UTC; rforge
-Repository: CRAN
-Repository/R-Forge/Project: recordlinkage
-Repository/R-Forge/Revision: 437
-Repository/R-Forge/DateTimeStamp: 2014-12-11 09:20:46
-Date/Publication: 2014-12-11 19:37:43
+Packaged: 2015-01-15 10:22:57 UTC; borg
 NeedsCompilation: yes
+Repository: CRAN
+Date/Publication: 2015-01-15 11:39:32
