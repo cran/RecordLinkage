@@ -33,12 +33,9 @@ setMethod(
                      matrix("",nrow=nrow(rpairs$pairs),
                         ncol=numCol))
 
-    # die komplizierten Umwandlungen sind so begründet: Um in der Spalte
-    # "is_match" Leerzeichen zu haben (ein Wert bezieht sich immer auf zwei
-    # Zeilen, dazu kommt eine Leerzeile), muss der Wertetyp Faktor sein. Dieser
-    # muss am Ende wieder auf TRUE/FALSE umgewandelt werden.
+    # Transformation of "is_match" allows displaying empty cells in the table   
     p=matrix(as.matrix(t(p))[TRUE],nrow=nrow(p)*3,byrow=TRUE)
-    # unlist(lapply) statt sapply, weil man sonst eine Matrix bekommt
+    # unlist(lapply) instead of sapply to avoid matrix result
     p=data.frame(p,is_match=unlist(lapply(rpairs$pairs$is_match,function(x) c(x,"",""))))
     colnames(p)=c(colnames(data1),"is_match")
     p=edit(p)
@@ -71,12 +68,9 @@ setMethod(
                      matrix("",nrow=nrow(rpairs@pairs),
                         ncol=numCol))
 
-    # die komplizierten Umwandlungen sind so begründet: Um in der Spalte
-    # "is_match" Leerzeichen zu haben (ein Wert bezieht sich immer auf zwei
-    # Zeilen, dazu kommt eine Leerzeile), muss der Wertetyp Faktor sein. Dieser
-    # muss am Ende wieder auf TRUE/FALSE umgewandelt werden.
+    # Transformation of "is_match" allows displaying empty cells in the table   
     p=matrix(as.matrix(t(p))[TRUE],nrow=nrow(p)*3,byrow=TRUE)
-    # unlist(lapply) statt sapply, weil man sonst eine Matrix bekommt
+    # unlist(lapply) instead of sapply to avoid matrix result
     p=data.frame(p,is_match=unlist(lapply(as.ram(rpairs@pairs$is_match),function(x) c(x,"",""))))
     colnames(p)=c(colnames(data1),"is_match")
     p=edit(p)

@@ -235,7 +235,7 @@ setMethod(
   signature = "RLBigData",
   definition = function(object)
   {
-    sum.ff(object@pairs$is_match, na.rm=TRUE)
+    sum(object@pairs$is_match, na.rm=TRUE)
   }
 )
 

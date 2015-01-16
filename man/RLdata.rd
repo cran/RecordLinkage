@@ -49,7 +49,7 @@ identity.RLdata10000}
   100 most popular first names since 1890. The frequencies found in
   the source above were extrapolated to fit this list.
   
-  \url{http://www.peter-doerling.de/Geneal/Nachnamen_100.htm}, a list of the
+  \url{http://www.ahnenforschung-in-stormarn.de/geneal/nachnamen_100.htm}, a list of the
   100 most frequent family names with frequencies.
 
   Age distribution as of Dec 31st, 2008, statistics of Statistisches

@@ -63,7 +63,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(".N")
   for (i in 1:(nVal - 1))
   {
     thisW <- histogram[i, W]
-    # berechne gewichtete Distanz zu Gewichten größer als das aktuelle
+    # calculate weighted distance to weights greater than the current one
     mrlVal[2 * i - 1] <- sum(histogram[(i+1):nVal, .N * (W - thisW)]) / sum(histogram[(i+1):nVal, .N])
     mrlX[2 * i - 1] <- thisW
   }
@@ -73,7 +73,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(".N")
   for (i in 2:nVal) # do not calculate anything before the first weight
   {
     thisW <- histogram[i, W]
-    # berechne gewichtete Distanz zu Gewichten größer als das aktuelle
+    # calculate weighted distance to weights greater than the current one
     mrlVal[2 * (i - 1)] <- sum(histogram[i:nVal, .N * (W - thisW + epsilon)]) / sum(histogram[i:nVal, .N])
     mrlX[2 * (i - 1)] <- thisW - epsilon
   }
@@ -124,7 +124,7 @@ setMethod(
       stop(sprintf("Illegal class for interval: %s!", class(interval)))
 
 
-    # Auswahl der Ränder. Gewählte Gewichte werden im Plot angezeigt
+    # Choose interval in plot
     l=.computeMRL(sort(rpairs$Wdata))
     if (!is.numeric(interval))
     {
@@ -149,7 +149,7 @@ setMethod(
       if (length(indices)==0)
         stop("At least the left endpoint of the interval must be chosen!")
     }
-    # Wenn nur der linke Rand ausgewählt wurde, bleibt der rechte offen
+    # If only left limit has been chosen, leave interval open to the right
     fatTail=rpairs$Wdata[rpairs$Wdata <= interval[2]]
     threshold=gpdEst(fatTail,interval[1],quantil)
     return(as.vector(threshold))
@@ -178,7 +178,7 @@ setMethod(
       stop(sprintf("Illegal class for interval: %s!", class(interval)))
 
 
-    # Auswahl der Ränder. Gewählte Gewichte werden im Plot angezeigt
+    # Choose interval from plot
     l=.computeMRL(as.ram(ffsort(rpairs@Wdata)))
     if (!is.numeric(interval))
     {

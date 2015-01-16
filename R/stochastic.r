@@ -1,7 +1,7 @@
 # methods for the "classical" stochastic record linkage as in the work of
 # Fellegi and Sunter: F
 # Fellegi, Ivan; Sunter, Alan (December 1969). "A Theory for Record Linkage". 
-# Journal of the American Statistical Association 64 (328): pp. 1183–1210.
+# Journal of the American Statistical Association 64 (328): pp. 1183-1210.
 
 
 # backend function to calculate weights for a matrix of comparison patterns

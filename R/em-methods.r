@@ -88,7 +88,7 @@ setMethod(
       stop(sprintf("Illegal value for cutoff: %g", cutoff))
 
     pairs=rpairs$pairs
-    # ids und Matchingstatus rausnehmen
+    # remove ids and matching status
     pairs=pairs[,-c(1,2,ncol(pairs))]
     pairs=as.matrix(pairs)
     pairs[is.na(pairs)]=0
@@ -108,7 +108,7 @@ setMethod(
     n_data=nrow(pairs)  
     observed_count=countpattern(pairs)
     n_attr=ncol(pairs)
-    patterns=bincombinations(n_attr)  # Liste der Patterns
+    patterns=bincombinations(n_attr)  # List of patterns
     x=c(rep(0,nrow(patterns)),rep(1,nrow(patterns)))
     s=c(1:length(observed_count), 1:length(observed_count))
     i=rep(1,nrow(patterns)) # Intercept
@@ -116,9 +116,9 @@ setMethod(
   
     u=rpairs$frequencies    
     m=0.97
-    # Ad-hoc-Schätzung für Anteil an Matchen (Faktor 0.1 relativ beliebig)
+    # Ad-hoc estimation for match ratio
     prob_M=1/sqrt(n_data)*0.1
-    # Anzahl schätzen für Matche
+    # Estimate match count
     init_M=apply(patterns,1,function(a) prod(a*m+(1-a)*(1-m))*n_data*prob_M)
     init_U=apply(patterns,1,function(a) prod(a*u+(1-a)*(1-u))*n_data*(1-prob_M))
     expected_count=c(init_U,init_M)
@@ -165,16 +165,16 @@ setMethod(
       withProgressBar = (verbose && sink.number()==0))
     n_patterns <- length(observed_count)
     n_data <- sum(observed_count)
-    patterns=bincombinations(n_attr)  # Liste der Patterns
+    patterns=bincombinations(n_attr)  # List of patterns
     x=c(rep(0,n_patterns),rep(1,n_patterns))
     s=c(1:n_patterns, 1:n_patterns)
     i=rep(1,n_patterns) # Intercept
     X=cbind(i,x,rbind(patterns,patterns),rbind(patterns,patterns)*x) # Design Matrix
   
     m=0.97
-    # Ad-hoc-Schätzung für Anteil an Matchen (Faktor 0.1 relativ beliebig)
+    # Ad-hoc estimation for match ratio
     prob_M=1/sqrt(n_data)*0.1
-    # Anzahl schätzen für Matche
+    # Estimate match count
     init_M=apply(patterns,1,function(a) prod(a*m+(1-a)*(1-m))*n_data*prob_M)
     init_U=apply(patterns,1,function(a) prod(a*u+(1-a)*(1-u))*n_data*(1-prob_M))
     expected_count=c(init_U,init_M)

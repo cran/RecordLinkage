@@ -126,9 +126,9 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 	 {
 		tempdat=data.frame(id=1:ndata,identity=identity)
 		
-		# Matche bestimmen durch Join auf identity-Vektor 
+		# Determine matches by join with identity vector
 		pairs=merge(x=tempdat,y=tempdat,by=2)
-		# auf ungeordnete Matche beschränken 
+		# limit to unordered pairs 
 		match_ids=as.matrix(pairs[as.integer(pairs[,2])<as.integer(pairs[,3]),2:3], rownames.force=FALSE)
     n_available_matches=nrow(match_ids)
     n_available_non_matches=ndata*(ndata-1)/2 - n_available_matches
@@ -140,7 +140,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
       pair_ids=t(unorderedPairs(ndata))
     } else 
     {
-  		# benötigte Anzahl ziehen
+  		# draw required number
   		if (n_match>n_available_matches)
   		{
   			warning(sprintf("Only %d matches!",n_available_matches))
@@ -160,8 +160,8 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
         pair_ids=rbind(match_ids,non_match_ids)
       } else
      {
-   	   # bereits gezogene Paare werden in A markiert
-   	   # zum Ziehen ungeordneter Paare vgl. Steven S. Skiena: The algorithm
+   	   # pairs already drawn are marked in A
+   	   # drawing unordered pairs follows: Steven S. Skiena: The algorithm
    	   # design manual, 250-251.
   		A=list()
   		for (i in 1:n_non_match)
@@ -170,7 +170,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
   		 	{
   		  		d1=sample(ndata,1)
   		  		d2=sample(ndata,1)
-  				# Wenn ein Match gezogen wurde, nochmal versuchen
+  				# If a match has been drawn, try again
   				if (identical(identity[d1],identity[d2]))
   				{
   				 	next
@@ -184,12 +184,12 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 	        {
 	          sorted_id=c(d1,d2)
            }
-  				# Wenn das gezogene Paar schon gezogen wurde, nochmal versuchen 
+  				# If the pair has been drawn already, try again 
   				if (!is.null(A[[paste(sorted_id,collapse=" ")]]))
   			  	{
   			    	next
   			  	}
-  			  	# markiere das Paar in der Liste als bereits gezogen
+  			  	# mark pair as already drawn
   			  	A[[paste(sorted_id,collapse=" ")]]=sorted_id
   			  	break
   			}
@@ -281,11 +281,11 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     rm(left)
     rm(right)
 
-    is_match=identity[pair_ids[,1]]==identity[pair_ids[,2]] # Matchingstatus der Paare
+    is_match=identity[pair_ids[,1]]==identity[pair_ids[,2]] # Matching status of pairs
     ret$pairs=as.data.frame(
 					cbind(pair_ids,
                     patterns,
-                    is_match)) # Matche
+                    is_match)) # Matches
 
     if (is.numeric(exclude))
     {
@@ -303,12 +303,9 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 }
 
 
-# Version für zwei Datenmengen
+# Version for two data sets
 
-# Bedingung: Format der Datenmengen gleich
-
-# einfache Belegung für identity zum Beispiel: ersten Datensatz durchnummerieren,
-# zweiter kriegt Index des passenden Datums oder 0
+# Requires that both have the same format
 
 compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
                     phonfun=pho_h, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
@@ -462,7 +459,7 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
 		tempdat1=data.frame(id=1:ndata1,identity=identity1)
 		tempdat2=data.frame(id=1:ndata2,identity=identity2)
 		
-		# Matche bestimmen durch Join auf identity-Vektor 
+		# Determine matches by join on identity vector 
 		pairs=merge(x=tempdat1,y=tempdat2,by=2)
 		match_ids=as.matrix(pairs[,2:3], rownames.force=FALSE)
     n_available_matches=nrow(match_ids)
@@ -475,7 +472,7 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
       pair_ids=merge(1:nrow(dataset1),1:nrow(dataset2),all=TRUE)
     } else 
     {
-  		# benötigte Anzahl ziehen
+  		# draw required number
   		if (n_match>n_available_matches)
   		{
   			warning(sprintf("Only %d matches!",n_available_matches))
@@ -495,7 +492,7 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
         pair_ids=rbind(match_ids,non_match_ids)
       } else
      {
-   	   # bereits gezogene Paare werden in A markiert
+   	   # mark pairs already drawn in A
   		A=list()
       for (i in 1:n_non_match)
       {
@@ -503,17 +500,17 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
         {
           d1=sample(ndata1,1)
           d2=sample(ndata2,1)
-          # Wenn ein Match gezogen wurde, nochmal versuchen
+          # If a match has been drawn, try again
           if (identical(identity1[d1],identity2[d2]))
           {
             next
           }
-          # Wenn das gezogene Paar schon gezogen wurde, nochmal versuchen
+          # If the pairs has been drawn already, try again
           if (!is.null(A[[paste(d1,d2)]]))
           {
             next
           }
-          # markiere das Paar in der Liste als bereits gezogen
+          # Mark the pair as drawn
           A[[paste(d1,d2)]]=c(d1,d2)
           break
         }
@@ -596,8 +593,8 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     rm(left)
     rm(right)
 
-    is_match=as.numeric(identity1[pair_ids[,1]]==identity2[pair_ids[,2]]) # Matchingstatus der Paare
-    ret$pairs=as.data.frame(cbind(pair_ids, patterns, is_match)) # Matche
+    is_match=as.numeric(identity1[pair_ids[,1]]==identity2[pair_ids[,2]]) # match status of pairs
+    ret$pairs=as.data.frame(cbind(pair_ids, patterns, is_match)) # Matches
 
 
     colnames(ret$pairs)=c("id1","id2",colnames(dataset1),"is_match")

@@ -1,4 +1,14 @@
 exportPattern("^[^\\.]")
+S3method(print, summaryRLBigDataDedup)
+S3method(print, summaryRLBigDataLinkage)
+S3method(print, summaryRLResult)
+S3method(summary, RLBigDataDedup)
+S3method(summary, RLBigDataLinkage)
+S3method(summary, RLResult)
+S3method(summary, RecLinkData)
+S3method(summary, RecLinkResult)
+
+
 import(e1071, rpart, ada, ipred, stats, DBI, RSQLite, evd, methods, data.table, ff, nnet, xtable)
-importFrom(ffbase, table.ff, chunkify, sum.ff)
+importFrom(ffbase, table, chunkify)
 useDynLib(RecordLinkage)

@@ -1,4 +1,9 @@
-Chankges in version 0.4-7
+Changes in version 0.4-8
+  -fixed import declaration for ffbase imports
+  -translated source code omments
+  -removed non-ASCII characters
+  -added S3method-declarations in NAMESPACE
+Changes in version 0.4-7
   -added unit tests (inst/unitTests) to .Rbuildignore
   -accelerated example for epiWeights and epiClassify
 

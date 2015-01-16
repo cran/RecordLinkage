@@ -386,7 +386,7 @@ setMethod(
   signature = "RLResult",
   definition = function(object, ...)
   {
-    tab <- table.ff(object@data@pairs$is_match, object@prediction,
+    tab <- table(object@data@pairs$is_match, object@prediction,
       useNA = "ifany")
     names(dimnames(tab)) <- c("true status", "classification")
     dimnames(tab)[dimnames(tab)=="1"] <- "TRUE"

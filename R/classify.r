@@ -104,11 +104,11 @@ classifyUnsup <- function(rpairs, method,...)
 # backend function for bumping
 .bumping <- function(rpairs, n.bootstrap=25, cp=0.01, ...)
 {
-  # Besten cp-Wert bestimmen
+  # Determine best cp value
 #  cpfit=trainSupv(rpairs,method="rpart",cp=0,minsplit=2,xval=10)
 #  cp=cpfit$model$cptable[which.min(cpfit$model$cptable[,"xerror"]),"CP"]
 #
-  # Liste für einzelne Bäume und Fehlermaß
+  # List of individual trees and error measures
   classif_list=list()
   performance_list=list()
   n_data <- nrow(rpairs$pairs)
@@ -118,7 +118,7 @@ classifyUnsup <- function(rpairs, method,...)
     classif_list[[i]]=trainSupv(boot,"rpart",cp=cp,minsplit=2,xval=0, ...)
     performance_list[[i]]=errorMeasures(classifySupv(classif_list[[i]],rpairs))$accuracy
   }
-  # Gesamte Daten zum Vergleich dazu
+  # add whole data for comparison
   classif_list[[n.bootstrap+1]]=trainSupv(rpairs,"rpart",cp=cp,minsplit=2,xval=0)
   performance_list[[n.bootstrap+1]]=errorMeasures(classifySupv(
       classif_list[[n.bootstrap+1]],rpairs))$accuracy
