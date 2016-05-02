@@ -11,4 +11,10 @@ S3method(summary, RecLinkResult)
 
 import(e1071, rpart, ada, ipred, stats, DBI, RSQLite, evd, methods, data.table, ff, nnet, xtable)
 importFrom(ffbase, table, chunkify)
+importFrom("grDevices", "extendrange")
+importFrom("graphics", "abline", "box", "hist", "identify", "plot",
+             "points")
+importFrom("utils", "edit", "flush.console", "head",
+             "setTxtProgressBar", "tail", "txtProgressBar", "unzip",
+             "zip")
 useDynLib(RecordLinkage)
