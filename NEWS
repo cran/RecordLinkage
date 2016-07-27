@@ -1,3 +1,6 @@
+Changes in version 0.4-10
+  -added SQLite header files to be compatible with upcoming RSQLite package, 
+   which does not export them anymore
 Changes in version 0.4-9
   -added import declarations to pass R 3.3.0 package checks
 Changes in version 0.4-8

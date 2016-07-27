@@ -17,4 +17,5 @@ importFrom("graphics", "abline", "box", "hist", "identify", "plot",
 importFrom("utils", "edit", "flush.console", "head",
              "setTxtProgressBar", "tail", "txtProgressBar", "unzip",
              "zip")
+if(.Platform$OS.type == "windows") importFrom("grDevices", "bringToTop")
 useDynLib(RecordLinkage)

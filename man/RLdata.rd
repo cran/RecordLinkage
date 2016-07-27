@@ -38,8 +38,7 @@ identity.RLdata10000}
 }
 
 \source{Generated with the data generation component of Febrl (Freely 
-  Extensible Biomedical Record Linkage), version 0.3. See 
-  \url{http://datamining.anu.edu.au/projects/linkage.html} for details.
+  Extensible Biomedical Record Linkage), version 0.3 (\url{https://sourceforge.net/projects/febrl/}).
   The following data sources were used (all relate to Germany):
 
   \url{http://blog.beliebte-vornamen.de/2009/02/prozentuale-anteile-2008/}, a
