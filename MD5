@@ -1,5 +1,5 @@
-60a28cd5c86bd84be309ad448c20d47f *DESCRIPTION
-94bb271e677a3ce1cc8072a22af3c29a *NAMESPACE
+e62527fbd6f0f93c12462489eec7dc92 *DESCRIPTION
+7ab5264acc9582eb11f53cc08438e65d *NAMESPACE
 67fcaf3e4c03810cf618c0cf8ddae3a3 *NEWS
 e0477a0a88a9c4ec39a83b24e0c5841d *R/RLBigData-classes.r
 8cc74b8ad06aae55314529b0a890191f *R/RLResult-class.r
@@ -25,8 +25,8 @@ b52159792f1345f5f92ffa9e16161569 *R/stochastic.r
 ba5fc21c8b1151c2bec9be539a2d043b *R/summary.r
 6514607db370c14aea78a97564706422 *R/tools.r
 9d936e97f9d142b3eb7177288ad1f10d *build/vignette.rds
-cba063d34028254bd84fc4f2a16a5268 *data/RLdata10000.rda
-4a09d440409f394528400893b3224879 *data/RLdata500.rda
+11abdee787089563361b7f9112813473 *data/RLdata10000.rda
+aad188370f5416f1b206ab4bca155f84 *data/RLdata500.rda
 3aba352fe1bbe439c7c9265f981bf514 *inst/doc/BigData.R
 06299dadde311b74221cec547dc75694 *inst/doc/BigData.pdf
 ebf2bf1e3b38d75ade1a8114cfd6e7ab *inst/doc/BigData.rnw

@@ -8,6 +8,10 @@ S3method(summary, RLResult)
 S3method(summary, RecLinkData)
 S3method(summary, RecLinkResult)
 
+S3method(`[`, RLBigData)
+S3method(`[`, RLResult)
+S3method(`[`, RecLinkData)
+S3method(`[`, RecLinkResult)
 
 import(e1071, rpart, ada, ipred, stats, DBI, RSQLite, evd, methods, data.table, ff, nnet, xtable)
 importFrom(ffbase, table, chunkify)

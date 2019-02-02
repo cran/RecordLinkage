@@ -1,5 +1,5 @@
 Package: RecordLinkage
-Version: 0.4-10
+Version: 0.4-10.1
 Title: Record Linkage in R
 Author: Andreas Borg <borga@uni-mainz.de>, Murat Sariyar <murat.sariyar@charite.de>
 Maintainer: Andreas Borg <borga@uni-mainz.de>
@@ -13,14 +13,14 @@ Imports: e1071, rpart, ada, ipred, stats, evd, methods, data.table (>=
         1.7.8), nnet, xtable
 Suggests: RUnit
 URL: https://r-forge.r-project.org/projects/recordlinkage/,
-        http://journal.r-project.org/archive/2010-2/RJournal_2010-2_Sariyar+Borg.pdf
+        https://journal.r-project.org/archive/2010-2/RJournal_2010-2_Sariyar+Borg.pdf
 Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         accessor-methods.r evt.r classify.r classifySupv-methods.r
         genSamples.r strcmp.r compare.r getPairs.r summary.r
         em-methods.r internals.r em.r mygllm.r epilink-methods.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
-Packaged: 2016-07-27 07:12:28 UTC; borg
+Packaged: 2019-02-02 13:17:43 UTC; hornik
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2016-07-27 11:06:56
+Date/Publication: 2019-02-02 16:33:04 UTC
