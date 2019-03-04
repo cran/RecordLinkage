@@ -600,7 +600,7 @@ setMethod(
   	if (single.rows)
   	{
     	# if no pairs at all meet the restrictions, empty frame
-      if (is.na(ind) || length(ind)==0)
+      if (any(is.na(ind)) || length(ind)==0)
       {
         pairs <- pairs[0,]
       }
@@ -609,7 +609,7 @@ setMethod(
   		return (pairs)
   	}
 
-    if (is.na(ind) || length(ind)==0)
+    if (any(is.na(ind)) || length(ind)==0)
     {
       m <- data.frame(matrix(character(), nrow=0,
         ncol=ncol(rpairs$data) + 2)) # one column is id, another weight
