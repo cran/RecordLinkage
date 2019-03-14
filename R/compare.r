@@ -7,7 +7,7 @@ makeBlockingPairs <- function(id_vec)
  if (length(id_vec)==0)
     return (matrix(nrow=0, ncol=2))
  nPairs=sum(sapply(id_vec, function(x) length(x)* (length(x)-1) * 0.5))
- ret <- .C("makeBlockingPairs",id_vec, length(id_vec), 
+ ret <- .C(".makeBlockingPairs_sym",id_vec, length(id_vec), 
    pairs=matrix(0L,nrow=nPairs, ncol=2), as.integer(nPairs),
    PACKAGE="RecordLinkage")
  return(ret$pairs)

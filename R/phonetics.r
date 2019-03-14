@@ -7,7 +7,7 @@ pho_h <- function(str)
      stop(sprintf("Illegal data type: %s", typeof(str)))
   if (class(str) == "factor")
     str=as.character(str)
-   out <- .C("pho_h", str, ans=character(length(str)),length(str),
+   out <- .C(".pho_h_sym", str, ans=character(length(str)),length(str),
              PACKAGE="RecordLinkage")
    if (any(is.na(str)))
     out$ans[is.na(str)]=NA
@@ -23,7 +23,7 @@ soundex <- function(str)
      stop(sprintf("Illegal data type: %s", typeof(str)))
   if (class(str) == "factor")
     str=as.character(str)
-   out <- .C("soundex", as.character(str), ans=character(length(str)),length(str),
+   out <- .C(".soundex_sym", as.character(str), ans=character(length(str)),length(str),
              PACKAGE="RecordLinkage")
    if (any(is.na(str)))
     out$ans[is.na(str)]=NA

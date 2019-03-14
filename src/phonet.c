@@ -906,6 +906,7 @@ int check_rules (int language, int trace_only)
  char *r,*r0,rule[35];
  char *s,err_text[201];
  char orig[35],orig2[35];
+ char buffer[36];
  char text[35],text2[35];
 
  /****  initialization  ****/
@@ -1204,8 +1205,10 @@ int check_rules (int language, int trace_only)
           if (strchr (phonet_rules[i-n],'-') != NULL
           ||  strchr (phonet_rules[i-n],'$') == NULL)
             {
-             sprintf (orig, "%s%c", orig, TEST_char);
-             sprintf (orig2,"%s%c", orig2,TEST_char);
+             sprintf (buffer,"%s%c", orig, TEST_char);
+	     memcpy (orig, buffer, 35);
+             sprintf (buffer,"%s%c", orig2,TEST_char);
+	     memcpy (orig2, buffer, 35);
             }
           if (orig2[0] == orig2[1]  &&  orig2[2] == '\0')
             {
