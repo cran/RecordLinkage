@@ -1,8 +1,8 @@
 Package: RecordLinkage
-Version: 0.4-11
+Version: 0.4-11.1
 Title: Record Linkage in R
 Author: Andreas Borg <andreas.borg.public@posteo.de>, Murat Sariyar <murat.sariyar@charite.de>
-Maintainer: Andreas Borg <andreas.borg.public@posteo.de>
+Maintainer: ORPHANED
 Contact: andreas.borg.public@posteo.de
 Description: Provides functions for linking and de-duplicating data sets.
   Methods based on a stochastic approach are implemented as well as 
@@ -21,6 +21,10 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
 NeedsCompilation: yes
-Packaged: 2019-03-14 10:54:38 UTC; borg
+Packaged: 2019-05-28 08:31:33 UTC; ripley
 Repository: CRAN
-Date/Publication: 2019-03-14 17:03:31 UTC
+Date/Publication: 2019-05-28 09:45:05 UTC
+X-CRAN-Original-Maintainer: Andreas Borg
+        <andreas.borg.public@posteo.de>
+X-CRAN-Comment: Orphaned and updated for R 3.6.0 on 2019-05-28 despite
+        reminders/

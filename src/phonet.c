@@ -905,8 +905,8 @@ int check_rules (int language, int trace_only)
  int  rule_count = 0;
  char *r,*r0,rule[35];
  char *s,err_text[201];
- char orig[35],orig2[35];
- char buffer[36];
+ char orig[36],orig2[36];
+ char buffer[37];
  char text[35],text2[35];
 
  /****  initialization  ****/
