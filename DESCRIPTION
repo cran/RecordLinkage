@@ -1,5 +1,5 @@
 Package: RecordLinkage
-Version: 0.4-11.1
+Version: 0.4-11.2
 Title: Record Linkage in R
 Author: Andreas Borg <andreas.borg.public@posteo.de>, Murat Sariyar <murat.sariyar@charite.de>
 Maintainer: ORPHANED
@@ -21,10 +21,10 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
 NeedsCompilation: yes
-Packaged: 2019-05-28 08:31:33 UTC; ripley
+Packaged: 2019-08-23 15:37:08 UTC; ripley
 Repository: CRAN
-Date/Publication: 2019-05-28 09:45:05 UTC
+Date/Publication: 2019-08-23 15:41:04 UTC
 X-CRAN-Original-Maintainer: Andreas Borg
         <andreas.borg.public@posteo.de>
-X-CRAN-Comment: Orphaned and updated for R 3.6.0 on 2019-05-28 despite
-        reminders/
+X-CRAN-Comment: Orphaned and updated for R 3.6.0 on 2019-05-28 as no
+        response despite reminders.

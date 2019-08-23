@@ -14,11 +14,10 @@
   \code{RLdata10000} 1000 duplicates.
 }
 
-\usage{RLdata500
-RLdata10000
-identity.RLdata500
-identity.RLdata10000}
-
+\usage{
+data(RLdata500)
+data(RLdata10000)
+}
 \format{\code{RLdata500} and \code{RLdata10000} are character matrices with 
   500 and 10000 records. Each row represents one record, with the following
   columns:

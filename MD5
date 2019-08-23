@@ -1,4 +1,4 @@
-017764567b7bde5a9c11bd55ee0ae7ba *DESCRIPTION
+01ceab55ccb2e51e7df2b5eb01983444 *DESCRIPTION
 096b2380a30e0936dd81bfb04a8e0940 *NAMESPACE
 a9f79ccf91f738b2a856ab68887e68d3 *NEWS
 e0477a0a88a9c4ec39a83b24e0c5841d *R/RLBigData-classes.r
@@ -44,7 +44,7 @@ f17cb22b87ef29d5ab67ca7487be9d24 *man/RLBigData-constructors.rd
 5aff823a471a9c3166ca999d82b78b0c *man/RLBigDataDedup-class.Rd
 3589877f83fef069cf4702b141b081ef *man/RLBigDataLinkage-class.Rd
 31c78c6aef352c72b79d313b051baadf *man/RLResult-class.Rd
-07e3a0e6ec2c06d3680a596f8ebbcf34 *man/RLdata.rd
+a92657db9c8a795bb9eb50edbb9e705d *man/RLdata.rd
 db4f553a45a6a5c6efadbf43abc62e87 *man/RecLinkClassif-class.Rd
 c9d13a99dcb781549fb44062d181babe *man/RecLinkData-class.rd
 906a8e43d5020acf3254cfdec8f3ca9d *man/RecLinkData.object.rd
@@ -96,16 +96,17 @@ c9b420f6c733519114e5d17ca598a83e *man/unorderedPairs.Rd
 40af82a89704d18029c0b8a6356f15e1 *src/levenshtein.c
 9f51174f3abdc00bb09d1f103374db15 *src/makeBlockingPairs.c
 72ec1ad81c3a235379f0d6a2fdd17ef9 *src/mygllm.c
-0406f5d3fa1d3cb0a75c78b1d7201750 *src/ph_ext.h
+9d6903941e3bd301dbfdab0fa7e22ca3 *src/ph_ext.h
 590c5e3b6b546fe9d5911261c5553612 *src/pho_h.c
-be75fea935e882ecde6d32314d3b946c *src/phonet.c
-4e3e8daec884d440d9ae7ecd8d3135eb *src/phonet.h
+059bbc054cf14ec4664363132f752c5b *src/phonet.c
+55b185e95ee75deba005409fa3ecfac7 *src/phonet.h
 af3eac318e833ec6e551d679fdd7db9d *src/recordlinkage_init.c
 7fe051674ef480be9484becd8a93fe37 *src/soundex.c
 c2e1f0d43a14e1f205aa1351bda3272b *src/soundex.h
 e1ae1830573ac7005fa89a009f7fe643 *src/sqlite3.h
 e19f65990098254b6527873d13777b02 *src/sqlite3ext.h
 a5354e487f5292398a207848bf0a8ae9 *src/sqlite_extensions.c
+f600aeaf58b853a56e7c29efc0203a59 *src/umlaut_p.h
 ebf2bf1e3b38d75ade1a8114cfd6e7ab *vignettes/BigData.rnw
 125a391e9090f67e0756220f18d351e6 *vignettes/EVT.rnw
 ac6563a2e1793ea33eb1d217db8da120 *vignettes/Supervised.rnw

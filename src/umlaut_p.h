@@ -1,18 +1,15 @@
-// Updated by CRAN team from
-// https://github.com/blob79/phonetik/tree/master/libphonet/src/main/native
-// to resolve encoding issues.
 /*
- * ph_ext.h
+ * umlaut.h
  * --------
  *
- * Constants and prototypes for "phonet.c".
+ * ISO Latin-1 umlauts for "phonet.c", "gender.c" and "addr.c".
  *
  * Copyright (c):
- * 1999-2007:  Joerg MICHAEL, Adalbert-Stifter-Str. 11, 30655 Hannover, Germany
+ * 2004:  Joerg MICHAEL, Adalbert-Stifter-Str. 11, 30655 Hannover, Germany
  *
- * SCCS: @(#) ph_ext.h  1.4.2  2007-08-27
+ * SCCS: @(#) umlaut.h  1.0  2007-08-27
  *
- * This program is subject to the GNU Lesser General Public License (LGPL),
+ * This program is subject to the GNU Lesser General Public License (LGPL)
  * (formerly known as GNU Library General Public Licence)
  * as published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
@@ -26,12 +23,15 @@
  *
  * Actually, the LGPL is __less__ restrictive than the better known GNU General
  * Public License (GPL). See the GNU Library General Public License or the file
- * LIB_GPLP.TXT for more details and for a DISCLAIMER OF ALL WARRANTIES.
+ * LIB_GPLG.TXT for more details and for a DISCLAIMER OF ALL WARRANTIES.
  *
  * There is one important restriction: If you modify this program in any way
  * (e.g. add or change phonetic rules or modify the underlying logic or
  * translate this program into another programming language), you must also
  * release the changes under the terms of the LGPL.
+ * (However, since __this__ program is intended to be customized, all changes
+ * covered by TO-DO comments are free.)
+ *
  * That means you have to give out the source code to your changes,
  * and a very good way to do so is mailing them to the address given below.
  * I think this is the best way to promote further development and use
@@ -45,40 +45,27 @@
  */
 
 
-#ifndef _PH_EXT_H_
-#define _PH_EXT_H_
-
-/****  If you want to use "phonet.c" as a library,  ****/
-/****  delete the following macro (Note: This will  ****/
-/****  also disable the function "check_rules").    ****/
+#ifndef _UMLAUT_AGP_H_
+#define _UMLAUT_AGP_H_
 
 
-/****  constants for function "phonet" (do not change)  ****/
-#define  PHONET_FIRST_RULES    0
-#define  PHONET_SECOND_RULES  1024
+/****  list of "normal" letters and umlauts, with upper case  ****/
+/****  (char set = iso8859-1) - DO NOT CHANGE THESE MACROS    ****/
+#define letters_a_to_z   "abcdefghijklmnopqrstuvwxyz"
+#define letters_A_to_Z   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define umlaut_lower   "àáâãåäæçðèéêëìíîïñòóôõöøœšßþùúûüýÿ"
+#define umlaut_upper   "ÀÁÂÃÅÄÆÇÐÈÉÊËÌÍÎÏÑÒÓÔÕÖØŒŠßÞÙÚÛÜÝŸ"
 
-/****  If you don't want rules for one or more of the       ****/
-/****  following languages, delete the corresponding macro  ****/
-#define  PHONET_NO_LANGUAGE  1
-#define  PHONET_GERMAN       2
-/****  (under construction:)  #define  PHONET_ENGLISH   2  ****/
+/****  macro for "lev100.h"  ****/
+#define umlaut_conv    "AAAAAÄÄCDEEEEIIIINOOOOÖÖÖSßÞUUUÜYY"
+/****  macros for "gender.c"  ****/
+#define umlaut_sort    "AAAAAAACDEEEEIIIINOOOOOOOSSTUUUUYY"
+#define umlaut_sort2   "    AEE          H    EEE SH   E  "
 
 
-/****  the following macro _must_ be defined  ****/
-#define PHONET_DEFAULT_LANGUAGE   PHONET_GERMAN
 
-
+#endif     /****  _UMLAUT_AGP_H_  ****/
 
 /************************************************************/
-/****  function prototypes  *********************************/
-/************************************************************/
-
-int phonet (char src[], char dest[], int len, int mode_language);
-int check_rules (int language, int trace_rule);
-
-
-#endif
-
-/************************************************************/
-/****  end of file "ph_ext.h"  ******************************/
+/****  end of file "umlaut.h"  ******************************/
 /************************************************************/
