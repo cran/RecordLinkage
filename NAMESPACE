@@ -1,0 +1,26 @@
+exportPattern("^[^\\.]")
+S3method(print, summaryRLBigDataDedup)
+S3method(print, summaryRLBigDataLinkage)
+S3method(print, summaryRLResult)
+S3method(summary, RLBigDataDedup)
+S3method(summary, RLBigDataLinkage)
+S3method(summary, RLResult)
+S3method(summary, RecLinkData)
+S3method(summary, RecLinkResult)
+
+S3method(`[`, RLBigData)
+S3method(`[`, RLResult)
+S3method(`[`, RecLinkData)
+S3method(`[`, RecLinkResult)
+
+import(e1071, rpart, ada, ipred, stats, DBI, RSQLite, evd, methods, data.table, ff, nnet, xtable)
+importFrom(ffbase, table, chunkify)
+importFrom("grDevices", "extendrange")
+importFrom("graphics", "abline", "box", "hist", "identify", "plot",
+             "points")
+importFrom("utils", "edit", "flush.console", "head",
+             "setTxtProgressBar", "tail", "txtProgressBar", "unzip",
+             "zip")
+importFrom("utils", "sessionInfo") 
+if(.Platform$OS.type == "windows") importFrom("grDevices", "bringToTop")
+useDynLib(RecordLinkage, .registration=TRUE)
