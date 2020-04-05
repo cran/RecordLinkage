@@ -355,7 +355,6 @@ int phonet (char src[], char dest[], int len, int mode_language)
     /****  BEFORE converting "src" to upper char)  ****/
     i = initialize_phonet();
     if (i < 0)
-<<<<<<< HEAD
     {
       if (internal_mode & TRACE_PHONET)
       {

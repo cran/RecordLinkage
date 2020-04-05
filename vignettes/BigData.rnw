@@ -1,0 +1,168 @@
+% \VignetteIndexEntry{Classes for record linkage of big data sets}
+% !Rnw weave = knitr
+%\VignetteEngine{knitr::knitr}
+%\VignetteEncoding{UTF-8}
+
+<<echo=FALSE,results='hide'>>=
+options(width=60)
+options(warn=-1)
+options(RSQLite.dbFetchWarning = FALSE)
+Sys.setlocale(locale='C')
+@
+
+
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\DeclareUnicodeCharacter{0008}{}
+\DeclareUnicodeCharacter{0010}{}
+\DeclareUnicodeCharacter{0011}{}
+\DeclareUnicodeCharacter{000B}{}
+
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\title{Classes for record linkage of big data sets}
+\author{Andreas Borg, Murat Sariyar}
+
+\maketitle
+
+As of version 0.3, the package RecordLinkage includes extensions to overcome
+the problem of high memory consumption that arises when processing a large
+number of records (i.e. building record pairs out of $\geq{}1000$ records
+without blocking). In versions 0.3\_x, this was achieved by blockwise on-demand
+creation of comparison patterns in an embedded SQLite database (through
+package \textit{RSQLite}). Package version 0.4 replaces this mechanism by using file-based
+data structures from package \textit{ff}. This approach restricts the amount of
+data pairs to the available disk space but speeds up execution and facilitates
+the implementation of methods that need to process the whole set of record pairs
+(e.g. calculation of optimal classification thresholds).
+
+The interface to the big data methods has is compatible to code written
+for version 0.3\_x, so users familiar with these can stick to their existing
+workflow (unless access to internal structures like object slots is involved).
+Therefore, the following text sticks to the vignette already included in versions
+before 0.4 and only technical details are changed to reflect the different
+implementation.
+
+In order to facilitate a tidier design, S4 classes and methods were used to
+implement the extensions. In favor of backward compatibility and development
+time, plans of a complete transition to S4 were dismissed. Nevertheless, the
+existing functions were joined with their new counterparts, resulting in
+methods which dispatch on the new S4 as well as on the existing S3 classes.
+This approach combines two advantages: First, existing code using the package
+still works, second, the new classes and methods offer (nearly) the same
+interface, i.e. the necessary function calls for a linkage task differ only
+slightly. An exception is \texttt{getPairs}, whose arguments differ from the
+existing version (see man page).
+
+
+\section{Defining data and comparison parameters}
+
+The existing S3 class \texttt{"RecLinkData"} is supplemented by the S4 classes
+\texttt{"RLBigDataLinkage"} and \texttt{"RLBigDataDedup"} for linking two datasets
+and deduplication of one dataset respectively. Both share the common abstract
+superclass \texttt{"RLBigData"}.
+
+<<message=FALSE, warnings=FALSE>>=
+library(RecordLinkage)
+showClass("RLBigData")
+showClass("RLBigDataDedup")
+showClass("RLBigDataLinkage")
+@
+
+For the two non-virtual classes, the constructor-like function \texttt{RLBigDataDedup}
+and \texttt{RLBigDataLinkage} exist, which correspond
+to \texttt{compare.dedup} and \texttt{compare.linkage} for the S3 classes and
+share most of their arguments.
+
+The following example shows the basic usage of the constructors, for details
+consult their documentation.
+
+<<message=FALSE, warnings=FALSE>>=
+# deduplicate with two blocking iterations and string comparison
+data(RLdata500)
+data(RLdata10000)
+rpairs1 <- RLBigDataDedup(RLdata500, 
+           identity = identity.RLdata500, 
+           blockfld = list(1,3), strcmp = 1:4)
+
+# link two datasets with phonetic code
+s1 <- 471:500
+s2 <- sample(1:10000, 300)
+identity2 <- c(identity.RLdata500[s1], rep(NaN, length(s2)))
+dataset <- rbind(RLdata500[s1,], RLdata10000[s2,])
+rpairs2 <- RLBigDataLinkage(RLdata500, dataset, 
+           identity1 = identity.RLdata500,
+           identity2 = identity2, phonetic = 1:4, 
+           exclude = "lname_c2")
+@
+
+\section{Supervised classification}
+
+The existing function \texttt{classifySupv} was transformed to a S4 method
+which handles the old S3 object (\texttt{"RecLinkData"}) as well as the new 
+classes.  However, at the moment a classificator can only be trained with
+an object of class \texttt{"RecLinkData"}.
+
+<<message=FALSE, warnings=FALSE>>=
+train <- getMinimalTrain(compare.dedup(RLdata500, 
+         identity = identity.RLdata500,
+         blockfld = list(1,3)))
+rpairs1 <- RLBigDataDedup(RLdata500, 
+           identity = identity.RLdata500)
+classif <- trainSupv(train, "rpart", minsplit=2)
+result <- classifySupv(classif, rpairs1)
+@
+
+The result is an object of class \texttt{"RLResult"} which contains the
+classification result along with the data object.
+
+<<message=FALSE, warnings=FALSE>>=
+showClass("RLResult")
+@
+
+A contingency table can be viewed via \texttt{getTable}, various error measures
+are calculated by \texttt{getErrorMeasures}.
+
+<<>>=
+getTable(result)
+getErrorMeasures(result)
+@
+
+\section{Weight-based classification}
+
+As with \texttt{"RecLinkData"} objects, weight-based classification with
+\texttt{"RLBigData*"} classes includes weight calculation and classification
+based on one or two thresholds, dividing links, non-links and, if desired,
+possible links. The following example applies classification with
+Epilink (see documentation of \texttt{epiWeights} for details):
+<<>>=
+rpairs1 <- epiWeights(rpairs1)
+result <- epiClassify(rpairs1, 0.5)
+getTable(result)
+@
+
+\section{Evaluation and results}
+
+In addition to \texttt{getTable} and \texttt{getErrorMeasures},
+\texttt{getPairs}, which was redesigned as a versatile S4 method, is an
+important tool to inspect data and linkage results. For example, the following
+code extracts all links with weights greater or equal than 0.7 from the result
+set obtained in the last example:
+
+<<>>=
+getPairs(result, min.weight=0.7, filter.link="link")
+@
+
+A frequent use case is to inspect misclassified record pairs; for this
+purpose two shortcuts are included that call \texttt{getPairs} with
+appropriate arguments:
+
+<<>>=
+getFalsePos(result)
+getFalseNeg(result)
+@
+
+\end{document}

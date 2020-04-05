@@ -40,7 +40,7 @@ summary.RecLinkData <- function(object,...)
     # erstes Intervall ist auch links geschlossen
     names(c)[1]=sprintf("[%g,%g]", h$breaks[1], h$breaks[2])
 		print(c)
-	}‚
+	}
 	return(invisible(NULL))
 }
 

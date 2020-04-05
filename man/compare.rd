@@ -2,10 +2,11 @@
 \alias{compare.dedup}
 \alias{compare.linkage}
 \title{Compare Records}
+
 \description{Builds comparison patterns of record pairs for deduplication or
   linkage.}
+  
 \usage{
-
 compare.dedup (dataset, blockfld = FALSE, phonetic = FALSE, 
   phonfun = pho_h, strcmp = FALSE, strcmpfun = jarowinkler, exclude = FALSE,
   identity = NA, n_match = NA, n_non_match = NA)
@@ -111,11 +112,9 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
 
 
 \seealso{
-  \code{\link{RecLinkData}} for the format of returned objects,
-%-  \code{\link{genSamples}} for automatic generation of training data.
+  \code{\link{RecLinkData}} for the format of returned objects.
 }
 
-<<<<<<< HEAD
 \author{Andreas Borg, Murat Sariyar}
 
 \examples{

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 \name{RLdata}
 \docType{data}
 \alias{RLdata500}

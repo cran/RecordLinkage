@@ -13,15 +13,6 @@ options(width=60)
 
 \begin{document}
 
-<<include=FALSE>>=
-library(knitr)
-opts_chunk$set(
-concordance=TRUE
-)
-@
-
-
-
 \title{Classifying record pairs by means of Extreme Value Theory}
 \author{Andreas Borg, Murat Sariyar}
 \maketitle
@@ -41,10 +32,10 @@ library(RecordLinkage)
 
 <<>>=
 data(RLdata500)
+bf=list(1,3,5,6,7)
 rpairs=compare.dedup(RLdata500,identity=identity.RLdata500,
-  blockfld=list(1,3,5,6,7),strcmp=1:4)
-rpairs=emWeights(rpairs)
-
+  blockfld=bf,strcmp=1:4)
+  rpairs=emWeights(rpairs)
 @
 
 Calling \texttt{getParetoThreshold} opens a mean residual life (MRL) plot for
