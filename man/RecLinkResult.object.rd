@@ -1,4 +1,3 @@
-
 \name{RecLinkResult.object}
 \alias{RecLinkResult}
 \title{
