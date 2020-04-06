@@ -1,0 +1,415 @@
+% \VignetteIndexEntry{Classes for record linkage of big data sets}
+% !Rnw weave = knitr
+%\VignetteEngine{knitr::knitr}
+%\VignetteEncoding{UTF-8}
+
+
+
+
+\documentclass[a4paper]{article}\usepackage[]{graphicx}\usepackage[]{color}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%\DeclareUnicodeCharacter{0008}{}
+%\DeclareUnicodeCharacter{0010}{}
+%\DeclareUnicodeCharacter{0011}{}
+%\DeclareUnicodeCharacter{000B}{}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\title{Classes for record linkage of big data sets}
+\author{Andreas Borg, Murat Sariyar}
+
+\maketitle
+
+As of version 0.3, the package RecordLinkage includes extensions to overcome
+the problem of high memory consumption that arises when processing a large
+number of records (i.e. building record pairs out of $\geq{}1000$ records
+without blocking). In versions 0.3\_x, this was achieved by blockwise on-demand
+creation of comparison patterns in an embedded SQLite database (through
+package \textit{RSQLite}). Package version 0.4 replaces this mechanism by using file-based
+data structures from package \textit{ff}. This approach restricts the amount of
+data pairs to the available disk space but speeds up execution and facilitates
+the implementation of methods that need to process the whole set of record pairs
+(e.g. calculation of optimal classification thresholds).
+
+The interface to the big data methods has is compatible to code written
+for version 0.3\_x, so users familiar with these can stick to their existing
+workflow (unless access to internal structures like object slots is involved).
+Therefore, the following text sticks to the vignette already included in versions
+before 0.4 and only technical details are changed to reflect the different
+implementation.
+
+In order to facilitate a tidier design, S4 classes and methods were used to
+implement the extensions. In favor of backward compatibility and development
+time, plans of a complete transition to S4 were dismissed. Nevertheless, the
+existing functions were joined with their new counterparts, resulting in
+methods which dispatch on the new S4 as well as on the existing S3 classes.
+This approach combines two advantages: First, existing code using the package
+still works, second, the new classes and methods offer (nearly) the same
+interface, i.e. the necessary function calls for a linkage task differ only
+slightly. An exception is \texttt{getPairs}, whose arguments differ from the
+existing version (see man page).
+
+
+\section{Defining data and comparison parameters}
+
+The existing S3 class \texttt{"RecLinkData"} is supplemented by the S4 classes
+\texttt{"RLBigDataLinkage"} and \texttt{"RLBigDataDedup"} for linking two datasets
+and deduplication of one dataset respectively. Both share the common abstract
+superclass \texttt{"RLBigData"}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(RecordLinkage)}
+\hlkwd{showClass}\hlstd{(}\hlstr{"RLBigData"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Virtual Class "RLBigData" [package "RecordLinkage"]
+## 
+## Slots:
+##                                                       
+## Name:  frequencies    blockFld  excludeFld   strcmpFld
+## Class:     numeric        list     numeric     numeric
+##                                                       
+## Name:    strcmpFun phoneticFld phoneticFun       pairs
+## Class:   character     numeric   character        ffdf
+##                                                       
+## Name:        Wdata    WdataInd           M           U
+## Class:   ff_vector   ff_vector   ff_vector   ff_vector
+## 
+## Known Subclasses: "RLBigDataDedup", "RLBigDataLinkage"
+\end{verbatim}
+\begin{alltt}
+\hlkwd{showClass}\hlstd{(}\hlstr{"RLBigDataDedup"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Class "RLBigDataDedup" [package "RecordLinkage"]
+## 
+## Slots:
+##                                                       
+## Name:         data    identity frequencies    blockFld
+## Class:  data.frame      factor     numeric        list
+##                                                       
+## Name:   excludeFld   strcmpFld   strcmpFun phoneticFld
+## Class:     numeric     numeric   character     numeric
+##                                                       
+## Name:  phoneticFun       pairs       Wdata    WdataInd
+## Class:   character        ffdf   ff_vector   ff_vector
+##                               
+## Name:            M           U
+## Class:   ff_vector   ff_vector
+## 
+## Extends: "RLBigData"
+\end{verbatim}
+\begin{alltt}
+\hlkwd{showClass}\hlstd{(}\hlstr{"RLBigDataLinkage"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Class "RLBigDataLinkage" [package "RecordLinkage"]
+## 
+## Slots:
+##                                                       
+## Name:        data1       data2   identity1   identity2
+## Class:  data.frame  data.frame      factor      factor
+##                                                       
+## Name:  frequencies    blockFld  excludeFld   strcmpFld
+## Class:     numeric        list     numeric     numeric
+##                                                       
+## Name:    strcmpFun phoneticFld phoneticFun       pairs
+## Class:   character     numeric   character        ffdf
+##                                                       
+## Name:        Wdata    WdataInd           M           U
+## Class:   ff_vector   ff_vector   ff_vector   ff_vector
+## 
+## Extends: "RLBigData"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+For the two non-virtual classes, the constructor-like function \texttt{RLBigDataDedup}
+and \texttt{RLBigDataLinkage} exist, which correspond
+to \texttt{compare.dedup} and \texttt{compare.linkage} for the S3 classes and
+share most of their arguments.
+
+The following example shows the basic usage of the constructors, for details
+consult their documentation.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{# deduplicate with two blocking iterations and string comparison}
+\hlkwd{data}\hlstd{(RLdata500)}
+\hlkwd{data}\hlstd{(RLdata10000)}
+\hlstd{rpairs1} \hlkwb{<-} \hlkwd{RLBigDataDedup}\hlstd{(RLdata500,}
+           \hlkwc{identity} \hlstd{= identity.RLdata500,}
+           \hlkwc{blockfld} \hlstd{=} \hlkwd{list}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{),} \hlkwc{strcmp} \hlstd{=} \hlnum{1}\hlopt{:}\hlnum{4}\hlstd{)}
+
+\hlcom{# link two datasets with phonetic code}
+\hlstd{s1} \hlkwb{<-} \hlnum{471}\hlopt{:}\hlnum{500}
+\hlstd{s2} \hlkwb{<-} \hlkwd{sample}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{10000}\hlstd{,} \hlnum{300}\hlstd{)}
+\hlstd{identity2} \hlkwb{<-} \hlkwd{c}\hlstd{(identity.RLdata500[s1],} \hlkwd{rep}\hlstd{(}\hlnum{NaN}\hlstd{,} \hlkwd{length}\hlstd{(s2)))}
+\hlstd{dataset} \hlkwb{<-} \hlkwd{rbind}\hlstd{(RLdata500[s1,], RLdata10000[s2,])}
+\hlstd{rpairs2} \hlkwb{<-} \hlkwd{RLBigDataLinkage}\hlstd{(RLdata500, dataset,}
+           \hlkwc{identity1} \hlstd{= identity.RLdata500,}
+           \hlkwc{identity2} \hlstd{= identity2,} \hlkwc{phonetic} \hlstd{=} \hlnum{1}\hlopt{:}\hlnum{4}\hlstd{,}
+           \hlkwc{exclude} \hlstd{=} \hlstr{"lname_c2"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\section{Supervised classification}
+
+The existing function \texttt{classifySupv} was transformed to a S4 method
+which handles the old S3 object (\texttt{"RecLinkData"}) as well as the new 
+classes.  However, at the moment a classificator can only be trained with
+an object of class \texttt{"RecLinkData"}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{train} \hlkwb{<-} \hlkwd{getMinimalTrain}\hlstd{(}\hlkwd{compare.dedup}\hlstd{(RLdata500,}
+         \hlkwc{identity} \hlstd{= identity.RLdata500,}
+         \hlkwc{blockfld} \hlstd{=} \hlkwd{list}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{)))}
+\hlstd{rpairs1} \hlkwb{<-} \hlkwd{RLBigDataDedup}\hlstd{(RLdata500,}
+           \hlkwc{identity} \hlstd{= identity.RLdata500)}
+\hlstd{classif} \hlkwb{<-} \hlkwd{trainSupv}\hlstd{(train,} \hlstr{"rpart"}\hlstd{,} \hlkwc{minsplit}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlstd{result} \hlkwb{<-} \hlkwd{classifySupv}\hlstd{(classif, rpairs1)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+The result is an object of class \texttt{"RLResult"} which contains the
+classification result along with the data object.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{showClass}\hlstd{(}\hlstr{"RLResult"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Class "RLResult" [package "RecordLinkage"]
+## 
+## Slots:
+##                             
+## Name:        data prediction
+## Class:  RLBigData  ff_vector
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+A contingency table can be viewed via \texttt{getTable}, various error measures
+are calculated by \texttt{getErrorMeasures}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{getTable}\hlstd{(result)}
+\end{alltt}
+\begin{verbatim}
+##            classification
+## true status      N      P      L
+##           0 124696      0      4
+##           1      2      0     48
+\end{verbatim}
+\begin{alltt}
+\hlkwd{getErrorMeasures}\hlstd{(result)}
+\end{alltt}
+\begin{verbatim}
+## $alpha
+## [1] 0.04
+## 
+## $beta
+## [1] 3.207698e-05
+## 
+## $accuracy
+## [1] 0.9999519
+## 
+## $precision
+## [1] 0.9230769
+## 
+## $sensitivity
+## [1] 0.96
+## 
+## $specificity
+## [1] 0.9999679
+## 
+## $ppv
+## [1] 0.9230769
+## 
+## $npv
+## [1] 0.999984
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\section{Weight-based classification}
+
+As with \texttt{"RecLinkData"} objects, weight-based classification with
+\texttt{"RLBigData*"} classes includes weight calculation and classification
+based on one or two thresholds, dividing links, non-links and, if desired,
+possible links. The following example applies classification with
+Epilink (see documentation of \texttt{epiWeights} for details):
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{rpairs1} \hlkwb{<-} \hlkwd{epiWeights}\hlstd{(rpairs1)}
+\hlstd{result} \hlkwb{<-} \hlkwd{epiClassify}\hlstd{(rpairs1,} \hlnum{0.5}\hlstd{)}
+\hlkwd{getTable}\hlstd{(result)}
+\end{alltt}
+\begin{verbatim}
+##            classification
+## true status      N      P      L
+##           0 124699      0      1
+##           1      4      0     46
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\section{Evaluation and results}
+
+In addition to \texttt{getTable} and \texttt{getErrorMeasures},
+\texttt{getPairs}, which was redesigned as a versatile S4 method, is an
+important tool to inspect data and linkage results. For example, the following
+code extracts all links with weights greater or equal than 0.7 from the result
+set obtained in the last example:
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{getPairs}\hlstd{(result,} \hlkwc{min.weight}\hlstd{=}\hlnum{0.7}\hlstd{,} \hlkwc{filter.link}\hlstd{=}\hlstr{"link"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## ============================================================
+##    id fname_c1 fname_c2 lname_c1 lname_c2   by bm bd
+## 1 290    HELGA ELFRIEDE   BERGER     <NA> 1989  1 18
+## 2 466    HELGA ELFRIEDE   BERGER     <NA> 1989  1 28
+## 3                                                   
+## 4 313   URSULA   BIRGIT  MUELLRR     <NA> 1940  6 15
+## 5 457   URSULA   BIRGIT  MUELLER     <NA> 1940  6 15
+## 6                                                   
+## 7 467   ULRIKE   NICOLE   BECKRR     <NA> 1982  8  4
+## 8 472   ULRIKE   NICOLE   BECKER     <NA> 1982  8  4
+## 9                                                   
+##   is_match Class    Weight
+## 1                         
+## 2     TRUE     L 0.7786012
+## 3                         
+## 4                         
+## 5     TRUE     L 0.7293529
+## 6                         
+## 7                         
+## 8     TRUE     L 0.7293529
+## 9
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+A frequent use case is to inspect misclassified record pairs; for this
+purpose two shortcuts are included that call \texttt{getPairs} with
+appropriate arguments:
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{getFalsePos}\hlstd{(result)}
+\end{alltt}
+\begin{verbatim}
+## ============================================================
+##    id fname_c1 fname_c2 lname_c1 lname_c2   by bm bd
+## 1 388   ANDREA     <NA>    WEBER     <NA> 1945  5 20
+## 2 408   ANDREA     <NA>  SCHMIDT     <NA> 1945  2 20
+## 3                                                   
+##   is_match Class    Weight
+## 1                         
+## 2    FALSE     L 0.5067013
+## 3
+\end{verbatim}
+\begin{alltt}
+\hlkwd{getFalseNeg}\hlstd{(result)}
+\end{alltt}
+\begin{verbatim}
+## ============================================================
+##     id fname_c1 fname_c2 lname_c1 lname_c2   by bm bd
+## 1  353     INGE     <NA>   SEIDEL     <NA> 1949  9  4
+## 2  355    INGEU     <NA>   SEIDEL     <NA> 1949  8  4
+## 3                                                    
+## 4  285    ERIKA     <NA>    WEBER     <NA> 1995  2  1
+## 5  379    ERIKA     <NA>    WEBER     <NA> 1992  2 29
+## 6                                                    
+## 7  127     KARL     <NA>    KLEIN     <NA> 2002  6 20
+## 8  142     KARL     <NA>   KLEIBN     <NA> 2002  6 29
+## 9                                                    
+## 10  37 HARTMHUT     <NA> HOFFMSNN     <NA> 1929 12 29
+## 11  72  HARTMUT     <NA> HOFFMANN     <NA> 1929 12 29
+## 12                                                   
+##    is_match Class    Weight
+## 1                          
+## 2      TRUE     N 0.4948059
+## 3                          
+## 4                          
+## 5      TRUE     N 0.4782410
+## 6                          
+## 7                          
+## 8      TRUE     N 0.4692532
+## 9                          
+## 10                         
+## 11     TRUE     N 0.4081096
+## 12
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\end{document}

@@ -15,10 +15,10 @@ Sys.setlocale(locale='C')
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\DeclareUnicodeCharacter{0008}{}
-\DeclareUnicodeCharacter{0010}{}
-\DeclareUnicodeCharacter{0011}{}
-\DeclareUnicodeCharacter{000B}{}
+%\DeclareUnicodeCharacter{0008}{}
+%\DeclareUnicodeCharacter{0010}{}
+%\DeclareUnicodeCharacter{0011}{}
+%\DeclareUnicodeCharacter{000B}{}
 
 \begin{document}
 %\SweaveOpts{concordance=TRUE}

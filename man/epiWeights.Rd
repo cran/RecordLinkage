@@ -40,7 +40,7 @@ Calculate EpiLink weights
   used by Contiero et al. in the EpiLink record linkage software (see references).
 
   Since package version 0.3, this is a generic function with methods for
-  S3 objects of class \code{"\link[=RecLinkData.object]{RecLinkData}"}
+  S3 objects of class \code{\link{RecLinkData}}
   as well as S4 objects of classes \code{"\linkS4class{RLBigDataDedup}"} and
   \code{"\linkS4class{RLBigDataLinkage}"}.
 
@@ -77,7 +77,7 @@ Calculate EpiLink weights
 
 \value{
   A copy of \code{rpairs} with the weights attached. See the class documentation
-  (\code{"\link[=RecLinkData.object]{RecLinkData}"}, \code{"\linkS4class{RLBigDataDedup}"} and
+  (\code{\link{RecLinkData}}, \code{"\linkS4class{RLBigDataDedup}"} and
   \code{"\linkS4class{RLBigDataLinkage}"}) on how weights are stored.
   
   For the \code{"RLBigData"} method, the returned object is only a shallow

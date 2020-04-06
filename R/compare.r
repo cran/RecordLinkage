@@ -270,8 +270,9 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
         patterns=strcmpfun(as.matrix(left, rownames.force=FALSE),as.matrix(right, rownames.force=FALSE))
     } else if (is.numeric(strcmp)) 
     {
-        patterns[,-strcmp]=(left[,-strcmp]==right[,-strcmp])*1
-        patterns[,strcmp]=strcmpfun(left[,strcmp],right[,strcmp]) #*1
+      patterns[,-strcmp]=(as.matrix(left[,-strcmp], rownames.force=FALSE)==as.matrix(right[,-strcmp], rownames.force=FALSE))*1
+      patterns[,strcmp]=strcmpfun(as.matrix(left[,strcmp], rownames.force=FALSE),
+        as.matrix(right[,strcmp], rownames.force=FALSE)) #*1
     } else
     {
        patterns=(left==right)*1
