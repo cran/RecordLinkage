@@ -24,7 +24,3 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
 NeedsCompilation: yes
-X-CRAN-Original-Maintainer: Andreas Borg
-        <andreas.borg.public@posteo.de>
-X-CRAN-Comment: Orphaned and updated for R 3.6.0 on 2019-05-28 as no
-        response despite reminders.
