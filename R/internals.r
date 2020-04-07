@@ -64,7 +64,7 @@ getSQLStatement <- function(data1, data2 = data1, con, type, blockFld,
     # direct comparison: something like 't1.fname=t2.fname as fname'      
     return(sprintf("%s=%s as '%s'", fld1, fld2, coln[fldIndex]))
   }
-  coln <- make.db.names(con, colnames(data1), keywords = SQLKeywords(con))
+  coln <- colnames(data1) # make.db.names(con, colnames(data1), keywords = SQLKeywords(con))
 
   selectlist_id <- "t1.row_names as id1, t2.row_names as id2"
   # use unlist to delete NULLs from list

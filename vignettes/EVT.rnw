@@ -4,6 +4,7 @@
 <<echo=FALSE,results='hide'>>=
 knitr::opts_chunk$set(message =FALSE, warnings = FALSE)
 options(width=60)
+backup_options <- options()
 @
 
 \documentclass[a4paper]{article}
@@ -85,5 +86,9 @@ threshold which can be used directly for classification.
 threshold=getParetoThreshold(rpairs,interval=c(1.2,12.8))
 result=emClassify(rpairs,threshold)
 summary(result)
+@
+
+<<echo=FALSE,results='hide'>>=
+options(backup_options)
 @
 \end{document}

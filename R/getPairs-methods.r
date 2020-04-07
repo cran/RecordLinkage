@@ -34,7 +34,7 @@ getPairsBackend <- function(object, filter.match,
     )
 
     # convert to database column names and add ids
-    dbNames <- make.db.names(object@drv, colN, allow.keywords = FALSE)
+    dbNames <- colN # make.db.names(object@drv, colN, allow.keywords = FALSE)
     dbNames <- c("row_names", dbNames)
 
     # concatenate fields of first table, fields of second table

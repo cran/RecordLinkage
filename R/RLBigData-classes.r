@@ -1,7 +1,7 @@
 # internal variables to store supported string comparison and phonetic functions
 
 .supportedStrcmp <- c("jarowinkler", "levenshtein")
-.supportedPhonetic <- c("pho_h", "soundex") # soundex directly by sqlite
+.supportedPhonetic <- c("soundex") # soundex directly by sqlite
 
 setOldClass("ffdf")
 setOldClass("ff_vector")
@@ -87,7 +87,7 @@ setClass(
 # TODO withProgressBar
 RLBigDataDedup <- function(dataset, identity = NA, blockfld = list(), 
                            exclude = numeric(0), strcmp = numeric(0), 
-                           strcmpfun = "jarowinkler", phonetic=numeric(0), phonfun = "pho_h")
+                           strcmpfun = "jarowinkler", phonetic=numeric(0), phonfun = "soundex")
 {
   # error checking
   if (!is.data.frame(dataset) && !is.matrix(dataset))
@@ -154,8 +154,8 @@ RLBigDataDedup <- function(dataset, identity = NA, blockfld = list(),
   tmpfile <- tempfile()
   drv <- dbDriver("SQLite")
   con <- dbConnect(drv, dbname=tmpfile, loadable.extensions=TRUE)
-  # Replace dbQuoteIdentifier(ANSI(),colnames(dataset))
-  coln <- make.db.names(con,colnames(dataset)) 
+  # Replace make.db.names(con,colnames(dataset)); dbQuoteIdentifier(ANSI(),colnames(dataset))
+  coln <- colnames(dataset)
   
   
   # write records to database
@@ -220,7 +220,7 @@ RLBigDataDedup <- function(dataset, identity = NA, blockfld = list(),
 # constructor for RLBigDataLinkage (linking two datasets)
 RLBigDataLinkage <- function(dataset1, dataset2, identity1 = NA, 
                              identity2 = NA, blockfld = list(), exclude = numeric(0), strcmp = numeric(0), 
-                             strcmpfun = "jarowinkler", phonetic=numeric(0), phonfun = "pho_h")
+                             strcmpfun = "jarowinkler", phonetic=numeric(0), phonfun = "soundex")
 {
   if (!is.data.frame(dataset1) && !is.matrix(dataset1))
     stop("dataset1 must be a matrix or data frame!") 
@@ -297,8 +297,8 @@ RLBigDataLinkage <- function(dataset1, dataset2, identity1 = NA,
   tmpfile <- tempfile()
   drv <- dbDriver("SQLite")
   con <- dbConnect(drv, dbname=tmpfile, loadable.extensions=TRUE)
-  # Replace dbQuoteIdentifier(ANSI(),colnames(dataset1)) 
-  coln <-make.db.names(con,colnames(dataset1))
+  # Replace  make.db.names(con,colnames(dataset1)); dbQuoteIdentifier(ANSI(),colnames(dataset1))
+  coln <- colnames(dataset1)
 
   
   # convert identity to factors (so that only level indices are used in the

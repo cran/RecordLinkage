@@ -14,7 +14,7 @@ makeBlockingPairs <- function(id_vec)
 }
 
 compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
-                    phonfun=pho_h, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
+                    phonfun=soundex, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
                     identity=NA, n_match=NA, n_non_match=NA)
 {
     # various catching of erronous input
@@ -256,9 +256,9 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     {
         if (isTRUE(phonetic)) # true, if phonetic is a logical value and TRUE
         {    
-            dataset=pho_h(dataset)
+            dataset=soundex(dataset)
         } else # phonetic is not a logical value
-        dataset[,phonetic]=pho_h(dataset[,phonetic])
+        dataset[,phonetic]=soundex(dataset[,phonetic])
     }
 
     left <- dataset[pair_ids[,1],,drop=FALSE]
@@ -306,7 +306,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 # Requires that both have the same format
 
 compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
-                    phonfun=pho_h, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
+                    phonfun=soundex, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
                     identity1=NA, identity2=NA, n_match=NA, n_non_match=NA)
 {
     # various catching of erronous input
@@ -426,11 +426,11 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     {
         if (isTRUE(phonetic)) # true, if phonetic is a logical value and TRUE
         {    
-            dataset1=pho_h(dataset1)
-            dataset2=pho_h(dataset2)
+            dataset1=soundex(dataset1)
+            dataset2=soundex(dataset2)
         } else # phonetic is not a logical value
-        dataset1[,phonetic]=pho_h(dataset1[,phonetic])
-        dataset2[,phonetic]=pho_h(dataset2[,phonetic])
+        dataset1[,phonetic]=soundex(dataset1[,phonetic])
+        dataset2[,phonetic]=soundex(dataset2[,phonetic])
     }
     
     if (!is.function(strcmpfun))

@@ -14,11 +14,11 @@
 \usage{
 RLBigDataDedup(dataset, identity = NA, blockfld = list(), exclude = numeric(0), 
   strcmp = numeric(0), strcmpfun = "jarowinkler", phonetic = numeric(0), 
-  phonfun = "pho_h")
+  phonfun = "soundex")
 
 RLBigDataLinkage(dataset1, dataset2, identity1 = NA, identity2 = NA, 
   blockfld = list(), exclude = numeric(0), strcmp = numeric(0), 
-  strcmpfun = "jarowinkler", phonetic = numeric(0), phonfun = "pho_h")
+  strcmpfun = "jarowinkler", phonetic = numeric(0), phonfun = "soundex")
 }
 \arguments{
   \item{dataset, dataset1, dataset2}{Table of records to be deduplicated or linked.
@@ -54,7 +54,7 @@ RLBigDataLinkage(dataset1, dataset2, identity1 = NA, identity2 = NA,
                   \code{strcmp}}.
 
   \item{phonfun}{Character string representing the phonetic function. Currently,
-                only \code{"pho_h"} is supported (see \code{\link{pho_h}}).
+                only \code{"soundex"} is supported (see \code{\link{soundex}}).
   }
 }
 \details{
@@ -106,7 +106,7 @@ RLBigDataLinkage(dataset1, dataset2, identity1 = NA, identity2 = NA,
   
   In contrast to the \code{compare.*} functions, phonetic coding and string
   comparison is not carried out in R, but by database functions. Supported
-  functions are \code{"pho_h"} for phonetic coding and \code{"jarowinkler"} and
+  functions are \code{"soundex"} for phonetic coding and \code{"jarowinkler"} and
   \code{"levenshtein"} for string comparison. See the documentation for their
   R equivalents (\link[=phonetics]{phonetic functions},
   \link[=strcmp]{string comparison}) for further information.

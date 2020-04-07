@@ -4,10 +4,8 @@
 %\VignetteEncoding{UTF-8}
 
 <<echo=FALSE,results='hide'>>=
+backup_options <- options()
 options(width=60)
-options(warn=-1)
-options(RSQLite.dbFetchWarning = FALSE)
-Sys.setlocale(locale='C')
 @
 
 
@@ -165,4 +163,7 @@ getFalsePos(result)
 getFalseNeg(result)
 @
 
+<<echo=FALSE,results='hide'>>=
+options(backup_options)
+@
 \end{document}

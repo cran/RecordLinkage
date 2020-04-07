@@ -4,6 +4,7 @@
 <<echo=FALSE,results='hide'>>=
 knitr::opts_chunk$set(message =FALSE, warnings = FALSE)
 options(width=60)
+backup_options <- options()
 @
 
 \documentclass[a4paper]{article}
@@ -92,5 +93,9 @@ texSummary(result_bagging)
 \subsection{SVM}
 <<results='asis',echo=FALSE>>=
 texSummary(result_svm)
+@
+
+<<echo=FALSE,results='hide'>>=
+options(backup_options)
 @
 \end{document}

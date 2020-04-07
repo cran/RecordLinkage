@@ -4,6 +4,7 @@
 <<echo=FALSE,results='hide'>>=
 knitr::opts_chunk$set(message =FALSE, warnings = FALSE)
 options(width=60)
+backup_options <- options()
 @
 
 
@@ -92,6 +93,9 @@ possibles[1:6,]
 links=getPairs(pairs,show="links", single.rows=TRUE)
 link_ids <- links[, c("id1", "id2")]
 link_ids
+@
 
+<<echo=FALSE,results='hide'>>=
+options(backup_options)
 @
 \end{document}

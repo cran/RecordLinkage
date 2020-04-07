@@ -8,11 +8,11 @@
   
 \usage{
 compare.dedup (dataset, blockfld = FALSE, phonetic = FALSE, 
-  phonfun = pho_h, strcmp = FALSE, strcmpfun = jarowinkler, exclude = FALSE,
+  phonfun = soundex, strcmp = FALSE, strcmpfun = jarowinkler, exclude = FALSE,
   identity = NA, n_match = NA, n_non_match = NA)
 
 compare.linkage (dataset1, dataset2, blockfld = FALSE, 
-  phonetic = FALSE, phonfun = pho_h, strcmp = FALSE, 
+  phonetic = FALSE, phonfun = soundex, strcmp = FALSE, 
   strcmpfun = jarowinkler, exclude = FALSE, identity1 = NA, identity2 = NA,
   n_match = NA, n_non_match = NA)
 }
