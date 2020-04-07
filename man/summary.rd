@@ -10,6 +10,7 @@
 
 \usage{
 \method{summary}{RecLinkData}(object,...)
+
 \method{summary}{RecLinkResult}(object,...)
 
 }

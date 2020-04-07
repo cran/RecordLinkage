@@ -32,6 +32,8 @@ gpdEst <- function(Wdata, thresh=-Inf, quantil=0.95)
 } 
 
 
+
+
 # More efficient implementation of MRL function for weight data.
 # Computation is done only for input weights and W-epsilon for every weight
 # (where W is a weight unless the lowest one, epsilon is a small number
@@ -91,6 +93,7 @@ plotMRL <- function(rpairs,l = .computeMRL(sort(as.ram((rpairs$Wdata)))))
   box()
   points(l$x,l$y,type="l")
 }
+
 
 setGeneric(
   name = "getParetoThreshold",

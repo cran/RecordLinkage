@@ -65,7 +65,7 @@ void soundex_single(char *instr, char *outstr);
 #define SOUNDEX_LEN 4
 
 
-/*									ABCDEFGHIJKLMNOPQRSTUVWXYZ */
+/* ABCDEFGHIJKLMNOPQRSTUVWXYZ */
 char soundex_table[] = "01230120022455012623010202";
 
 #define soundex_code(letter) soundex_table[toupper((unsigned char) (letter)) - 'A']

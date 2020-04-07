@@ -36,15 +36,12 @@ levenshteinDist <- function(str1, str2)
    
    if (typeof(str2) != "character" && class(str2) != "data.frame")
       stop(sprintf("Illegal data type: %s", typeof(str2)))
-   # if (class(str2) == "data.frame")
-   #    str2 <- as.matrix(str2)
-   
    if ((is.array(str1) || is.array(str2)) && !identical(dim(str1), dim(str2)))
       stop ("non-conformable arrays")
    if(length(str1)==0 || length(str2)==0) return(integer(0))
    l1 <- length(str1)
    l2 <- length(str2)
-   out <- .C(".levenshtein_sym", str1, str2,l1,l2,
+   out <- .C(".levenshtein_sym", as.character(str1), as.character(str2),l1,l2,
              ans=integer(max(l1,l2)), 
              PACKAGE="RecordLinkage")
 

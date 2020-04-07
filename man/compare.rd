@@ -84,7 +84,7 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   \code{\link{trainSupv}}).
   
   Fields can be excluded from the linkage process by supplying their column
-  index in the vector \code{exclude}, which is especially useful for
+  index in the vector \code{exclude}, which is espacially useful for
   external identifiers. Excluded fields can still be used for
   blocking, also with phonetic code.
   
@@ -108,6 +108,7 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   return a similarity value in the range \eqn{[0,1]}, with 0 denoting the lowest 
   and 1 denoting the highest degree of similarity. Both
   functions must be fully vectorized to work on matrices.
+
 }
 
 
@@ -125,11 +126,13 @@ data(RLdata10000)
 \dontrun{rpairs=compare.dedup(RLdata500,strcmp=1:4)}
 # linkage with blocking on first name and year of birth, use phonetic
 # code on first components of first and last name
+
 \dontrun{rpairs=compare.linkage(RLdata500,RLdata10000,blockfld=c(1,7),phonetic=c(1,3))}
 # deduplication with blocking on either last name or complete date of birth,
 # use string comparator on all fields, include identity information
 \dontrun{rpairs=compare.dedup(RLdata500, identity=identity.RLdata500, strcmp=TRUE,
   blockfld=list(1,c(5,6,7)))}
+
 # Draw 100 matches and 1000 non-matches
 \dontrun{rpairs=compare.dedup(RLdata10000,identity=identity.RLdata10000,n_match=100,
   n_non_match=10000)}

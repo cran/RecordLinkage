@@ -4,7 +4,6 @@
    In Datei DESCRIPTION des Pakets muss "LinkingTo: RSQLite" benutzt werden
    */
 
-
 #include "sqlite3ext.h"
 #include <string.h>
 #include "R.h"
@@ -45,13 +44,12 @@ void jarowinkler_wrapper(sqlite3_context *ctx, int n_values, sqlite3_value **val
 	#ifdef DEBUG
  	  Rprintf("String 1: %s\n", str1);
 		Rprintf("String 2: %s\n", str2);
-	#endif
   double result;
   result = jarowinkler_core(str1, str2, 1.0/3, 1.0/3, 1.0/3, 0.5);
-	#ifdef DEBUG
-  	Rprintf("Ergebnis des Stringvergleichs: %f\n", result);
-  #endif
+  Rprintf("Ergebnis des Stringvergleichs: %f\n", result);
   sqlite3_result_double(ctx, result);
+  #endif
+
 }
 
 /* wrapper for Levenshtein string comparison */

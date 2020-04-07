@@ -151,4 +151,3 @@ rpairs <- RLBigDataDedup(RLdata500, identity = identity.RLdata500, strcmp=TRUE,
 
 }
 \keyword{classif}
-

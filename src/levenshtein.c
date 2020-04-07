@@ -52,11 +52,7 @@ void levenshtein(char ** strvec_1, char ** strvec_2,
  * Below follows extract of PostgreSQL modul fuzzystrmatch. Only the relevant
  * function levenshtein_internal is retained here. Some changes were made
  * to fit the needs of an R function (R_alloc is used, PostgreSQL 
-<<<<<<< HEAD
  * error handling has been removed, static keyword is removed from signature).   
-=======
- * error handling has been removed).   
->>>>>>> version 0.2-0
  */
  
 /* Definition fom PostgreSQL sources */ 
@@ -193,4 +189,5 @@ int levenshtein_internal(const char *s, const char *t,
      * current row, that's where we'll find it.
      */
     return prev[m - 1];
+
 }

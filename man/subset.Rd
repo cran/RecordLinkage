@@ -45,4 +45,4 @@ s <- sample(nPairs, nPairs / 2)
 samp <- rpairs[s]
 }
 
-\keyword{classif }
+\keyword{classif}

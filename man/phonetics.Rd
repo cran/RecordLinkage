@@ -1,4 +1,3 @@
-\encoding{latin1}
 \name{phonetics}
 \alias{phonetics}
 \alias{pho_h}
@@ -17,7 +16,6 @@ soundex(str)
   \item{str}{A character vector or matrix. Factors are converted to character.}
 }
 \details{
-<<<<<<< HEAD
   Translates its argument to a phonetic code. \code{pho_h}
   by Michael Joerg (see references) is intended for German language 
   and normalizes umlauts and accent characters.

@@ -34,9 +34,11 @@
 
   The record pairs in \code{newdata} are classified by calling
   the appropriate \code{\link{predict}} method for \code{model$model}.
+
   By default, the \code{"\linkS4class{RLBigDataDedup}"} method displays a
   progress bar unless output is diverted by \code{sink}, e.g. when processing
   a Sweave file.
+
 }
 
 \value{

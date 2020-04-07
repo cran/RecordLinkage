@@ -198,6 +198,7 @@ splitData <- function(dataset, prop=0.5, keep.mprop=FALSE, num.non=0,
 	
 }
 
+
 setGeneric(
   name = "getMinimalTrain",
   def = function(rpairs, nEx = 1) standardGeneric("getMinimalTrain")

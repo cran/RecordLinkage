@@ -104,8 +104,7 @@ setMethod(
     sql <- getSQLStatement(x)  
     query <- sprintf("select %s from %s where %s", sql$select_list, 
       sql$from_clause, sql$where_clause)
-    # Change dbSendQuery as we do not use a Resultset
-    res <- dbGetQuery(x@con, query) # can be retreived via dbListResults(x@con)[[1]]
+    dbSendQuery(x@con, query) # can be retreived via dbListResults(x@con)[[1]]
     invisible(x)
   }
 )

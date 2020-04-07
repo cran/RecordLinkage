@@ -1,3 +1,6 @@
+// Updated by CRAN team from
+// https://github.com/blob79/phonetik/tree/master/libphonet/src/main/native
+// to resolve encoding issues.
 /*
  * ph_ext.h
  * --------
@@ -5,9 +8,8 @@
  * Constants and prototypes for "phonet.c".
  *
  * Copyright (c):
- * 1999-2003:  Joerg MICHAEL, Adalbert-Stifter-Str. 11, 30655 Hannover, Germany
- *
- * SCCS: @(#) ph_ext.h  1.3.4  2003-08-16
+ * 1999-2007:  Joerg MICHAEL, Adalbert-Stifter-Str. 11, 30655 Hannover, Germany
+ * SCCS: @(#) ph_ext.h  1.4.2  2007-08-27
  *
  * This program is subject to the GNU Lesser General Public License (LGPL),
  * (formerly known as GNU Library General Public Licence)
@@ -23,7 +25,7 @@
  *
  * Actually, the LGPL is __less__ restrictive than the better known GNU General
  * Public License (GPL). See the GNU Library General Public License or the file
- * COPYING.LIB for more details and for a DISCLAIMER OF ALL WARRANTIES.
+ * LIB_GPLP.TXT for more details and for a DISCLAIMER OF ALL WARRANTIES.
  *
  * There is one important restriction: If you modify this program in any way
  * (e.g. add or change phonetic rules or modify the underlying logic or
@@ -36,25 +38,29 @@
  *
  * If you have any remarks, feel free to e-mail to:
  *     ct@ct.heise.de
+ *
+ * The author's email address is:
+ *    astro.joerg@googlemail.com
  */
 
 
 #ifndef _PH_EXT_H_
 #define _PH_EXT_H_
 
+#define PHONET_EXECUTABLE
+
 /****  If you want to use "phonet.c" as a library,  ****/
 /****  delete the following macro (Note: This will  ****/
 /****  also disable the function "check_rules").    ****/
-#define PHONET_EXECUTABLE
 
-
-/****  constants for function "phonet"  ****/
-#define  FIRST_RULES     0
-#define  SECOND_RULES  10000
+/****  constants for function "phonet" (do not change)  ****/
+#define  PHONET_FIRST_RULES    0
+#define  PHONET_SECOND_RULES  1024
 
 /****  If you don't want rules for one or more of the       ****/
 /****  following languages, delete the corresponding macro  ****/
-#define  PHONET_GERMAN     1
+#define  PHONET_NO_LANGUAGE  1
+#define  PHONET_GERMAN       2
 /****  (under construction:)  #define  PHONET_ENGLISH   2  ****/
 
 
@@ -62,8 +68,16 @@
 #define PHONET_DEFAULT_LANGUAGE   PHONET_GERMAN
 
 
-/****  function prototypes  ****/
-int phonet (char src[], char dest[], int len, int mode);
-int check_rules (int language, int trace_only);
+/************************************************************/
+/****  function prototypes  *********************************/
+/************************************************************/
+
+int phonet (char src[], char dest[], int len, int mode_language);
+int check_rules (int language, int trace_rule);
+
 
 #endif
+
+/************************************************************/
+/****  end of file "ph_ext.h"  ******************************/
+/************************************************************/

@@ -1,4 +1,3 @@
-\encoding{latin1}
 \name{getParetoThreshold}
 \Rdversion{1.1}
 \alias{getParetoThreshold}

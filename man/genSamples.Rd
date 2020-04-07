@@ -48,3 +48,4 @@ genSamples(dataset, num.non, des.mprop = 0.1)
 \seealso{\code{\link{splitData}} for splitting data sets without clustering.}
 
 \keyword{classif}
+

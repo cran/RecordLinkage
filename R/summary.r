@@ -107,6 +107,7 @@ texSummary <- function (object)
           floating=FALSE, latex.environments=NULL)
 }
 
+
 setMethod(
   f = "show",
   signature = "RLBigData",
@@ -400,3 +401,4 @@ setMethod(
 
   }
 )
+

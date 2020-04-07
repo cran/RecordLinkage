@@ -38,7 +38,6 @@ classifyUnsup(rpairs, method, ...)
 
 \author{Andreas Borg, Murat Sariyar}
 
-
 \seealso{\code{\link{trainSupv}} and \code{\link{classifySupv}} for supervised
   classification.}
 
