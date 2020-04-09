@@ -7,13 +7,7 @@ trainSupv <- function(rpairs,method,use.pred=FALSE,omit.possible=TRUE,
   if (!("RecLinkData" %in% class(rpairs) ||
     "RecLinkResult" %in% class(rpairs)))
     stop("Wrong class for rpairs!")
-  # error if only matches or non-matches are present
-#  if(!isTRUE(use.pred) && length(unique(rpairs$pairs$is_match))==1)
-#    stop("Training examples have the same match status!")
-#  if(isTRUE(use.pred) && length(unique(rpairs$prediction))==1)
-#    stop("Training examples have the same match status!")
-
-
+  
   # in case of bumping, refer to backend function (this
   # method differs in terms of data handling)
   if (method=="bumping") return(.bumping(rpairs, use.pred=use.pred,
@@ -69,7 +63,6 @@ trainSupv <- function(rpairs,method,use.pred=FALSE,omit.possible=TRUE,
 
 # classifySupv: moved to classifySupv-methods.r
 
-
 classifyUnsup <- function(rpairs, method,...)
 {
   if (!("RecLinkData" %in% class(rpairs) ||
@@ -123,4 +116,5 @@ classifyUnsup <- function(rpairs, method,...)
   performance_list[[n.bootstrap+1]]=errorMeasures(classifySupv(
       classif_list[[n.bootstrap+1]],rpairs))$accuracy
   return(classif_list[[which.max(performance_list)]])
+
 }

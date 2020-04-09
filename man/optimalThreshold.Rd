@@ -44,7 +44,7 @@ optimalThreshold(rpairs, my = NaN, ny = NaN)
   condition that the ratio of falsely classified non-links to the total number of
   non-links does not exceed \code{ny}.
   
-  Two seperate runs of \code{optimalThreshold} with values for \code{my} and
+  Two separate runs of \code{optimalThreshold} with values for \code{my} and
   \code{ny} respectively allow for obtaining a lower and an upper threshold
   for a three-way classification approach (yielding links, non-links and
   possible links).
@@ -83,4 +83,3 @@ summary(epiClassify(l$valid,threshold))
 }
 
 \keyword{classif}
-

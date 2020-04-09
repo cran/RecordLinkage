@@ -1,4 +1,3 @@
-\encoding{latin1}
 \name{getParetoThreshold}
 \Rdversion{1.1}
 \alias{getParetoThreshold}
@@ -27,7 +26,7 @@ getParetoThreshold(rpairs, quantil = 0.95, interval = NA)
 }
 
   \item{quantil}{
-    A real number between 0 and 1. The quantil which to compute.
+    A real number between 0 and 1. The quantile which to compute.
 }
   \item{interval}{
     A numeric vector denoting the interval on which to fit
@@ -37,7 +36,7 @@ getParetoThreshold(rpairs, quantil = 0.95, interval = NA)
 
 \details{
   This threshold calculation is based on the assumption that the distribution 
-  of weights exihibit a `fat tail' which can be fitted by a generalized Pareto 
+  of weights exhibit a `fat tail' which can be fitted by a generalized Pareto 
   distribution (GPD). The limits of the interval which is subject to the
   fitting are usually determined by reviewing a mean residual life plot of
   the data. If the limits are not externally supplied, a MRL plot is displayed 

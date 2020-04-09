@@ -1,38 +1,35 @@
 \name{RecLinkResult.object}
 \alias{RecLinkResult}
 \title{
-  Record Linkage Result Object
+  Record Linkage Result Object 
 }
 \description{
-S3 class representing information about the classification result of a
-  Record Linkage procedure and the data from which this result is derived.
+  An object representing information about the classification result of a
+  Record Linkage procedure. 
 }
 
 \value{
-  A list with all mandatory and optional elements of
-  class \code{"\link{RecLinkData}"} plus the following:
-
-  \describe{
-    \item{\code{prediction}:}{Object of class \code{"factor"}
-    Classification of each record, corresponding to the record pairs stored
-    in component \code{pairs}. Levels are:
-      \describe{
-        \item{\code{"N"}}{for non-links.}
-        \item{\code{"P"}}{for possible links,}
-        \item{\code{"L"}}{for links,}
-      }}
+  \item{data, pairs, frequencies}{
+    Inherited from \code{\link{RecLinkData}}.
   }
+
+  
+  \item{prediction}{Factor object indicating the classification of each record
+    pair in \code{valid}. Levels are:
+    \describe{
+      \item{\code{"L"}}{for links,}
+      \item{\code{"P"}}{for possible links}
+      \item{\code{"N"}}{for non-links}
+    }
+  }
+    
 }
 
-
-
+\author{Andreas Borg}
 
 \seealso{
-  \code{"\linkS4class{RecLinkResult}"} for the S4 representation.
-  \code{"\link{RecLinkData}"} for the superclass.
-  \code{"\linkS4class{RLResult}"}, the equivalent data structure for
-  big data sets.
+\code{\link{emClassify}}.
+\code{\link{RecLinkData}}.
 }
 
-\author{Andreas Borg, Murat Sariyar}
 \keyword{classif}

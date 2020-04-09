@@ -32,7 +32,7 @@
   }
 }
 \details{
-  The \code{"RLBigData*"} methods are only left for backward compability.
+  The \code{"RLBigData*"} methods are only left for backward compatibility.
   Since version 0.4, all record pairs for such objects are generated and stored
   in a disk file. The methods return the true number of record pairs.
 

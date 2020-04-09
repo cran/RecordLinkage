@@ -32,6 +32,7 @@
   \item{withProgressBar}{Whether to display a progress bar}
   \item{...}{Placeholder for method-specific arguments.}
 }
+
 \details{
   Two general approaches are implemented. The classical procedure
   by Fellegi and Sunter (see references) minimizes the number of
@@ -50,7 +51,6 @@
   chosen to meet the error bound and all other pairs are classified as non-links
   (the equivalent case holds if only \code{ny} is specified). If no further arguments
   than \code{rpairs} are given, a single threshold of 0 is used.
-  
 
 }
 
@@ -79,4 +79,3 @@
   be determined conveniently.}
   
 \keyword{classif}
-

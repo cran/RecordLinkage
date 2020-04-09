@@ -87,8 +87,8 @@
   \item{db}{Database connection.}
   \item{cutoff}{Threshold from which string comparison values are rounded to 1.}
   \item{withProgressBar}{Whether to display a progress bar.}
-  \item{withExcluded}{Logical. Wether to output names of excluded columns}
-  \item{W,M,U}{Linkage weights, m- and u-probabilites. See \code{\link{emWeights}}
+  \item{withExcluded}{Logical. Whether to output names of excluded columns}
+  \item{W,M,U}{Linkage weights, m- and u-probabilities. See \code{\link{emWeights}}
     for details.}
   \item{W,M,U}{Error bounds. See \code{\link{emClassify}} for details.}
   \item{\dots}{Optional arguments.}
@@ -100,17 +100,17 @@
   \describe{
     \item{\code{begin}}{Sends a query to the database of an \code{"RLBigData"}
       object which creates comparison patterns.}
-    \item{\code{nextPairs}}{Retreives the next \code{n} comparison patterns.}
+    \item{\code{nextPairs}}{Retrieves the next \code{n} comparison patterns.}
     \item{\code{clear}}{Closes the result set opened by \code{begin}.}
     \item{\code{blockfldfun}}{Constructs the part of SQL statement which
       implements blocking.}
     \item{\code{blockfldfun}}{Constructs the part of SQL statement which
       implements blocking.}
-    \item{\code{getSQLStatement}}{Constructs SQL statement for retreiving
+    \item{\code{getSQLStatement}}{Constructs SQL statement for retrieving
       comparison patterns.}
     \item{\code{init_sqlite_extensions}}{Load string comparison and phonetic
       functions into database.}
-    \item{\code{.allows_extensions}}{Tests wether SQLite engine supports
+    \item{\code{.allows_extensions}}{Tests whether SQLite engine supports
       extension functions.}
     \item{\code{.lib_path}}{Gets path of shared library of package.}
     \item{\code{getPatternCounts}}{Counts binary patterns, implemented through

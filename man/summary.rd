@@ -13,9 +13,6 @@
 
 \method{summary}{RecLinkResult}(object,...)
 
-#\method{summary}{RLBigDataDedup}(object,...)
-
-#\method{summary}{RLBigDataLinkage}(object,...)
 }
 
 \arguments{
@@ -24,8 +21,6 @@
 }                  
 
 \details{
-
-        (The following information is probably outdated as of Nov 17, 2011.)
 
        The printed information for \code{\link{RecLinkData}} objects
        includes:
@@ -38,6 +33,7 @@
         \item If weights have been calculated for this object, a textual histogram
           of the weight distribution.            
        }
+
        Information on \code{"\linkS4class{RecLinkResult}"} objects includes all of the
        above and the following:
        \itemize{
@@ -48,7 +44,7 @@
             to matches), beta error (ratio of false non-links to
             non-matches) and accuracy (ratio of correctly classified
             pairs to the total number of pairs).
-            
+
           \item A cross-classified table counting true matching status against
             classification. The true matching status is represented as logical
             values, possibly including \code{NA} for unknown status.

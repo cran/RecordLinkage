@@ -26,7 +26,7 @@
 }
 \details{
   Since package version 0.3, this is a generic functions with methods for
-  S3 objects of class \code{"\link[=RecLinkData.object]{RecLinkData}"} as well as S4 objects
+  S3 objects of class \code{\link{RecLinkData}} as well as S4 objects
   of classes \code{"\linkS4class{RLBigDataDedup}"} and
   \code{"\linkS4class{RLBigDataLinkage}"}.
   
@@ -55,13 +55,13 @@
   
   Some progress messages are printed to the message stream (see
   \code{\link{message}} if \code{verbose == TRUE}.
-  This includes progress bars, but these are supressed if output is diverted by
+  This includes progress bars, but these are suppressed if output is diverted by
   \code{\link{sink}} to avoid cluttering the output file.
 }
 
 \value{
   A copy of \code{rpairs} with the weights attached. See the class documentation
-  (\code{"\link[=RecLinkData.object]{RecLinkData}"}, \code{"\linkS4class{RLBigDataDedup}"} and
+  (\code{\link{RecLinkData}}, \code{"\linkS4class{RLBigDataDedup}"} and
   \code{"\linkS4class{RLBigDataLinkage}"}) on how weights are stored.
 }
 

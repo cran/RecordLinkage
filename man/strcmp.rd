@@ -23,8 +23,6 @@ levenshteinDist(str1, str2)
             shorter string.}
 }
 
-
-
 \details{
   String metrics compute a similarity value in the range \eqn{[0,1]} for two
   strings, with 1 denoting the highest (usually equality) and 0 denoting the
@@ -49,7 +47,7 @@ levenshteinDist(str1, str2)
   Non-alphabetical characters can be processed. Valid format combinations for
   the arguments are:
   \itemize{
-    \item Two arrrays with the same dimensions.
+    \item Two arrays with the same dimensions.
     \item Two vectors. The shorter one is recycled as necessary.
   }
 }
@@ -80,4 +78,3 @@ jarowinkler(c("Andreas","Borg"),c("Andreas","Bork"))
 }
 
 \keyword{misc}
-

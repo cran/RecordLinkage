@@ -23,7 +23,7 @@
   The object which to index.
 }
   \item{i}{
-  Indeces of pairs to include in the subset.
+  Indices of pairs to include in the subset.
 }
 }
 
@@ -45,4 +45,4 @@ s <- sample(nPairs, nPairs / 2)
 samp <- rpairs[s]
 }
 
-\keyword{classif }
+\keyword{classif}

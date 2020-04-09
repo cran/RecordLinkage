@@ -1,5 +1,4 @@
 # tools.r: various utility functions
-
 # estimate the number of record pairs
 setGeneric(
   name = "getExpectedSize",
@@ -17,7 +16,7 @@ setMethod(
     nData <- nrow(object)
     nAll <- nData * (nData - 1) / 2
     if (length(blockfld)==0) return(nAll)
-    coln <- make.db.names(con, colnames(object))
+    coln <- colnames(object) # replace with dbQuoteString; make.db.names(con, colnames(object))
 
     # ergibt Wahrscheinlichkeit, dass mit gegebenen Blockingfeldern
     # ein Paar nicht gezogen wird

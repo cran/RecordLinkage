@@ -2,16 +2,17 @@
 \alias{compare.dedup}
 \alias{compare.linkage}
 \title{Compare Records}
+
 \description{Builds comparison patterns of record pairs for deduplication or
   linkage.}
+  
 \usage{
-
 compare.dedup (dataset, blockfld = FALSE, phonetic = FALSE, 
-  phonfun = pho_h, strcmp = FALSE, strcmpfun = jarowinkler, exclude = FALSE,
+  phonfun = soundex, strcmp = FALSE, strcmpfun = jarowinkler, exclude = FALSE,
   identity = NA, n_match = NA, n_non_match = NA)
 
 compare.linkage (dataset1, dataset2, blockfld = FALSE, 
-  phonetic = FALSE, phonfun = pho_h, strcmp = FALSE, 
+  phonetic = FALSE, phonfun = soundex, strcmp = FALSE, 
   strcmpfun = jarowinkler, exclude = FALSE, identity1 = NA, identity2 = NA,
   n_match = NA, n_non_match = NA)
 }
@@ -89,8 +90,9 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   
   Phonetic codes and string similarity measures are supported for enhanced 
   detection of misspellings. Applying a phonetic code leads to a binary
-   values, where 1 denotes equality of the generated phonetic code.
+  values, where 1 denotes equality of the generated phonetic code.
   A string comparator leads to a similarity value in the range \eqn{[0,1]}.
+  
   String comparison is not allowed on a field for which a phonetic code
   is generated. For phonetic encoding functions included in the package, 
   see \link{phonetics}. For the included string comparators, see 
@@ -106,14 +108,12 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   return a similarity value in the range \eqn{[0,1]}, with 0 denoting the lowest 
   and 1 denoting the highest degree of similarity. Both
   functions must be fully vectorized to work on matrices.
-  
-  
+
 }
 
 
 \seealso{
-  \code{\link{RecLinkData}} for the format of returned objects,
-%-  \code{\link{genSamples}} for automatic generation of training data.
+  \code{\link{RecLinkData}} for the format of returned objects.
 }
 
 \author{Andreas Borg, Murat Sariyar}
@@ -126,11 +126,13 @@ data(RLdata10000)
 \dontrun{rpairs=compare.dedup(RLdata500,strcmp=1:4)}
 # linkage with blocking on first name and year of birth, use phonetic
 # code on first components of first and last name
-rpairs=compare.linkage(RLdata500,RLdata10000,blockfld=c(1,7),phonetic=c(1,3))
+
+\dontrun{rpairs=compare.linkage(RLdata500,RLdata10000,blockfld=c(1,7),phonetic=c(1,3))}
 # deduplication with blocking on either last name or complete date of birth,
 # use string comparator on all fields, include identity information
-rpairs=compare.dedup(RLdata500, identity=identity.RLdata500, strcmp=TRUE,
-  blockfld=list(1,c(5,6,7)))
+\dontrun{rpairs=compare.dedup(RLdata500, identity=identity.RLdata500, strcmp=TRUE,
+  blockfld=list(1,c(5,6,7)))}
+
 # Draw 100 matches and 1000 non-matches
 \dontrun{rpairs=compare.dedup(RLdata10000,identity=identity.RLdata10000,n_match=100,
   n_non_match=10000)}

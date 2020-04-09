@@ -33,6 +33,7 @@ getMinimalTrain(rpairs, nEx = 1)
   Our internal research has given indication that in the context of Record Linkage 
   with supervised classification procedures small training sets are often 
   sufficient, provided they cover the whole range of present comparison patterns.
+
   By default, this function creates a minimal training set that is
   a subset of the record pairs to be classified in which every present 
   comparison pattern is represented by exactly one training example.
@@ -86,4 +87,3 @@ summary(classifySupv(classif,newdata=p))
 }
 
 \keyword{classif}
-

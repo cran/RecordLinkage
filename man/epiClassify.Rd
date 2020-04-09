@@ -41,7 +41,7 @@ epiClassify(rpairs, threshold.upper, threshold.lower = threshold.upper,
   weights smaller than \code{threshold.upper} and greater or equal
   \code{threshold.lower} are classified as possible links. All remaining
   records are classified as non-links.
-
+  
   For the \code{"RecLinkData"} method, weights must have been calculated
   for \code{rpairs} using \code{\link{epiWeights}}.
 

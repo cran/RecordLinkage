@@ -1,12 +1,16 @@
-% \VignetteIndexEntry{Weight-based deduplication}
+%\VignetteIndexEntry{Weight-based deduplication}
+%\VignetteEngine{knitr::knitr}
 
-<<echo=false,results=hide>>=
-options(width=50)
+<<echo=FALSE,results='hide'>>=
+knitr::opts_chunk$set(message =FALSE, warnings = FALSE)
+options(width=60)
+backup_options <- options()
 @
+
 
 \documentclass[a4paper]{article}
 
-\usepackage[ansinew]{inputenc}
+\usepackage[utf8]{inputenc}
 
 \begin{document}
 
@@ -22,7 +26,7 @@ record pairs.
 
 \section{Generating record pairs}
 
-<<results=hide,echo=false>>=
+<<echo=FALSE, results='hide'>>=
 library(RecordLinkage)
 @
 
@@ -42,7 +46,8 @@ The argument \texttt{identity} preserves the
 true matching status for later evaluation.
 
 <<>>=
-pairs=compare.dedup(RLdata500,identity=identity.RLdata500,blockfld=list(c(5,6),c(6,7),c(5,7)))
+pairs=compare.dedup(RLdata500,identity=identity.RLdata500,
+      blockfld=list(c(5,6),c(6,7),c(5,7)))
 summary(pairs)
 @
 
@@ -66,10 +71,10 @@ dividing links, possible links and non-links. The summary shows the resulting
 contingency table and error measures.
 
 
-<<results=hide>>=
+<<results='hide'>>=
 getPairs(pairs,30,20)
 @
-<<echo=false>>=
+<<echo=FALSE>>=
 getPairs(pairs,30,20)[23:36,]
 @
 <<>>=
@@ -88,6 +93,9 @@ possibles[1:6,]
 links=getPairs(pairs,show="links", single.rows=TRUE)
 link_ids <- links[, c("id1", "id2")]
 link_ids
+@
 
+<<echo=FALSE,results='hide'>>=
+options(backup_options)
 @
 \end{document}

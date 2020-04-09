@@ -46,7 +46,7 @@
   Fellegi and Sunter (see reference).
   
   \code{fsWeights} calculates matching weights on an object based on the
-  specified m- and u-probabilites. Each of \code{m} and \code{u} can be a
+  specified m- and u-probabilities. Each of \code{m} and \code{u} can be a
   numeric vector or a single number in the range \eqn{[0, 1]}.
 
   \code{fsClassify} performs classification based on the calculated weights.

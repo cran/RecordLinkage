@@ -15,7 +15,7 @@ Abstract class for big data sets.
       Average frequency of values for each column of the underlying data
       (1 / of number of distinct values)
     }
-    \item{\code{blockFld}:}{Object of class \code{"list"}. Blocking definiton.
+    \item{\code{blockFld}:}{Object of class \code{"list"}. Blocking definition.
       See documentation for \link[=RLBigDataDedup]{constructor functions} for details.
     }
     \item{\code{excludeFld}:}{Object of class \code{"numeric"}.

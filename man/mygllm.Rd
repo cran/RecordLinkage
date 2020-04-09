@@ -34,7 +34,7 @@ mygllm(y, s, X, maxit = 1000, tol = 1e-05, E = rep(1, length(s)))
 
 \references{Michael Haber, Algorithm AS 207: Fitting a General Log-Linear
             Model, in: Applied Statistics 33 (1984) No. 3, 358--362.
-            
+
             David Duffy: gllm: Generalised log-linear model. R package
             version 0.31. \url{https://cran.r-project.org/package=gllm}}
 

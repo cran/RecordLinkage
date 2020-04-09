@@ -14,7 +14,7 @@ makeBlockingPairs <- function(id_vec)
 }
 
 compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
-                    phonfun=pho_h, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
+                    phonfun=soundex, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
                     identity=NA, n_match=NA, n_non_match=NA)
 {
     # various catching of erronous input
@@ -71,8 +71,10 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     ret$data=as.data.frame(dataset)
     dataset=as.matrix(dataset, rownames.force=FALSE)
     dataset[dataset==""]=NA # label missing values
-
-
+    dataset=as.data.frame(dataset)
+    ret=list()  # return object
+    ret$data=dataset
+    full_data=as.matrix(dataset)
 
     # keep phonetics for blocking fields
     if (is.numeric(phonetic))
@@ -105,7 +107,6 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     {
       stop("phonfun is not a function!")
     }
-
     
     if (!is.function(strcmpfun))
     {
@@ -114,8 +115,6 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 
         
 # print("blocking beginnt")
-    # Pair_ids collects ids of record pairs. It is a matrix because the following
-    # rbind() calls are much faster than with a data.frame
    pair_ids=matrix(as.integer(0),nrow=0,ncol=2) # each row holds indices of one record pair
    if (isFALSE(blockfld))
    {
@@ -125,7 +124,6 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 	 } else
 	 {
 		tempdat=data.frame(id=1:ndata,identity=identity)
-		
 		# Determine matches by join with identity vector
 		pairs=merge(x=tempdat,y=tempdat,by=2)
 		# limit to unordered pairs 
@@ -224,7 +222,7 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
       {
         is.na(blockstr)=is.na(block_data[,i])
       }
-      rm(block_data)
+     rm(block_data)
      id_vec=tapply(1:ndata,blockstr,function(x) if(length(x)>1) return(x))
      id_vec=deleteNULLs(id_vec)
      id_vec=makeBlockingPairs(id_vec)
@@ -258,9 +256,9 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
     {
         if (isTRUE(phonetic)) # true, if phonetic is a logical value and TRUE
         {    
-            dataset=pho_h(dataset)
+            dataset=soundex(dataset)
         } else # phonetic is not a logical value
-        dataset[,phonetic]=pho_h(dataset[,phonetic])
+        dataset[,phonetic]=soundex(dataset[,phonetic])
     }
 
     left <- dataset[pair_ids[,1],,drop=FALSE]
@@ -272,8 +270,9 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
         patterns=strcmpfun(as.matrix(left, rownames.force=FALSE),as.matrix(right, rownames.force=FALSE))
     } else if (is.numeric(strcmp)) 
     {
-        patterns[,-strcmp]=(left[,-strcmp]==right[,-strcmp])*1
-        patterns[,strcmp]=strcmpfun(left[,strcmp],right[,strcmp]) #*1
+      patterns[,-strcmp]=(as.matrix(left[,-strcmp], rownames.force=FALSE)==as.matrix(right[,-strcmp], rownames.force=FALSE))*1
+      patterns[,strcmp]=strcmpfun(as.matrix(left[,strcmp], rownames.force=FALSE),
+        as.matrix(right[,strcmp], rownames.force=FALSE)) #*1
     } else
     {
        patterns=(left==right)*1
@@ -304,11 +303,10 @@ compare.dedup <- function(dataset, blockfld=FALSE, phonetic=FALSE,
 
 
 # Version for two data sets
-
 # Requires that both have the same format
 
 compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
-                    phonfun=pho_h, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
+                    phonfun=soundex, strcmp=FALSE,strcmpfun=jarowinkler, exclude=FALSE, 
                     identity1=NA, identity2=NA, n_match=NA, n_non_match=NA)
 {
     # various catching of erronous input
@@ -344,7 +342,6 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
         stop ("exclude must be numeric, character or a single logical value")
     if (!isFALSE(exclude) && any(is.na(exclude) | exclude <= 0 | exclude > nfields))
         stop ("exclude contains out of bounds index")
-
     if (!is.na(n_match) && !is.numeric(n_match))
       stop ("Illegal type for n_match!")
     if (!is.na(n_non_match) && !is.numeric(n_non_match))
@@ -384,8 +381,6 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     ret$data2=dataset2
     full_data1=as.matrix(dataset1, rownames.force=FALSE)
     full_data2=as.matrix(dataset2, rownames.force=FALSE)
-
-
 
     # keep phonetics for blocking fields
     if (is.numeric(phonetic))
@@ -431,11 +426,11 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     {
         if (isTRUE(phonetic)) # true, if phonetic is a logical value and TRUE
         {    
-            dataset1=pho_h(dataset1)
-            dataset2=pho_h(dataset2)
+            dataset1=soundex(dataset1)
+            dataset2=soundex(dataset2)
         } else # phonetic is not a logical value
-        dataset1[,phonetic]=pho_h(dataset1[,phonetic])
-        dataset2[,phonetic]=pho_h(dataset2[,phonetic])
+        dataset1[,phonetic]=soundex(dataset1[,phonetic])
+        dataset2[,phonetic]=soundex(dataset2[,phonetic])
     }
     
     if (!is.function(strcmpfun))
@@ -596,7 +591,6 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     is_match=as.numeric(identity1[pair_ids[,1]]==identity2[pair_ids[,2]]) # match status of pairs
     ret$pairs=as.data.frame(cbind(pair_ids, patterns, is_match)) # Matches
 
-
     colnames(ret$pairs)=c("id1","id2",colnames(dataset1),"is_match")
     rownames(ret$pairs)=NULL
 
@@ -606,5 +600,3 @@ compare.linkage <- function(dataset1, dataset2, blockfld=FALSE, phonetic=FALSE,
     class(ret)="RecLinkData"
     return(ret)
 }
-
- 

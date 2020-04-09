@@ -8,16 +8,15 @@
   S3 class representing information about record pairs for Record
   Linkage, as returned by functions \code{\link{compare.dedup}} and
   \code{\link{compare.linkage}}.
-
 }
 
 \value{
   A list with at least the following elements:
   \describe{
-    \item{\code{data} (for \code{type = "deduplication"}:}{Object of class
+    \item{\code{data} (for \code{type = "deduplication"}):}{Object of class
       \code{"data.frame"}. Data frame of original records.}
 
-    \item{\code{data1}, \code{data2} (for \code{type = "linkage"}:}{Objects of class
+    \item{\code{data1}, \code{data2} (for \code{type = "linkage"}):}{Objects of class
       \code{"data.frame"}. Data frames of original records.}
 
     \item{\code{pairs}:}{Object of class \code{"data.frame"}
@@ -60,10 +59,7 @@
     }
   }
 
-
-
 }
-
 
 \seealso{
   \code{"\linkS4class{RecLinkData}"} for the S4 representation.

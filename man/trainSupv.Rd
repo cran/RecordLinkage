@@ -47,7 +47,7 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
   are converted to 0 before training.
   
   By \code{omit.possible = TRUE}, possible links or pairs with unknown status
-  are excluded from the trainings set. Setting this argument to \code{FALSE}
+  are excluded from the training set. Setting this argument to \code{FALSE}
   allows three-class-classification (links, non-links and possible links), but
   the results tend to be poor.
   
@@ -57,7 +57,7 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
   
   \acronym{Bumping}, (acronym for \dQuote{Bootstrap umbrella of model
   parameters}), is an ensemble method described by \cite{Tibshirani and Knight,
-  1999}. Such as in bagging, multiple classifiers are trained on boostrap
+  1999}. Such as in bagging, multiple classifiers are trained on bootstrap
   samples of the training set. The key difference is that not the aggregated
   decision of all classifiers (e.g. by majority vote) is used to classify new
   data, but only the single model that performs best on the whole training set.
@@ -85,6 +85,7 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
 Tibshirani R, Knight K: Model search by bootstrap \dQuote{bumping}.
 Journal of Computational and Graphical Statistics 8(1999):671--686.
 }
+
 \examples{
 # Train a rpart decision tree with additional parameter minsplit
 data(RLdata500)
@@ -93,4 +94,5 @@ pairs=compare.dedup(RLdata500, identity=identity.RLdata500,
 model=trainSupv(pairs, method="rpart", minsplit=5)
 summary(model)
 }
+
 \keyword{classif}

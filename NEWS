@@ -1,3 +1,8 @@
+Changes in version 0.4-12
+  - adapted factor handling to the new R standard
+  - switched from sweave to knitr for the vignettes
+  - fixed some SQL statement issues in RSQLite
+  - removed the phonetic code function due to its encoding-dependent mapping tables.
 Changes in version 0.4-11
   -added missing S3 method exports
   -fixed broken/non-canonical URLs

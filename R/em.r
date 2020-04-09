@@ -1,7 +1,5 @@
 # moved to em-methods.r:
-#
 # emWeights <- function (rpairs, cutoff=0.95,...)
-#
 #emClassify <- function (rpairs,threshold.upper=Inf, 
 #                        threshold.lower=threshold.upper,my=Inf, ny=Inf)
 

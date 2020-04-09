@@ -21,7 +21,7 @@ gpdEst(Wdata, thresh = -Inf, quantil = 0.95)
     Threshold for exceedances.
   }
   \item{quantil}{
-    A real number between 0 and 1. The desired quantil.
+    A real number between 0 and 1. The desired quantile.
   }
 }
 

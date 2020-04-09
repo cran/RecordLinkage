@@ -16,6 +16,7 @@ genSamples(dataset, num.non, des.mprop = 0.1)
   \item{des.mprop}{Real number in the range [0,1]. Ratio of number of links to
     number of non-links in the training set.}
 }
+
 \details{
   The application of supervised classifiers (via \code{\link{classifySupv}})
   requires a training set of record pairs with known matching status.
@@ -27,6 +28,7 @@ genSamples(dataset, num.non, des.mprop = 0.1)
   If the requested numbers of matches or non-matches is not feasible, a
   warning is issued and the maximum possible number is considered.
 }
+
 \value{
   A list of \code{\link[=RecLinkResult-class]{"RecLinkResult"}} objects.
   \item{train}{The sampled training data.}
@@ -46,3 +48,4 @@ genSamples(dataset, num.non, des.mprop = 0.1)
 \seealso{\code{\link{splitData}} for splitting data sets without clustering.}
 
 \keyword{classif}
+

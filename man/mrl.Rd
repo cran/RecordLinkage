@@ -39,7 +39,7 @@ plotMRL(rpairs, l = .computeMRL(sort(as.ram((rpairs$Wdata)))))
 }
 
 \details{
-  While \code{mrl} only returnes MRL statistics as a list, \code{plotMRL}
+  While \code{mrl} only returns MRL statistics as a list, \code{plotMRL}
   produces a plot thereof. These functions are used internally for threshold
   estimation based on Extreme Value Theory, see 
   \code{\link{getParetoThreshold}}.
@@ -48,7 +48,7 @@ plotMRL(rpairs, l = .computeMRL(sort(as.ram((rpairs$Wdata)))))
 }
 
 \value{
-\code{mrl} returnes a list with 
+\code{mrl} returns a list with 
   \item{x}{x-coordinates of MRL statistics}
   \item{y}{y-coordinates of MRL statistics}
 }
@@ -59,4 +59,3 @@ plotMRL(rpairs, l = .computeMRL(sort(as.ram((rpairs$Wdata)))))
 }
 
 \keyword{internal}
-

@@ -2,7 +2,6 @@
 #include<stdio.h>
 #include <R.h>
 
-
 int levenshtein_internal(const char *s, const char *t,
                      int ins_c, int del_c, int sub_c);
 
@@ -108,8 +107,8 @@ void levenshtein(char ** strvec_1, char ** strvec_2,
  *                        (1, 1, 1) penalty costs suffices common
  *                        cases, but your mileage may vary.
  */
-int
-levenshtein_internal(const char *s, const char *t,
+
+int levenshtein_internal(const char *s, const char *t,
                      int ins_c, int del_c, int sub_c)
 {
     int         m,
@@ -190,4 +189,5 @@ levenshtein_internal(const char *s, const char *t,
      * current row, that's where we'll find it.
      */
     return prev[m - 1];
+
 }

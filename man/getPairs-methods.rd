@@ -44,7 +44,7 @@ getFalse(object, single.rows = FALSE)
   \item{withWeight}{Logical. Whether to include linkage weights in the output.}
   \item{withMatch}{Logical. Whether to include matching status in the output.}
   \item{withClass}{Logical. Whether to include classification result in the output.}
-  \item{single.rows}{Logical. Wether to print record pairs in one row instead
+  \item{single.rows}{Logical. Whether to print record pairs in one row instead
     of two consecutive rows.}
   \item{show}{Character. Selects which records to show, one of \code{"links"},
     \code{"nonlinks"}, \code{"possible"}, \code{"all"}.}
@@ -54,7 +54,7 @@ getFalse(object, single.rows = FALSE)
 \details{
   These methods extract record pairs from \code{"\link{RecLinkData}"},
   or \code{"\link{RecLinkResult}"}, \code{"\linkS4class{RLBigData}"} and
-  \code{"\linkS4class{RLResult}"} objects. Possible applications are retreiving
+  \code{"\linkS4class{RLResult}"} objects. Possible applications are retrieving
   a linkage result for further processing, conducting a manual review in order
   to determine classification thresholds or inspecting misclassified pairs.
   
@@ -65,7 +65,7 @@ getFalse(object, single.rows = FALSE)
       \code{filter.link}, \code{show}.}
     \item{Controlling which information is shown: \code{withWeight}, \code{withMatch},
       \code{withClass}}
-    \item{Cotrolling the overall structure of the result: \code{sort},
+    \item{Controlling the overall structure of the result: \code{sort},
       \code{single.rows}.}
   }
 
@@ -79,8 +79,8 @@ getFalse(object, single.rows = FALSE)
   
   \code{getFalsePos}, \code{getFalseNeg} and \code{getFalse} are shortcuts
   (currently for objects of class \code{"\linkS4class{RLResult}"} only)
-  to retreive false positives (links that are non-matches in fact),
-  false negatives (non-links that are matches in fact) or all falsly classified
+  to retrieve false positives (links that are non-matches in fact),
+  false negatives (non-links that are matches in fact) or all falsely classified
   pairs, respectively.
 }
 \value{

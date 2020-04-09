@@ -8,16 +8,19 @@
 \title{Test data for Record Linkage}
 
 \description{
-  These tables contain artificial personal data for the 
+  The \code{RLdata} tables contain artificial personal data for the 
   evaluation of Record Linkage procedures. Some records have been duplicated
-  with randomly generated errors. \code{RLdata500} contains 50 duplicates,
-  \code{RLdata10000} 1000 duplicates.
+  with randomly generated errors. \code{RLdata500} contains fifty duplicates,
+  \code{RLdata10000} thousand duplicates.
 }
 
 \usage{
-data(RLdata500)
-data(RLdata10000)
+RLdata500 
+RLdata10000
+identity.RLdata500 
+identity.RLdata10000
 }
+
 \format{\code{RLdata500} and \code{RLdata10000} are character matrices with 
   500 and 10000 records. Each row represents one record, with the following
   columns:
@@ -56,6 +59,6 @@ data(RLdata10000)
   
   Web links as of October 2009.
 }
-\author{Andreas Borg}
+\author{Andreas Borg, Murat Sariyar}
 
 \keyword{datasets}

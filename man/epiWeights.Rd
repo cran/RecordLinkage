@@ -5,6 +5,7 @@
 \alias{epiWeights,RecLinkData-method}
 \alias{epiWeights,RLBigData-method}
 
+
 \title{
 Calculate EpiLink weights
 }
@@ -39,7 +40,7 @@ Calculate EpiLink weights
   used by Contiero et al. in the EpiLink record linkage software (see references).
 
   Since package version 0.3, this is a generic function with methods for
-  S3 objects of class \code{"\link[=RecLinkData.object]{RecLinkData}"}
+  S3 objects of class \code{\link{RecLinkData}}
   as well as S4 objects of classes \code{"\linkS4class{RLBigDataDedup}"} and
   \code{"\linkS4class{RLBigDataLinkage}"}.
 
@@ -67,7 +68,7 @@ Calculate EpiLink weights
   \eqn{e_{i}\leq{}1-f_{i}}{e[i] <= 1-f[i]} for all \eqn{i}, otherwise
   the functions fails. Also, some other rare combinations can result in weights
   with illegal values (NaN, less than 0 or greater than 1). In this case a
-  warning is issued.  
+  warning is issued.
   
   By default, the \code{"\linkS4class{RLBigDataDedup}"} method displays a
   progress bar unless output is diverted by \code{sink}, e.g. when processing
@@ -76,7 +77,7 @@ Calculate EpiLink weights
 
 \value{
   A copy of \code{rpairs} with the weights attached. See the class documentation
-  (\code{"\link[=RecLinkData.object]{RecLinkData}"}, \code{"\linkS4class{RLBigDataDedup}"} and
+  (\code{\link{RecLinkData}}, \code{"\linkS4class{RLBigDataDedup}"} and
   \code{"\linkS4class{RLBigDataLinkage}"}) on how weights are stored.
   
   For the \code{"RLBigData"} method, the returned object is only a shallow
@@ -101,6 +102,7 @@ Andreas Borg, Murat Sariyar
   \code{\link{epiClassify}} for classification based on EpiLink weights.
   \code{\link{emWeights}} for a different approach for weight calculation.
 }
+
 \examples{
 # generate record pairs
 data(RLdata500)
