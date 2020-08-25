@@ -393,7 +393,7 @@ RLBigDataLinkage <- function(dataset1, dataset2, identity1 = NA,
     if (!is.numeric(slice[,i]))
       slice[,i] <- as.numeric(slice[,i])
   }
-  
+  # getOption("fftempdir"); do a options(fftempdir = "path/to/your/folder") if "cannot change working directory"
   pairsff <- do.call(ffdf, lapply(slice, ff))
   while(nrow(slice <- dbFetch(res, n)) > 0)
   {

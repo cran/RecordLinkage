@@ -1,11 +1,14 @@
 Package: RecordLinkage
-Version: 0.4-12
+Version: 0.4-12.1
 Title: Record Linkage Functions for Linking and Deduplicating Data Sets
-Authors@R: c(person("Andreas Borg", "Developer", role = c("aut"),
-                     email = "andreas.borg.public@posteo.de"), 
-           person("Murat Sariyar", "Developer", role = c("aut", "cre"),
-                     email = "murat.sariyar@bfh.ch"))
-Contact: murat.sariyar@bfh.ch
+Authors@R: c(person(given = "Murat",
+           family = "Sariyar",
+           role = c("aut", "cre"),
+           email = "murat.sariyar@bfh.ch"),
+    person(given = "Andreas",
+           family = "Borg",
+           role = "aut",
+           email = "andreas.borg.public@posteo.de"))
 Description: Provides functions for linking and deduplicating data sets.
   Methods based on a stochastic approach are implemented as well as 
   classification algorithms from the machine learning domain. For details, 
@@ -15,7 +18,7 @@ License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
-Depends: R (>= 3.5.0), DBI, RSQLite(>= 1.0.0), ff, ffbase
+Depends: R (>= 3.5.0), DBI, RSQLite(>= 1.0.0), ff
 Imports: e1071, rpart, ada, ipred, stats, evd, methods, data.table (>=
         1.7.8), nnet, xtable
 Suggests: RUnit, knitr
@@ -28,9 +31,9 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
 NeedsCompilation: yes
-Packaged: 2020-04-09 09:46:29 UTC; sym3
-Author: Andreas Borg Developer [aut],
-  Murat Sariyar Developer [aut, cre]
-Maintainer: Murat Sariyar Developer <murat.sariyar@bfh.ch>
+Packaged: 2020-08-24 16:32:39 UTC; sym3
+Author: Murat Sariyar [aut, cre],
+  Andreas Borg [aut]
+Maintainer: Murat Sariyar <murat.sariyar@bfh.ch>
 Repository: CRAN
-Date/Publication: 2020-04-09 12:40:02 UTC
+Date/Publication: 2020-08-25 14:00:03 UTC

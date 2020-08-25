@@ -235,7 +235,7 @@ setMethod(
   signature = "RLBigData",
   definition = function(object)
   {
-    sum(object@pairs$is_match, na.rm=TRUE)
+    sum(as.ram(object@pairs$is_match), na.rm=TRUE)
   }
 )
 
@@ -250,7 +250,8 @@ setMethod(
   signature = "RLBigData",
   definition = function(object)
   {
-    sum(chunkify(function(x) x==0)(object@pairs$is_match), na.rm=TRUE)
+#    sum(chunkify(function(x) x==0)(object@pairs$is_match), na.rm=TRUE)
+    sum(as.ram(object@pairs$is_match)==0, na.rm=TRUE)
   }
 )
 
@@ -265,7 +266,8 @@ setMethod(
   signature = "RLBigData",
   definition = function(object)
   {
-    sum(chunkify(is.na)(object@pairs$is_match))
+#    sum(chunkify(is.na)(object@pairs$is_match))
+    sum(is.na(as.ram(object@pairs$is_match)))
   }
 )
 

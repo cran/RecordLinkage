@@ -39,15 +39,15 @@ void jarowinkler_wrapper(sqlite3_context *ctx, int n_values, sqlite3_value **val
 	}
   const unsigned char *str1 = sqlite3_value_text(value[0]);
   const unsigned char *str2 = sqlite3_value_text(value[1]);
-	#ifdef DEBUG
- 	  Rprintf("String 1: %s\n", str1);
-		Rprintf("String 2: %s\n", str2);
   double result;
   result = jarowinkler_core(str1, str2, 1.0/3, 1.0/3, 1.0/3, 0.5);
-  Rprintf("Ergebnis des Stringvergleichs: %f\n", result);
-  sqlite3_result_double(ctx, result);
+  // Be aware not to include anything else in the Debug-Mode
+  #ifdef DEBUG
+    Rprintf("String 1: %s\n", str1);
+    Rprintf("String 2: %s\n", str2);
+    Rprintf("Ergebnis des Stringvergleichs: %f\n", result);
   #endif
-
+  sqlite3_result_double(ctx, result);
 }
 
 /* wrapper for Levenshtein string comparison */

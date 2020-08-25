@@ -43,10 +43,10 @@ identity.RLdata10000
   Extensible Biomedical Record Linkage), version 0.3 (\url{https://sourceforge.net/projects/febrl/}).
   The following data sources were used (all relate to Germany):
 
-  \url{http://blog.beliebte-vornamen.de/2009/02/prozentuale-anteile-2008/}, a
+  \url{https://blog.beliebte-vornamen.de/2009/02/prozentuale-anteile-2008/}, a
   list of the frequencies of the 20 most popular female names in 2008.
   
-  \url{http://www.beliebte-vornamen.de/760-alle_jahre.htm}, a list of the
+  \url{https://www.beliebte-vornamen.de/760-alle_jahre.htm}, a list of the
   100 most popular first names since 1890. The frequencies found in
   the source above were extrapolated to fit this list.
   
@@ -57,7 +57,7 @@ identity.RLdata10000
   Bundesamt Deutschland, taken from the GENESIS database
   (\url{https://www-genesis.destatis.de/genesis/online/logon}).  
   
-  Web links as of October 2009.
+  Web links as of August 2020.
 }
 \author{Andreas Borg, Murat Sariyar}
 
