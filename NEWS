@@ -2,6 +2,7 @@ Changes in version 0.4-12
   - adapted factor handling to the new R standard
   - switched from sweave to knitr for the vignettes
   - fixed some SQL statement issues in RSQLite
+  - fixed the Pointer Mismatch (const char * and const unsigned char *) in sqlite_extensions.c
   - removed the phonetic code function due to its encoding-dependent mapping tables
   - made the package independent from the now orphaned ffbase package
   

@@ -19,11 +19,11 @@ SQLITE_EXTENSION_INIT1
 #endif
 /* Prototypes of functions found in other source files */
 
-double jarowinkler_core(const char * str_1, const char * str_2,
+double jarowinkler_core(const unsigned char *str_1, const unsigned char *str_2,
              double W_1, double W_2, double W_t,
              double r);
 
-int levenshtein_internal(const char *s, const char *t,
+int levenshtein_internal(const unsigned char *s, const unsigned char *t,
                      int ins_c, int del_c, int sub_c);
 
 
@@ -71,7 +71,8 @@ void levenshtein_wrapper(sqlite3_context *ctx, int n_values, sqlite3_value **val
   editDistance = levenshtein_internal(str1, str2, 1, 1, 1);
   /* Only the string metric based on the edit distance is used in this
      package, therefore transform right here */
-  result = 1.0 - (double) editDistance / (double) max(strlen(str1), strlen(str2));
+  //static_cast<const unsigned char*>(str2)
+  result = 1.0 - (double) editDistance / (double) max(strlen((const char*)(str1)), strlen((const char*)(str2)));
 	#ifdef DEBUG
 		Rprintf("Ergebnis des Stringvergleichs: %f\n", result);
 	#endif
