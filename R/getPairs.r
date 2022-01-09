@@ -39,7 +39,7 @@ setMethod(
     p=data.frame(p,is_match=unlist(lapply(rpairs$pairs$is_match,function(x) c(x,"",""))))
     colnames(p)=c(colnames(data1),"is_match")
     p=edit(p)
-    is_match=p[seq(1,nrow(p)-2,3),"is_match"]
+    is_match=as.factor(p[seq(1,nrow(p)-2,3),"is_match"])
     is_match=as.integer(levels(is_match)[as.integer(is_match)])
     rpairs$pairs$is_match <- is_match
     return(rpairs)
@@ -74,10 +74,11 @@ setMethod(
     p=data.frame(p,is_match=unlist(lapply(as.ram(rpairs@pairs$is_match),function(x) c(x,"",""))))
     colnames(p)=c(colnames(data1),"is_match")
     p=edit(p)
-    is_match=p[seq(1,nrow(p)-2,3),"is_match"]
+    is_match=as.factor(p[seq(1,nrow(p)-2,3),"is_match"])
     is_match=as.integer(levels(is_match)[as.integer(is_match)])
-    rpairs@pairs$is_match <- ff(is_match)
+    rpairs$pairs$is_match <- is_match
     return(rpairs)
   }
 )
+
 

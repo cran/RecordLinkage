@@ -2,22 +2,28 @@ Changes in version 0.4-12
   - adapted factor handling to the new R standard
   - switched from sweave to knitr for the vignettes
   - fixed some SQL statement issues in RSQLite
-  - removed the phonetic code function due to its encoding-dependent mapping tables.
+  - removed the phonetic code function due to its encoding-dependent mapping tables
+  - made the package independent from the now orphaned ffbase package
+  
 Changes in version 0.4-11
   -added missing S3 method exports
   -fixed broken/non-canonical URLs
   -fixed some logical expressions to deal with non-scalar values
    (contributed by Kurt Hornik)
+   
 Changes in version 0.4-10
   -added SQLite header files to be compatible with upcoming RSQLite package, 
    which does not export them anymore
+   
 Changes in version 0.4-9
   -added import declarations to pass R 3.3.0 package checks
+  
 Changes in version 0.4-8
   -fixed import declaration for ffbase imports
   -translated source code omments
   -removed non-ASCII characters
   -added S3method-declarations in NAMESPACE
+  
 Changes in version 0.4-7
   -added unit tests (inst/unitTests) to .Rbuildignore
   -accelerated example for epiWeights and epiClassify
@@ -46,18 +52,18 @@ Changes in version 0.4-1
 
 Changes in version 0.4-0
 The classes for linkage of big data sets have been redesigned. The mechanism of creating comparison patterns on the fly from a database is replaced by saving all comparison patterns in a ffdf object (disk-based data frame, see package ff). This approach limits the amount of comparison patterns with respect to available disk space (the database approach was designed to handle even more patterns, at least in theory), but is more efficient regarding execution speed. In addition, some methods that were only usable with the S3 class RecLinkData, can now be used with RLBigData objects, most notably getMinimalTrain().
-
 For the structure of the redesigned classes, see the documention entries for classes "RLBigData", "RLBigDataDedup" and "RLBigDataLinkage".
-:wq
 
 Changes in version 0.3-5
 	-bug fixes:
 		-getExpectedSize failed in rare cases
+		
 Changes in version 0.3-4
 	-added summary method for RLResult objects
 	-bug fixes:
 		-summary.RecLinkResult failed for object without known
 		 matching status
+		 
 Changes in version 0.3-3
 	-added new classification method "bumping", see ?trainSupv
 	-bug fixes:
@@ -87,7 +93,6 @@ Changes in version 0.3-1
     for emClassify (with my / ny supplied) 
 
 Changes in version 0.3-0
-
 	- A framework of S4 methods and classes tailored for processing large
 	  data sets has been added. See the vignette 'BigData' for details.
   	- The output format of getPairs (existing method for RecLinkData and
@@ -96,24 +101,21 @@ Changes in version 0.3-0
 	  a blank line.
 
 Changes in version 0.2-6
-
 	- added subset operator [ for RecLinkData and RecLinkPairs objects
 	- improved running time of epiWeights significantly
 
 Changes in version 0.2-5
-
 	- Fixed a bug in getMinimalTrain which caused the function to fail
 
 Changes in version 0.2-4
-
 	- Fixed a bug in getMinimalTrain that caused pairs with unknown
 		matching status to become non-matches in the training set.
 	- Some examples were modified to reduce execution time.
 	- Unit tests have been added in inst/unitTests.
 	- Checking of arguments improved in some functions.
 	- Small documentation changes.
+	
 Changes in version 0.2-3
-
   - getParetoThreshold now prompts a message if no data lies in the
     interactively selected interval and asks the user to choose again
   - Corrected maintainer e-mail address

@@ -54,6 +54,6 @@ getPairs(result, min.weight=0.7, filter.link="link")
 getFalsePos(result)
 getFalseNeg(result)
 
-## ----echo=FALSE,results='hide'-------------------------------------------
+## ----echo=FALSE,results='hide'------------------------------------------------
 options(backup_options)
 
