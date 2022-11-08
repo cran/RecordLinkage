@@ -8,7 +8,7 @@
 /*         Model, in: Applied Statistics 33 Vol. 33 No. 3 (1984),             */
 /*         S. 358-362                                                         */
 /*																																						*/
-/*   Erweiterung um maximale Anzahl an Iterationen übernommen von:						*/
+/*   Erweiterung um maximale Anzahl an Iterationen uebernommen von:						*/
 /*	 David Duffy (2006). gllm: Generalised log-linear model. R package				*/
 /*   version 0.31.																														*/
 /*                                                                            */
@@ -40,7 +40,7 @@
 void mygllm (int * y, int * s, double * C, int * maxit, double * tol, double * E, 
           int * I, int * J, int * K)
 {
-  /* Zählvariablen */
+  /* Zaehlvariablen */
   unsigned int i;
   unsigned int j;
   
@@ -49,10 +49,10 @@ void mygllm (int * y, int * s, double * C, int * maxit, double * tol, double * E
   double * X = (double *) R_alloc(*I, sizeof(double));
   double * E_alt = (double *) R_alloc(*I, sizeof(double));
   
-  /* initialisiert geschätzte beobachtete Werte auf 0 */
+  /* initialisiert geschaetzte beobachtete Werte auf 0 */
  double * F= (double *) R_alloc(*J,sizeof(double));
 
-  /* Zwischenspeicher für F */
+  /* Zwischenspeicher fuer F */
  double * F_alt= (double *) R_alloc(*J,sizeof(double));
  for (j=0;j<*J;j++)
    F_alt[j]=0;
@@ -69,7 +69,7 @@ void mygllm (int * y, int * s, double * C, int * maxit, double * tol, double * E
     sum=0;
     for (j=0; j<*K; j++)
       sum+=C[i+j* *I];   // Indizierung: Zeile + Spalte * Zeilenanzahl
-    sums[i]=sum; // Jede Zeilensumme speichern, wird noch benötigt
+    sums[i]=sum; // Jede Zeilensumme speichern, wird noch benoetigt
     if (sum > max_sum)
       max_sum=sum;
   }
@@ -98,21 +98,21 @@ void mygllm (int * y, int * s, double * C, int * maxit, double * tol, double * E
   double * G = (double *) R_alloc(KK,sizeof(double));
   
   /* eigentlicher Algorithmus beginnt hier */
-  int it = 0;  // Zählt Anzahl der Iterationen
+  int it = 0;  // Zaehlt Anzahl der Iterationen
   while (it<*maxit)
   {
     /* allow interruption through CTRL-C */
     R_CheckUserInterrupt();
     it++;
     //Rprintf("Iteration %d\n", it);
-    /* Aufsummieren der geschätzten beobachtbaren Häufigkeiten in F */
+    /* Aufsummieren der geschaetzten beobachtbaren Haeufigkeiten in F */
     for (i=0; i<*J; i++) 
       F[i]=0.0;
     for (i=0; i<*I; i++)
       F[s[i]]+=E[i];
       
     
-    /* Konvergenzkriterium überprüfen */
+    /* Konvergenzkriterium ueberpruefen */
     
     int break_flag = 1;
     for (i=0; i<*J; i++)
@@ -158,7 +158,7 @@ void mygllm (int * y, int * s, double * C, int * maxit, double * tol, double * E
           if (G[k]!=0 && C[i+k * *I]!=0)
                 E[i]*=pow(Z[k]/G[k],C[i+k * *I]);
       }
-      /* Konvergenzkriterium überprüfen */
+      /* Konvergenzkriterium ueberpruefen */
       break_flag=0;
       for (i=0;i<*I;i++)
       {  

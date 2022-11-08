@@ -1,10 +1,11 @@
 Changes in version 0.4-12
-  - adapted factor handling to the new R standard
-  - switched from sweave to knitr for the vignettes
-  - fixed some SQL statement issues in RSQLite
-  - fixed the Pointer Mismatch (const char * and const unsigned char *) in sqlite_extensions.c
-  - removed the phonetic code function due to its encoding-dependent mapping tables
-  - made the package independent from the now orphaned ffbase package
+  -adapted factor handling to the new R standard
+  -switched from sweave to knitr for the vignettes
+  -fixed some SQL statement issues in RSQLite
+  -fixed the Pointer Mismatch (const char *, const unsigned char *) in sqlite_extensions.c
+  -removed the phonetic code function due to its encoding-dependent mapping tables
+  -made the package independent from the now orphaned ffbase package
+  -Replace class(x)==y statementy by is(x,y) statements
   
 Changes in version 0.4-11
   -added missing S3 method exports
@@ -46,14 +47,13 @@ Changes in version 0.4-3
   -avoid warning in countpattern
   
 Changes in version 0.4-2
-	-changed the way keys for data tables are set in order to be compatible to data.table 1.7.8
+	-changed the way keys are set for data tables for compatibility with data.table 1.7.8
 
 Changes in version 0.4-1
 	-Removed printf statements from compiled code to prevent NOTE in R CMD check
 
 Changes in version 0.4-0
-The classes for linkage of big data sets have been redesigned. The mechanism of creating comparison patterns on the fly from a database is replaced by saving all comparison patterns in a ffdf object (disk-based data frame, see package ff). This approach limits the amount of comparison patterns with respect to available disk space (the database approach was designed to handle even more patterns, at least in theory), but is more efficient regarding execution speed. In addition, some methods that were only usable with the S3 class RecLinkData, can now be used with RLBigData objects, most notably getMinimalTrain().
-For the structure of the redesigned classes, see the documention entries for classes "RLBigData", "RLBigDataDedup" and "RLBigDataLinkage".
+  -The classes for linkage of big data sets have been redesigned. The mechanism of creating comparison patterns on the fly from a database is replaced by saving all comparison patterns in a ffdf object (disk-based data frame, see package ff). This approach limits the amount of comparison patterns with respect to available disk space (the database approach was designed to handle even more patterns, at least in theory), but is more efficient regarding execution speed. In addition, some methods that were only usable with the S3 class RecLinkData, can now be used with RLBigData objects, most notably getMinimalTrain(). For the structure of the redesigned classes, see the documention entries for classes "RLBigData", "RLBigDataDedup" and "RLBigDataLinkage".
 
 Changes in version 0.3-5
 	-bug fixes:

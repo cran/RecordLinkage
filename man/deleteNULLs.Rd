@@ -21,9 +21,7 @@ deleteNULLs(x)
   \url{https://stat.ethz.ch/pipermail/r-help/2006-August/111896.html}}
 
 
-\note{This function is internally used for simple lists and vectors. 
-  The behaviour for nested lists and vectors embedded in lists is not 
-  thoroughly tested.
+\note{This function is internally used for simple lists and vectors. The behaviour for nested lists and vectors embedded in lists is not thoroughly tested.
 }
 
 \keyword{misc}

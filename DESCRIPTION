@@ -1,5 +1,5 @@
 Package: RecordLinkage
-Version: 0.4-12.3
+Version: 0.4-12.4
 Title: Record Linkage Functions for Linking and Deduplicating Data Sets
 Authors@R: c(person(given = "Murat",
            family = "Sariyar",
@@ -29,9 +29,9 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
 NeedsCompilation: yes
-Packaged: 2022-01-09 18:57:11 UTC; sym3
+Packaged: 2022-11-08 13:25:36 UTC; sym3
 Author: Murat Sariyar [aut, cre],
   Andreas Borg [aut]
 Maintainer: Murat Sariyar <murat.sariyar@bfh.ch>
 Repository: CRAN
-Date/Publication: 2022-01-09 22:42:49 UTC
+Date/Publication: 2022-11-08 14:10:15 UTC

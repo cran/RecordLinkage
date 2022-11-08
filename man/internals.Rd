@@ -90,7 +90,7 @@
   \item{withExcluded}{Logical. Whether to output names of excluded columns}
   \item{W,M,U}{Linkage weights, m- and u-probabilities. See \code{\link{emWeights}}
     for details.}
-  \item{W,M,U}{Error bounds. See \code{\link{emClassify}} for details.}
+  \item{my,ny}{Error bounds. See \code{\link{emClassify}} for details.}
   \item{\dots}{Optional arguments.}
   \item{matching}{If TRUE an additional vector is returned which stores which
           row belongs to which pattern.}

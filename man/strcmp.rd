@@ -24,23 +24,16 @@ levenshteinDist(str1, str2)
 }
 
 \details{
-  String metrics compute a similarity value in the range \eqn{[0,1]} for two
-  strings, with 1 denoting the highest (usually equality) and 0 denoting the
-  lowest degree of similarity. In the context of Record Linkage, string
-  similarities can improve the discernibility between matches and non-matches.
+String metrics compute a similarity value in the range \eqn{[0,1]} for two strings, with 1 denoting the highest (usually equality) and 0 denoting the lowest degree of similarity. In the context of Record Linkage, string similarities can improve the discernibility between matches and non-matches.
   
-  \code{jarowinkler} is an implementation of the algorithm by Jaro and Winkler
-  (see references). For the meaning of \code{W_1}, \code{W_2}, \code{W_3} and
-  \code{r} see the referenced article. For most applications, the default
-  values are reasonable.
+\code{jarowinkler} is an implementation of the algorithm by Jaro and Winkler (see references). For the meaning of \code{W_1}, \code{W_2}, \code{W_3} and \code{r} see the referenced article. For most applications, the default values are reasonable.
 
-  \code{levenshteinDist} returns the Levenshtein
-  distance, which cannot be directly used as a valid string comparator.
-  \code{levenshteinSim} is a similarity function based on
-  the Levenshtein distance, calculated by
+\code{levenshteinDist} returns the Levenshtein distance, which cannot be directly used as a valid string comparator.
+
+\code{levenshteinSim} is a similarity function based on the Levenshtein distance, calculated by
   \eqn{1-\frac{\mathrm{d}(\mathit{str}_{1},\mathit{str}_{2})}{\max(A,B))}}{
   1 - d(str1,str2) / max(A,B)}, where \eqn{\mathrm{d}}{d} is the Levenshtein distance
-  function and \eqn{A} and \eqn{B} are the lenghts of the strings.
+  function and \eqn{A} and \eqn{B} are the lengths of the strings.
 
   Arguments \code{str1} and \code{str2} are expected to be of type 
   \code{"character"}.
@@ -57,9 +50,7 @@ levenshteinDist(str1, str2)
   integer vector.
 }
 
-\note{String comparison is case-sensitive, which means that for example
-\code{"R"} and \code{"r"} have a similarity of 0. If this behaviour is undesired,
-strings should be normalized before processing.}
+\note{String comparison is case-sensitive, which means that for example \code{"R"} and \code{"r"} have a similarity of 0. If this behaviour is undesired, strings should be normalized before processing.}
 
 \references{Winkler, W.E.: String Comparator Metrics and Enhanced Decision
 Rules in the Fellegi-Sunter Model of Record Linkage. In: Proceedings

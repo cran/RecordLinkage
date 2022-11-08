@@ -32,17 +32,9 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   \item{strcmp}{Determines usage of a string metric. Used in the same manner
                 as \code{phonetic}}
   \item{strcmpfun}{User-defined function for string metric. See details.}
-  \item{exclude}{Columns to be excluded. A numeric or character vector specifying
-                  the columns
-                  which should be excluded from comparision}
-  \item{identity, identity1, identity2}{Optional numerical vectors for identifying matches and
-              non-matches. In a deduplication process, two records \code{dataset[i,]}
-               and \code{dataset[j,]} are a true match if and only if 
-              \code{identity[i,]==identity[j,]}. In a linkage process, two 
-              records \code{dataset1[i,]} and \code{dataset2[j,]} are a true 
-              match if and only if \cr \code{identity1[i,]==identity2[j,]}.}
-  \item{n_match, n_non_match}{Number of desired matches and non-matches in
-      the result.}
+  \item{exclude}{Columns to be excluded. A numeric or character vector specifying the columns which should be excluded from comparison}
+  \item{identity, identity1, identity2}{Optional numerical vectors for identifying matches and non-matches. In a deduplication process, two records \code{dataset[i,]} and \code{dataset[j,]} are a true match if and only if           \code{identity[i,]==identity[j,]}. In a linkage process, two records \code{dataset1[i,]} and \code{dataset2[j,]} are a true match if and only if \cr \code{identity1[i,]==identity2[j,]}.}
+\item{n_match, n_non_match}{Number of desired matches and non-matches in the result.}
 }
 
 \value{An object of class \code{RecLinkPairs} with the following components:
@@ -79,35 +71,19 @@ compare.linkage (dataset1, dataset2, blockfld = FALSE,
   
   As an alternative to blocking, a determined number of \code{n_match} matches 
   and \code{n_non_match} non-matches can be drawn if \code{identity} or
-  \code{identity1} and \code{identity2} are supplied. This is relevant for
-  generating training sets for the supervised classificators (see 
-  \code{\link{trainSupv}}).
+  \code{identity1} and \code{identity2} are supplied. This is relevant for generating training sets for the supervised classificators (see \code{\link{trainSupv}}).
   
-  Fields can be excluded from the linkage process by supplying their column
-  index in the vector \code{exclude}, which is espacially useful for
-  external identifiers. Excluded fields can still be used for
-  blocking, also with phonetic code.
+Fields can be excluded from the linkage process by supplying their column index in the vector \code{exclude}, which is especially useful for external identifiers. Excluded fields can still be used for blocking, also with phonetic code.
   
-  Phonetic codes and string similarity measures are supported for enhanced 
-  detection of misspellings. Applying a phonetic code leads to a binary
-  values, where 1 denotes equality of the generated phonetic code.
-  A string comparator leads to a similarity value in the range \eqn{[0,1]}.
+Phonetic codes and string similarity measures are supported for enhanced detection of misspellings. Applying a phonetic code leads to a binary values, where 1 denotes equality of the generated phonetic code. A string comparator leads to a similarity value in the range \eqn{[0,1]}.
   
-  String comparison is not allowed on a field for which a phonetic code
-  is generated. For phonetic encoding functions included in the package, 
-  see \link{phonetics}. For the included string comparators, see 
-  \code{\link{jarowinkler}} and \code{\link{levenshteinSim}}.
-  Please note that phonetic code and string 
-  metrics can slow down the generation of comparison patterns significantly.
+String comparison is not allowed on a field for which a phonetic code is generated. For phonetic encoding functions included in the package,  see \link{phonetics}. For the included string comparators, see \code{\link{jarowinkler}} and \code{\link{levenshteinSim}}.
+
+Please note that phonetic code and string metrics can slow down the generation of comparison patterns significantly.
   
-  User-defined functions for phonetic code and string comparison can be supplied
-  via the arguments \code{phonfun} and \code{strcmpfun}. \code{phonfun} is 
-  expected to have a single character argument (the string to be transformed) and must
-  return a character value with the encoded string. 
-  \code{strcmpfun} must have as arguments the two strings to be compared and
-  return a similarity value in the range \eqn{[0,1]}, with 0 denoting the lowest 
-  and 1 denoting the highest degree of similarity. Both
-  functions must be fully vectorized to work on matrices.
+User-defined functions for phonetic code and string comparison can be supplied  via the arguments \code{phonfun} and \code{strcmpfun}. \code{phonfun} is expected to have a single character argument (the string to be transformed) and must return a character value with the encoded string. 
+
+\code{strcmpfun} must have as arguments the two strings to be compared and return a similarity value in the range \eqn{[0,1]}, with 0 denoting the lowest and 1 denoting the highest degree of similarity. Both functions must be fully vectorized to work on matrices.
 
 }
 

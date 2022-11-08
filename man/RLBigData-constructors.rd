@@ -32,29 +32,18 @@ RLBigDataLinkage(dataset1, dataset2, identity1 = NA, identity2 = NA,
               records \code{dataset1[i,]} and \code{dataset2[j,]} are a true 
               match if and only if \code{identity1[i,]==identity2[j,]}.}
 
-  \item{blockfld}{Blocking field definition. A numeric or character
-                  vector or a list of several such vectors,
-                  corresponding to column numbers or names. 
-                  See details and examples.}
+\item{blockfld}{Blocking field definition. A numeric or character vector or a list of several such vectors, corresponding to column numbers or names. See details and examples.}
 
-  \item{exclude}{Columns to be excluded. A numeric or character vector
-                  corresponding to columns of dataset or dataset1 and dataset2
-                  which should be excluded from comparision}
+\item{exclude}{Columns to be excluded. A numeric or character vector corresponding to columns of dataset or dataset1 and dataset2 which should be excluded from comparison}
 
-  \item{strcmp}{Determines usage of string comparison. If \code{FALSE}, no
-                  string comparison will be used; if \code{TRUE}, string comparison
-                  will be used for all columns; if a numeric or character vector 
-                  is given, the string comparison will be used for the specified columns.}
+\item{strcmp}{Determines usage of string comparison. If \code{FALSE}, no string comparison will be used; if \code{TRUE}, string comparison will be used for all columns; if a numeric or character vector is given, the string comparison will be used for the specified columns.}
 
-  \item{strcmpfun}{Character string representing the string comparison function.
-                Possible values are \code{"jarowinkler"} and \code{"levenshtein"}.
-  }
-  
-  \item{phonetic}{Determines usage of phonetic code. Used in the same manner as
-                  \code{strcmp}}.
+\item{strcmpfun}{Character string representing the string comparison function. Possible values are \code{"jarowinkler"} and \code{"levenshtein"}.
+}
+ 
+\item{phonetic}{Determines usage of phonetic code. Used in the same manner as \code{strcmp}}.
 
-  \item{phonfun}{Character string representing the phonetic function. Currently,
-                only \code{"soundex"} is supported (see \code{\link{soundex}}).
+\item{phonfun}{Character string representing the phonetic function. Currently, only \code{"soundex"} is supported (see \code{\link{soundex}}).
   }
 }
 \details{

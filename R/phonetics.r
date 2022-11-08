@@ -3,9 +3,9 @@
 soundex <- function(str)
 {
   # check type
-  if (typeof(str) != "character" && class(str) != "factor")
+  if (typeof(str) != "character" && !is(str, "factor"))
      stop(sprintf("Illegal data type: %s", typeof(str)))
-  if (class(str) == "factor")
+  if (is(str, "factor"))
     str=as.character(str)
    out <- .C(".soundex_sym", as.character(str), ans=character(length(str)),length(str),
              PACKAGE="RecordLinkage")

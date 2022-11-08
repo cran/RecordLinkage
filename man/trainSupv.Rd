@@ -51,9 +51,7 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
   allows three-class-classification (links, non-links and possible links), but
   the results tend to be poor.
   
-  Leaving \code{include.data=FALSE} saves memory, setting it to \code{TRUE}
-  can be useful for saving the classificator while keeping track of the
-  underlying training data.
+  Leaving \code{include.data=FALSE} saves memory, setting it to \code{TRUE} can be useful for saving the classificator while keeping track of the underlying training data.
   
   \acronym{Bumping}, (acronym for \dQuote{Bootstrap umbrella of model
   parameters}), is an ensemble method described by \cite{Tibshirani and Knight,

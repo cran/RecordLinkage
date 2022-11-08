@@ -114,13 +114,13 @@ setMethod(
   definition = function(object)
   {
     # shortcut to database connection
-    if (class(object)=="RLBigDataDedup")
+    if (is(object, "RLBigDataDedup"))
     {
       cat("\nDeduplication Data Set for large number of data\n\n")
       cat(sprintf("%d records",nrow(object@data)),"\n")
     }
 
-    if (class(object)=="RLBigDataLinkage")
+    if (is(object, "RLBigDataLinkage"))
     {
       cat("\nLinkage Data Set for large number of data\n\n")
       cat(sprintf("%d records in first data set",nrow(object@data1)),"\n")

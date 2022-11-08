@@ -26,8 +26,7 @@ soundex(str)
 }
 
 
-\references{ Written based on a description of the algorithm by Michael Gilleland
- found at \url{http://www.merriampark.com/ld.htm}
+\references{see also \url{https://www.codedrome.com/the-soundex-algorithm-in-c/}
 }
 \author{Andreas Borg (R interface only)}
 

@@ -58,17 +58,12 @@
 
   The \code{"RecLinkData"} method is a shortcut for \code{\link{emClassify}}.
 
-  The \code{"RLBigData"} method checks if weights are
-  present in the underlying database. If this is the case, classification
-  is based on the existing weights. If not, weights are calculated on the fly
-  during classification, but not stored. The latter behaviour might be preferable
-  when a very large dataset is to be classified and disk space is limited.
-  A progress bar is displayed only if
-  weights are calculated on the fly and, by default, unless output is diverted by
-  \code{\link{sink}} (e.g. in a Sweave script).
+The \code{"RLBigData"} method checks if weights are present in the underlying database. If this is the case, classification
+is based on the existing weights. If not, weights are calculated on the fly during classification, but not stored. The latter behaviour might be preferable when a very large dataset is to be classified and disk space is limited.
+A progress bar is displayed only if weights are calculated on the fly and, by default, unless output is diverted by
+ \code{\link{sink}} (e.g. in a Sweave script).
   
-  For a general introduction to weight based record linkage, see the vignette
-  "Weight-based deduplication".
+For a general introduction to weight based record linkage, see the vignette "Weight-based deduplication".
 }
 
 \value{
