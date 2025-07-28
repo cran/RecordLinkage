@@ -53,7 +53,7 @@ identity.RLdata10000
   \url{http://www.ahnenforschung-in-stormarn.de/geneal/nachnamen_100.htm}, a list of the
   100 most frequent family names with frequencies.
 
-Age distribution as of Dec 31st, 2008, statistics of Statistisches Bundesamt Deutschland, taken from the GENESIS database (\url{https://www-genesis.destatis.de/genesis/online/logon}).  
+Age distribution as of Dec 31st, 2008, statistics of Statistisches Bundesamt Deutschland, taken from the GENESIS database.  
 
 Web links as of August 2020.
 }

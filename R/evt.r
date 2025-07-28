@@ -31,57 +31,87 @@ gpdEst <- function(Wdata, thresh=-Inf, quantil=0.95)
     return (x_quantil)
 } 
 
-
-
-
-# More efficient implementation of MRL function for weight data.
-# Computation is done only for input weights and W-epsilon for every weight
-# (where W is a weight unless the lowest one, epsilon is a small number
-# (.Machine$double.eps). The graph is linear between these points
+# ------------------------------------------------------------------------------
+# .computeMRL
 #
-# Args:
-#   W: sorted vector of weights
-if(getRversion() >= "2.15.1")  utils::globalVariables(".N")
-.computeMRL <- function(W)
-{
-  # convert weights so that a data.table key can be set on them
-  Wtable <- data.table(W=factor(W))
+# Internal function to compute the Mean Residual Life (MRL) curve from a vector
+# of weights W. This function is optimized for performance using data.table,
+# and avoids expensive nested loops by using cumulative sums.
+# Many thanks to Vincent Dorie for this contribution
+#
+# The MRL curve provides the expected excess above a threshold for each 
+# distinct value in W, and is useful in fields such as extreme value theory 
+# and reliability analysis.
+#
+# The function returns a list with:
+#   - x: positions at which the MRL is evaluated (including shifted epsilon)
+#   - y: corresponding mean residual life values
+#
+# This version assumes W is numeric and may contain repeated values. It groups
+# identical weights, computes their frequencies, and builds a histogram for 
+# efficient MRL calculation.
+#
+# Note: This function is not exported and intended for internal use only.
+# ------------------------------------------------------------------------------
 
-  # This sets W as a key through the backdoor. setkey() does not work here
-  # (data.table version 1.6.6) because it reorders the levels alphabetical
-  # (numerical order matters here)
-  attr(Wtable, "sorted") <- "W"
-
-  # count occurences of every weight
-  histogram <- Wtable[,.N,by=W]
-  histogram$W <- as.numeric(levels(histogram$W)[histogram$W])
-
-  nVal <- nrow(histogram) # number of distinct weights
-  mrlX <- mrlVal <- numeric(2 * nrow(histogram) - 1) # holds x and y values of MRL function
-
-  # compute MRL at values of weights (uneven positions in the result)
-  for (i in 1:(nVal - 1))
-  {
-    thisW <- histogram[i, W]
-    # calculate weighted distance to weights greater than the current one
-    mrlVal[2 * i - 1] <- sum(histogram[(i+1):nVal, .N * (W - thisW)]) / sum(histogram[(i+1):nVal, .N])
-    mrlX[2 * i - 1] <- thisW
-  }
-
-  # compute MRL at values of weights minus epsilon (even positions in the result)
-  epsilon <- sqrt(.Machine$double.eps)
-  for (i in 2:nVal) # do not calculate anything before the first weight
-  {
-    thisW <- histogram[i, W]
-    # calculate weighted distance to weights greater than the current one
-    mrlVal[2 * (i - 1)] <- sum(histogram[i:nVal, .N * (W - thisW + epsilon)]) / sum(histogram[i:nVal, .N])
-    mrlX[2 * (i - 1)] <- thisW - epsilon
-  }
-  # complete vector of x-values with highest weight
-  mrlX[length(mrlX)] <- histogram[nVal,W]
-
-  list(x=mrlX, y=mrlVal)
+# Suppress R CMD check notes for data.table column names used with NSE
+if (getRversion() >= "2.15.1") {
+  utils::globalVariables(c("W", "N", "Wcum", "Ncum", "NWcum"))
 }
+
+.computeMRL <- function(W) {
+  # Convert W into a factor to control sorting order explicitly
+  Wtable <- data.table(W = factor(W))
+  
+  # Force W to be treated as sorted by data.table, without reordering levels
+  attr(Wtable, "sorted") <- "W"
+  
+  # Create a histogram: count how often each weight appears
+  histogram <- Wtable[, .N, by = W]
+  
+  # Convert factor levels back to numeric values for further computation
+  histogram[, W := as.numeric(levels(W)[W])]
+  
+  # Ensure histogram is sorted by weight values in increasing order
+  setorder(histogram, W)
+  
+  # Number of distinct weight values
+  nVal <- nrow(histogram)
+  
+  # Preallocate result vectors (length = 2*nVal - 1 due to interpolation step)
+  mrlX <- mrlVal <- numeric(2 * nVal - 1)
+  
+  # Compute cumulative sums from highest weight downward:
+  # - Ncum: cumulative number of values ≥ threshold
+  # - NWcum: cumulative weighted sum of values ≥ threshold
+  histogram[, `:=`(
+    Ncum = rev(cumsum(rev(N))),
+    NWcum = rev(cumsum(rev(N * W)))
+  )]
+  
+  # Compute MRL at each W value (odd positions in result vectors)
+  i <- seq_len(nVal - 1L)
+  mrlVal[2L * i - 1L] <- (
+    histogram[i + 1L, NWcum] - histogram[i + 1L, Ncum] * histogram[i, W]
+  ) / histogram[i + 1L, Ncum]
+  mrlX[2L * i - 1L] <- histogram[i, W]
+  
+  # Compute MRL just before each W value (even positions), using small epsilon shift
+  epsilon <- sqrt(.Machine$double.eps)
+  i <- seq.int(2L, nVal)
+  thisW <- histogram[i, W] + epsilon  # shifting right to approximate left-side value
+  mrlVal[2L * (i - 1L)] <- (
+    histogram[i, NWcum] - histogram[i, Ncum] * thisW
+  ) / histogram[i, Ncum]
+  mrlX[2L * (i - 1L)] <- histogram[i, W] - epsilon
+  
+  # Set final x-position to the maximum weight (no excess beyond this)
+  mrlX[length(mrlX)] <- histogram[nVal, W]
+  
+  # Return x and y vectors representing the MRL function
+  list(x = mrlX, y = mrlVal)
+}
+
 
 # MRL plot
 plotMRL <- function(rpairs,l = .computeMRL(sort(as.ram((rpairs$Wdata)))))

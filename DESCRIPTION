@@ -1,5 +1,5 @@
 Package: RecordLinkage
-Version: 0.4-12.4
+Version: 0.4-12.5
 Title: Record Linkage Functions for Linking and Deduplicating Data Sets
 Authors@R: c(person(given = "Murat",
            family = "Sariyar",
@@ -21,7 +21,7 @@ VignetteBuilder: knitr
 Depends: R (>= 3.5.0), DBI, RSQLite(>= 1.0.0), ff
 Imports: e1071, rpart, ada, ipred, stats, evd, methods, data.table (>=
         1.7.8), nnet, xtable
-Suggests: RUnit, knitr
+Suggests: knitr
 Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         accessor-methods.r evt.r classify.r classifySupv-methods.r
         genSamples.r strcmp.r compare.r getPairs.r summary.r
@@ -29,9 +29,9 @@ Collate: register-S3-classes.r RLBigData-classes.r RLResult-class.r
         phonetics.r onAttach.r getPairs-methods.r serialization.r
         tools.r stochastic.r
 NeedsCompilation: yes
-Packaged: 2022-11-08 13:25:36 UTC; sym3
+Packaged: 2025-07-28 19:43:31 UTC; sym3
 Author: Murat Sariyar [aut, cre],
   Andreas Borg [aut]
 Maintainer: Murat Sariyar <murat.sariyar@bfh.ch>
 Repository: CRAN
-Date/Publication: 2022-11-08 14:10:15 UTC
+Date/Publication: 2025-07-28 20:10:10 UTC

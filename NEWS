@@ -6,6 +6,8 @@ Changes in version 0.4-12
   -removed the phonetic code function due to its encoding-dependent mapping tables
   -made the package independent from the now orphaned ffbase package
   -Replace class(x)==y statementy by is(x,y) statements
+  -anchored some links to external packages in the manual
+  -made the internal .computeMRL function more efficient and fixed a bug thanks to Vincent Dorie
   
 Changes in version 0.4-11
   -added missing S3 method exports

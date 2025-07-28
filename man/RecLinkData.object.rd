@@ -51,7 +51,7 @@
     \item{\code{W}:}{Object of class \code{"numeric"}
       Vector of log-likelihood weights as calculated by \code{\link{emWeights}},
       corresponding to binary comparison patterns as created by
-      \code{\link{bincombinations}}.
+      \code{\link[e1071]{bincombinations}}.
     }
     \item{\code{Wdata}:}{Object of class \code{"numeric"}
       Vector of log-likelihood weights as calculated by \code{\link{emWeights}},
