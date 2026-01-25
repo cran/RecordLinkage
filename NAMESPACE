@@ -13,7 +13,7 @@ S3method(`[`, RLResult)
 S3method(`[`, RecLinkData)
 S3method(`[`, RecLinkResult)
 
-import(e1071, rpart, ada, ipred, stats, DBI, RSQLite, evd, methods, data.table, ff, nnet, xtable)
+import(e1071, rpart, ipred, stats, DBI, RSQLite, evd, methods, data.table, ff, nnet, xtable)
 importFrom("grDevices", "extendrange")
 importFrom("graphics", "abline", "box", "hist", "identify", "plot",
              "points")

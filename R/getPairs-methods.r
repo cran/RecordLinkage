@@ -310,7 +310,7 @@ setMethod(
       close(pgb)
     }
     # sort descending by weight if desired
-    if (sort) pairIds <- pairIds[order(object@Wdata[pairIds], decreasing = TRUE)]
+    if (sort && length(pairIds) > 0) pairIds <- pairIds[order(object@Wdata[pairIds], decreasing = TRUE)]
 
     if (is(object, "RLBigDataDedup"))
     {
@@ -446,7 +446,7 @@ setMethod(
       close(pgb)
     }
     # sort descending by weight if desired
-    if (sort) pairIds <- pairIds[order(object@data@Wdata[pairIds], decreasing = TRUE)]
+    if (sort && length(pairIds) > 0) pairIds <- pairIds[order(object@data@Wdata[pairIds], decreasing = TRUE)]
 
     if (is(object@data, "RLBigDataDedup"))
     {
@@ -591,7 +591,7 @@ setMethod(
                     Weight=weights[ind])
 
 
-  	if (isTRUE(sort))
+  	if (isTRUE(sort) && nrow(pairs) > 0)
   	{
       	o=order(pairs$Weight,decreasing=TRUE)
       	pairs=pairs[o,]

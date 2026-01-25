@@ -1,41 +1,41 @@
-## ----echo=FALSE,results='hide'----------------------------
-knitr::opts_chunk$set(message =FALSE, warnings = FALSE)
-options(width=60)
+## ----setup, echo=FALSE, message=FALSE, warning=FALSE------
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+options(width = 60)
 backup_options <- options()
 
-## ----echo=FALSE, results='hide'---------------------------
+## ----load-library, echo=FALSE, results='hide'-------------
 library(RecordLinkage)
 
-## ---------------------------------------------------------
+## ----load-data--------------------------------------------
 data(RLdata500)
 RLdata500[1:5,]
 
-## ---------------------------------------------------------
-pairs=compare.dedup(RLdata500,identity=identity.RLdata500,
-      blockfld=list(c(5,6),c(6,7),c(5,7)))
+## ----compare-dedup----------------------------------------
+pairs <- compare.dedup(RLdata500, identity = identity.RLdata500,
+                       blockfld = list(c(5,6), c(6,7), c(5,7)))
 summary(pairs)
 
-## ---------------------------------------------------------
-pairs=emWeights(pairs)
-hist(pairs$Wdata, plot=FALSE)
+## ----em-weights-------------------------------------------
+pairs <- emWeights(pairs)
+hist(pairs$Wdata, plot = FALSE)
 
-## ----results='hide'---------------------------------------
-getPairs(pairs,30,20)
+## ----get-pairs-hidden, results='hide'---------------------
+getPairs(pairs, 30, 20)
 
-## ----echo=FALSE-------------------------------------------
-getPairs(pairs,30,20)[23:36,]
+## ----get-pairs-shown, echo=FALSE--------------------------
+getPairs(pairs, 30, 20)[23:36,]
 
-## ---------------------------------------------------------
-pairs=emClassify(pairs, threshold.upper=24, threshold.lower=-7)
+## ----em-classify------------------------------------------
+pairs <- emClassify(pairs, threshold.upper = 24, threshold.lower = -7)
 summary(pairs)
 
-## ---------------------------------------------------------
-possibles <- getPairs(pairs, show="possible")
+## ----final-pairs------------------------------------------
+possibles <- getPairs(pairs, show = "possible")
 possibles[1:6,]
-links=getPairs(pairs,show="links", single.rows=TRUE)
+links <- getPairs(pairs, show = "links", single.rows = TRUE)
 link_ids <- links[, c("id1", "id2")]
 link_ids
 
-## ----echo=FALSE,results='hide'----------------------------
+## ----cleanup, echo=FALSE, results='hide'------------------
 options(backup_options)
 

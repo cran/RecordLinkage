@@ -1,0 +1,103 @@
+---
+title: "Classes for record linkage of big data sets"
+author: "Andreas Borg, Murat Sariyar"
+output: 
+  html_document:
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Classes for record linkage of big data sets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup, echo=FALSE, results='hide'}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+backup_options <- options()
+options(width = 60)
+```
+
+As of version 0.3, the package RecordLinkage includes extensions to overcome the problem of high memory consumption that arises when processing a large number of records (i.e. building record pairs out of ≥1000 records without blocking). In versions 0.3_x, this was achieved by blockwise on-demand creation of comparison patterns in an embedded SQLite database (through package *RSQLite*). Package version 0.4 replaces this mechanism by using file-based data structures from package *ff*. This approach restricts the amount of data pairs to the available disk space but speeds up execution and facilitates the implementation of methods that need to process the whole set of record pairs (e.g. calculation of optimal classification thresholds).
+
+The interface to the big data methods has is compatible to code written for version 0.3_x, so users familiar with these can stick to their existing workflow (unless access to internal structures like object slots is involved). Therefore, the following text sticks to the vignette already included in versions before 0.4 and only technical details are changed to reflect the different implementation.
+
+In order to facilitate a tidier design, S4 classes and methods were used to implement the extensions. In favor of backward compatibility and development time, plans of a complete transition to S4 were dismissed. Nevertheless, the existing functions were joined with their new counterparts, resulting in methods which dispatch on the new S4 as well as on the existing S3 classes. This approach combines two advantages: First, existing code using the package still works, second, the new classes and methods offer (nearly) the same interface, i.e. the necessary function calls for a linkage task differ only slightly. An exception is `getPairs`, whose arguments differ from the existing version (see man page).
+
+## Defining data and comparison parameters
+
+The existing S3 class `"RecLinkData"` is supplemented by the S4 classes `"RLBigDataLinkage"` and `"RLBigDataDedup"` for linking two datasets and deduplication of one dataset respectively. Both share the common abstract superclass `"RLBigData"`.
+```{r show-classes, message=FALSE, warning=FALSE}
+library(RecordLinkage)
+showClass("RLBigData")
+showClass("RLBigDataDedup")
+showClass("RLBigDataLinkage")
+```
+
+For the two non-virtual classes, the constructor-like function `RLBigDataDedup` and `RLBigDataLinkage` exist, which correspond to `compare.dedup` and `compare.linkage` for the S3 classes and share most of their arguments.
+
+The following example shows the basic usage of the constructors, for details consult their documentation.
+```{r constructors, message=FALSE, warning=FALSE}
+# deduplicate with two blocking iterations and string comparison
+data(RLdata500)
+data(RLdata10000)
+rpairs1 <- RLBigDataDedup(RLdata500, 
+                          identity = identity.RLdata500, 
+                          blockfld = list(1, 3), strcmp = 1:4)
+
+# link two datasets with phonetic code
+s1 <- 471:500
+s2 <- sample(1:10000, 300)
+identity2 <- c(identity.RLdata500[s1], rep(NaN, length(s2)))
+dataset <- rbind(RLdata500[s1, ], RLdata10000[s2, ])
+rpairs2 <- RLBigDataLinkage(RLdata500, dataset, 
+                            identity1 = identity.RLdata500,
+                            identity2 = identity2, phonetic = 1:4, 
+                            exclude = "lname_c2")
+```
+
+## Supervised classification
+
+The existing function `classifySupv` was transformed to a S4 method which handles the old S3 object (`"RecLinkData"`) as well as the new classes. However, at the moment a classificator can only be trained with an object of class `"RecLinkData"`.
+```{r supervised, message=FALSE, warning=FALSE}
+train <- getMinimalTrain(compare.dedup(RLdata500, 
+                                       identity = identity.RLdata500,
+                                       blockfld = list(1, 3)))
+rpairs1 <- RLBigDataDedup(RLdata500, 
+                          identity = identity.RLdata500)
+classif <- trainSupv(train, "rpart", minsplit = 2)
+result <- classifySupv(classif, rpairs1)
+```
+
+The result is an object of class `"RLResult"` which contains the classification result along with the data object.
+```{r show-result-class, message=FALSE, warning=FALSE}
+showClass("RLResult")
+summary(result)
+```
+
+Various error measures are calculated by `getErrorMeasures`.
+```{r evaluation}
+getErrorMeasures(result)
+```
+
+## Weight-based classification
+
+As with `"RecLinkData"` objects, weight-based classification with `"RLBigData*"` classes includes weight calculation and classification based on one or two thresholds, dividing links, non-links and, if desired, possible links. The following example applies classification with Epilink (see documentation of `epiWeights` for details):
+```{r weight-based}
+rpairs1 <- epiWeights(rpairs1)
+result <- epiClassify(rpairs1, 0.5)
+getTable(result)
+```
+
+## Evaluation and results
+
+In addition to `getTable` and `getErrorMeasures`, `getPairs`, which was redesigned as a versatile S4 method, is an important tool to inspect data and linkage results. For example, the following code extracts all links with weights greater or equal than 0.7 from the result set obtained in the last example:
+```{r get-pairs}
+getPairs(result, min.weight = 0.7, filter.link = "link")
+```
+
+A frequent use case is to inspect misclassified record pairs; for this purpose two shortcuts are included that call `getPairs` with appropriate arguments:
+```{r misclassified}
+getFalsePos(result)
+getFalseNeg(result)
+```
+```{r cleanup, echo=FALSE, results='hide'}
+options(backup_options)
+```

@@ -36,7 +36,6 @@ trainSupv(rpairs, method, use.pred = FALSE, omit.possible = TRUE,
   \describe{
     \item{\code{"svm"}}{Support vector machine, see \code{\link[e1071]{svm}}.}
     \item{\code{"rpart"}}{Recursive partitioning tree, see \code{\link[rpart]{rpart}}.}
-    \item{\code{"ada"}}{Stochastic boosting model, see \code{\link[ada]{ada}}.}
     \item{\code{"bagging"}}{Bagging with classification trees, see \code{\link[ipred]{bagging}}.}
     \item{\code{"nnet"}}{Single-hidden-layer neural network, see \code{\link[nnet]{nnet}}.}
     \item{\code{"bumping"}}{A bootstrap based method using classification trees, see details.}

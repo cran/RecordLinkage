@@ -1,0 +1,68 @@
+---
+title: "Example Session for Supervised Classification"
+author: "Andreas Borg, Murat Sariyar"
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{Supervised Classification}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+options(width = 60)
+backup_options <- options()
+```
+
+This document shows an example session for using supervised classification in the package *RecordLinkage* for deduplication of a single data set. Conducting linkage of two data sets differs only in the step of generating record pairs. See also the vignette on Fellegi-Sunter deduplication for some general information on using the package.
+
+## Generating comparison patterns
+```{r load-library, results='hide', echo=FALSE}
+library(RecordLinkage)
+```
+
+In this session, a training set with 50 matches and 250 non-matches is generated from the included data set `RLData10000`. Record pairs from the set `RLData500` are used to calibrate and subsequently evaluate the classifiers.
+```{r generate-pairs}
+data(RLdata500)
+data(RLdata10000)
+train_pairs <- compare.dedup(RLdata10000, identity = identity.RLdata10000,
+                             n_match = 500, n_non_match = 500)
+eval_pairs <- compare.dedup(RLdata500, identity = identity.RLdata500)
+```
+
+## Training
+
+`trainSupv` handles calibration of supervised classificators which are selected through the argument `method`. In the following, a single decision tree (rpart), a bootstrap aggregation of decision trees (bagging) and a support vector machine are calibrated (svm).
+```{r training}
+model_rpart <- trainSupv(train_pairs, method = "rpart")
+model_bagging <- trainSupv(train_pairs, method = "bagging")
+model_svm <- trainSupv(train_pairs, method = "svm")
+```
+
+## Classification
+
+`classifySupv` handles classification for all supervised classificators, taking as arguments the structure returned by `trainSupv` which contains the classification model and the set of record pairs which to classify.
+```{r classification}
+result_rpart <- classifySupv(model_rpart, eval_pairs)
+result_bagging <- classifySupv(model_bagging, eval_pairs)
+result_svm <- classifySupv(model_svm, eval_pairs)
+```
+
+## Results
+
+### Rpart
+```{r results-rpart, echo=FALSE}
+summary(result_rpart)
+```
+
+### Bagging
+```{r results-bagging, echo=FALSE}
+summary(result_bagging)
+```
+
+### SVM
+```{r results-svm, echo=FALSE}
+summary(result_svm)
+```
+```{r cleanup, echo=FALSE, results='hide'}
+options(backup_options)
+```

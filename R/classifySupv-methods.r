@@ -29,7 +29,7 @@ setMethod(
       predict=switch(model$method,
     		svm=predict(model$model, newdata=x,...),       
   	 	 rpart=predict(model$model, newdata=x,type="class",...),       
-  		  ada=predict(model$model, newdata=x,type="vector",...),       
+#  		  ada=predict(model$model, newdata=x,type="vector",...),       
   		  bagging=predict(model$model, newdata=x,type="class",...),
   		  nnet=predict(model$model, newdata=x,type="class",...),
         stop("Illegal classification method!"))
@@ -49,7 +49,7 @@ setMethod(
     prediction=switch(model$method,
   		svm=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, ...),
 	 	 rpart=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="class",...),
-		  ada=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="vector",...),
+#		  ada=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="vector",...),
 		  bagging=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="class",...),
 		  nnet=.ffpredict(model$model, newdata=newdata@pairs, withProgressBar, convert.na, type="class",...),
       stop("Illegal classification method!"))

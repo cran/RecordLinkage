@@ -158,7 +158,7 @@ summary.RLBigDataDedup <- function(object, ...)  {
 
     if (hasWeights(object))
     {
-  		h=hist(as.ram(object@Wdata), plot=FALSE)
+  		h <- suppressWarnings(hist(as.ram(object@Wdata), plot=FALSE))
   		c=h$counts
   		# nehme Gewichtsintervalle als Indizes, um Histogrammansicht zu erhalten
       names(c)=sapply(1:(length(h$breaks)-1),
@@ -209,7 +209,7 @@ summary.RLBigDataLinkage <- function(object, ...)  {
     val$nUnknown <- getNACount(object)
     if (hasWeights(object))
     {
-  		h=hist(as.ram(object@Wdata), plot=FALSE)
+  		h <- suppressWarnings(hist(as.ram(object@Wdata), plot=FALSE))
   		c=h$counts
   		# nehme Gewichtsintervalle als Indizes, um Histogrammansicht zu erhalten
       names(c)=sapply(1:(length(h$breaks)-1),

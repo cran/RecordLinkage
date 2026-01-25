@@ -46,7 +46,7 @@ trainSupv <- function(rpairs,method,use.pred=FALSE,omit.possible=TRUE,
 	model=switch(as.character(method[1]),
 		svm=svm(is_match ~ .,data=pairs,type="C-classification",...),
 		rpart=rpart(is_match ~ .,data=pairs,method="class",...),
-		ada=ada(is_match ~ .,data=pairs,...),
+#		ada=ada(is_match ~ .,data=pairs,...),
 		bagging=bagging(is_match ~ .,data=pairs,method="class",...),
 		nnet=nnet(is_match ~ .,data=pairs,size=ncol(pairs)*2, ...),
 		stop("Illegal method"))
